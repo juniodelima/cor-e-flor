@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — COR & FLOR</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --rose:#D4679A; --rose-deep:#9B3068; --rose-soft:#F4C9D8;
+      --cream:#FDF8F5; --ink:#1C1414; --warm-gray:#4A4040;
+      --serif:'Playfair Display',serif; --sans:'Raleway',sans-serif;
+      --ease:cubic-bezier(0.25,0.46,0.45,0.94);
+    }
+    body {
+      font-family: var(--sans);
+      background: var(--cream);
+      min-height: 100svh;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; position: relative;
+    }
+    body::before {
+      content:''; position:absolute; width:700px; height:700px;
+      background: radial-gradient(circle, rgba(212,103,154,.14) 0%, transparent 70%);
+      top:-250px; right:-200px; pointer-events:none;
+    }
+    body::after {
+      content:''; position:absolute; width:500px; height:500px;
+      background: radial-gradient(circle, rgba(155,48,104,.09) 0%, transparent 70%);
+      bottom:-150px; left:-150px; pointer-events:none;
+    }
+    /* Petals background */
+    .bg-petal {
+      position:absolute; pointer-events:none; opacity:.07;
+      animation: floatPetal 18s ease-in-out infinite;
+    }
+    .bg-petal:nth-child(1){ width:140px; top:8%; left:5%; animation-duration:16s; }
+    .bg-petal:nth-child(2){ width:100px; top:65%; left:3%; animation-duration:22s; animation-delay:-4s; }
+    .bg-petal:nth-child(3){ width:120px; top:20%; right:4%; animation-duration:20s; animation-delay:-8s; }
+    .bg-petal:nth-child(4){ width:80px; bottom:10%; right:8%; animation-duration:14s; animation-delay:-2s; }
+    @keyframes floatPetal {
+      0%,100%{ transform: translate(0,0) rotate(0deg); }
+      33%    { transform: translate(20px,-18px) rotate(20deg); }
+      66%    { transform: translate(-14px,22px) rotate(-15deg); }
+    }
+
+    .login-card {
+      background: #fff;
+      border-radius: 24px;
+      padding: 56px 52px;
+      width: 100%; max-width: 440px;
+      box-shadow: 0 40px 100px -24px rgba(28,20,20,.2), 0 0 0 1px rgba(212,103,154,.1);
+      position: relative; z-index: 1;
+      animation: cardIn .75s var(--ease) forwards;
+    }
+    @keyframes cardIn {
+      from { opacity:0; transform: translateY(28px) scale(.97); }
+      to   { opacity:1; transform: translateY(0)    scale(1);   }
+    }
+
+    .login-logo {
+      display:flex; flex-direction:column; align-items:center;
+      margin-bottom: 36px; text-align:center; gap: 10px;
+    }
+    .login-logo svg { width:62px; height:62px; color:var(--rose); }
+    .login-logo__title {
+      font-family:var(--serif); font-size:26px; font-weight:600;
+      letter-spacing:2.5px; color:var(--ink);
+    }
+    .login-logo__title em { color:var(--rose-deep); font-style:italic; }
+    .login-logo__badge {
+      display:inline-block; font-size:10px; letter-spacing:3.5px;
+      text-transform:uppercase; color:var(--rose); font-weight:500;
+      background: rgba(212,103,154,.08); padding:5px 14px;
+      border-radius:999px; border:1px solid rgba(212,103,154,.2);
+    }
+    .login-rule { width:48px; height:1px; background:var(--rose-soft); margin:0 auto 32px; }
+
+    .form-group { margin-bottom:20px; }
+    .form-label {
+      display:block; font-size:11px; letter-spacing:2.4px;
+      text-transform:uppercase; color:var(--warm-gray); font-weight:500;
+      margin-bottom:8px;
+    }
+    .form-input {
+      width:100%; padding:14px 18px;
+      border:1.5px solid rgba(212,103,154,.22);
+      border-radius:12px; font-family:var(--sans); font-size:14px;
+      color:var(--ink); background:var(--cream); outline:none;
+      transition: border-color .3s var(--ease), box-shadow .3s var(--ease);
+    }
+    .form-input:focus {
+      border-color:var(--rose);
+      box-shadow: 0 0 0 4px rgba(212,103,154,.1);
+    }
+    .form-input::placeholder { color:rgba(74,64,64,.4); }
+
+    .login-btn {
+      width:100%; padding:15px; margin-top:8px;
+      background:var(--rose); color:#fff; border:none; border-radius:12px;
+      font-family:var(--sans); font-size:12px; font-weight:600;
+      letter-spacing:2.8px; text-transform:uppercase; cursor:pointer;
+      transition: background .3s var(--ease), transform .15s;
+      display:flex; align-items:center; justify-content:center; gap:8px;
+    }
+    .login-btn:hover  { background:var(--rose-deep); }
+    .login-btn:active { transform:scale(.98); }
+
+    .login-error {
+      display:none; margin-top:14px; padding:11px 16px;
+      background:rgba(239,68,68,.07); border:1px solid rgba(239,68,68,.18);
+      color:#dc2626; border-radius:10px; font-size:13px; text-align:center;
+    }
+    .login-error.show { display:block; }
+
+    .login-foot {
+      margin-top:28px; text-align:center;
+      font-size:12px; color:rgba(74,64,64,.5);
+    }
+    .login-foot a { color:var(--rose-deep); text-decoration:none; }
+    .login-foot a:hover { text-decoration:underline; }
+
+    .login-note {
+      margin-top: 18px; text-align:center;
+      font-size:11px; color:rgba(74,64,64,.4);
+      background:rgba(212,103,154,.04); padding:8px 14px;
+      border-radius:8px; border:1px solid rgba(212,103,154,.1);
+    }
+
+    @media(max-width:480px){
+      .login-card { padding:40px 26px; margin:16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Background petals -->
+<svg class="bg-petal" viewBox="-50 -50 100 100" style="color:#D4679A"><g fill="currentColor"><path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(0)"/><path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(45)"/><path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(90)"/><path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(135)"/><path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(180)"/><path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(225)"/><path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(270)"/><path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(315)"/></g><circle cx="0" cy="0" r="4.5" fill="#FDF8F5"/><circle cx="0" cy="0" r="2.2" fill="currentColor"/></svg>
+<svg class="bg-petal" viewBox="-50 -50 100 100" style="color:#9B3068"><g fill="currentColor"><path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(0)"/><path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(60)"/><path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(120)"/><path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(180)"/><path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(240)"/><path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(300)"/></g></svg>
+<svg class="bg-petal" viewBox="-50 -50 100 100" style="color:#D4679A"><g fill="currentColor"><path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(0)"/><path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(90)"/><path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(180)"/><path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(270)"/></g></svg>
+<svg class="bg-petal" viewBox="-50 -50 100 100" style="color:#C4956A"><g fill="currentColor"><path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(0)"/><path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(45)"/><path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(90)"/><path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(135)"/><path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(180)"/><path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(225)"/></g></svg>
+
+<div class="login-card">
+  <div class="login-logo">
+    <svg viewBox="-50 -50 100 100" aria-hidden="true">
+      <g fill="currentColor">
+        <path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(0)"/>
+        <path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(45)"/>
+        <path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(90)"/>
+        <path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(135)"/>
+        <path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(180)"/>
+        <path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(225)"/>
+        <path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(270)"/>
+        <path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(315)"/>
+      </g>
+      <circle cx="0" cy="0" r="4.5" fill="#FDF8F5"/>
+      <circle cx="0" cy="0" r="2.2" fill="currentColor"/>
+    </svg>
+    <div class="login-logo__title">COR <em>&amp;</em> FLOR</div>
+    <div class="login-logo__badge">✦ Painel Administrativo</div>
+  </div>
+
+  <div class="login-rule"></div>
+
+  <form id="login-form" novalidate>
+    <div class="form-group">
+      <label class="form-label" for="username">Usuário</label>
+      <input type="text" id="username" class="form-input" placeholder="Informe o usuário" autocomplete="username">
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="password">Senha</label>
+      <input type="password" id="password" class="form-input" placeholder="Informe a senha" autocomplete="current-password">
+    </div>
+    <button type="submit" class="login-btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v18h-6M10 17l5-5-5-5M15 12H3"/></svg>
+      Entrar no Painel
+    </button>
+    <div class="login-error" id="login-error">Preencha usuário e senha para continuar.</div>
+  </form>
+
+  <div class="login-note">
+    ✦ Acesso temporário aberto — qualquer usuário e senha são aceitos.<br>Configure após conectar o banco de dados.
+  </div>
+
+  <div class="login-foot">
+    <a href="index.html">← Voltar para a loja</a>
+  </div>
+</div>
+
+<script>
+  // Redireciona se já logado
+  if (sessionStorage.getItem('cf_admin_logged') === 'true') {
+    window.location.href = 'admin.html';
+  }
+
+  document.getElementById('login-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const user = document.getElementById('username').value.trim();
+    const pass = document.getElementById('password').value.trim();
+
+    if (user && pass) {
+      sessionStorage.setItem('cf_admin_logged', 'true');
+      sessionStorage.setItem('cf_admin_user', user);
+      const btn = this.querySelector('button');
+      btn.textContent = 'Entrando...';
+      btn.disabled = true;
+      setTimeout(() => { window.location.href = 'admin.html'; }, 600);
+    } else {
+      document.getElementById('login-error').classList.add('show');
+    }
+  });
+
+  document.querySelectorAll('.form-input').forEach(el =>
+    el.addEventListener('input', () =>
+      document.getElementById('login-error').classList.remove('show')
+    )
+  );
+</script>
+</body>
+</html>

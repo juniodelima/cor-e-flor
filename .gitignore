@@ -1,0 +1,25 @@
+# Sistema operacional
+.DS_Store
+Thumbs.db
+desktop.ini
+.thumbnail
+
+# Editor
+.vscode/
+.idea/
+*.suo
+*.user
+
+# Dependências (caso use npm futuramente)
+node_modules/
+.env
+.env.local
+.env*.local
+
+# Build
+dist/
+build/
+
+# Logs
+*.log
+npm-debug.log*

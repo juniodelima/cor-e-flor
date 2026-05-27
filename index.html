@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>COR &amp; FLOR — Moda feminina premium</title>
+<meta name="description" content="COR & FLOR — moda feminina premium. Peças que celebram quem você é, com a delicadeza que você merece." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Raleway:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- ===== PAGE LOAD VEIL ===== -->
+<div id="page-veil" aria-hidden="true">
+  <div class="veil__inner">
+    <svg class="veil__logo" viewBox="0 0 200 90" aria-hidden="true">
+      <use href="#cf-logo-full"/>
+    </svg>
+  </div>
+</div>
+
+<!-- ===== REUSABLE SVG SYMBOLS ===== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <!-- Floral mark — spiral of 8 curved petals -->
+    <symbol id="cf-flor" viewBox="-50 -50 100 100">
+      <g class="flor">
+        <!-- 8 petals rotating around center, each curved like a comma -->
+        <g fill="currentColor">
+          <!-- petal template, then repeated rotated -->
+          <path d="M 0,-4
+                   C -10,-6 -20,-18 -16,-32
+                   C -10,-44 4,-44 6,-32
+                   C 8,-22 6,-12 0,-4 Z" transform="rotate(0)"/>
+          <path d="M 0,-4
+                   C -10,-6 -20,-18 -16,-32
+                   C -10,-44 4,-44 6,-32
+                   C 8,-22 6,-12 0,-4 Z" transform="rotate(45)"/>
+          <path d="M 0,-4
+                   C -10,-6 -20,-18 -16,-32
+                   C -10,-44 4,-44 6,-32
+                   C 8,-22 6,-12 0,-4 Z" transform="rotate(90)"/>
+          <path d="M 0,-4
+                   C -10,-6 -20,-18 -16,-32
+                   C -10,-44 4,-44 6,-32
+                   C 8,-22 6,-12 0,-4 Z" transform="rotate(135)"/>
+          <path d="M 0,-4
+                   C -10,-6 -20,-18 -16,-32
+                   C -10,-44 4,-44 6,-32
+                   C 8,-22 6,-12 0,-4 Z" transform="rotate(180)"/>
+          <path d="M 0,-4
+                   C -10,-6 -20,-18 -16,-32
+                   C -10,-44 4,-44 6,-32
+                   C 8,-22 6,-12 0,-4 Z" transform="rotate(225)"/>
+          <path d="M 0,-4
+                   C -10,-6 -20,-18 -16,-32
+                   C -10,-44 4,-44 6,-32
+                   C 8,-22 6,-12 0,-4 Z" transform="rotate(270)"/>
+          <path d="M 0,-4
+                   C -10,-6 -20,-18 -16,-32
+                   C -10,-44 4,-44 6,-32
+                   C 8,-22 6,-12 0,-4 Z" transform="rotate(315)"/>
+        </g>
+        <!-- White core circle to suggest the spiral "eye" of the original mark -->
+        <circle cx="0" cy="0" r="4.5" fill="#FDF8F5"/>
+        <circle cx="0" cy="0" r="2.2" fill="currentColor"/>
+      </g>
+    </symbol>
+
+    <!-- Single petal (used for floating decorations) -->
+    <symbol id="cf-petal" viewBox="-25 -45 50 50">
+      <path d="M 0,-4
+               C -10,-6 -20,-18 -16,-32
+               C -10,-44 4,-44 6,-32
+               C 8,-22 6,-12 0,-4 Z" fill="currentColor"/>
+    </symbol>
+
+    <!-- Full logo (mark + wordmark) -->
+    <symbol id="cf-logo-full" viewBox="0 0 200 90">
+      <g transform="translate(100,28)">
+        <g transform="scale(0.42)" style="color:#D4679A">
+          <use href="#cf-flor"/>
+        </g>
+      </g>
+      <text x="100" y="68" text-anchor="middle"
+            font-family="'Playfair Display', serif" font-weight="600" font-size="22"
+            letter-spacing="2" fill="#1C1414">COR <tspan fill="#9B3068" font-style="italic">&amp;</tspan> FLOR</text>
+      <!-- brush stroke under wordmark -->
+      <path d="M 50,80 C 80,76 130,84 150,78" stroke="#F4C9D8" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.85"/>
+    </symbol>
+
+    <!-- Tiny icons -->
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+    <symbol id="i-heart-fill" viewBox="0 0 24 24"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10Z" fill="currentColor"/></symbol>
+    <symbol id="i-bag" viewBox="0 0 24 24"><path d="M6 8h12l-1 12H7L6 8Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M9 8V6a3 3 0 0 1 6 0v2" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 8h16M4 16h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-5-6 6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+
+    <!-- Diferenciais icons -->
+    <symbol id="i-soul" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="24" r="3"/><path d="M24 10c4 4 4 8 0 14M24 38c-4-4-4-8 0-14M10 24c4-4 8-4 14 0M38 24c-4 4-8 4-14 0"/></g></symbol>
+    <symbol id="i-truck" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14h22v18H4zM26 20h11l5 6v6H26z"/><circle cx="13" cy="36" r="3"/><circle cx="33" cy="36" r="3"/></g></symbol>
+    <symbol id="i-return" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M10 24a14 14 0 1 0 4.2-10"/><path d="M14 6v9h9"/></g></symbol>
+    <symbol id="i-card" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="12" width="36" height="24" rx="2"/><path d="M6 20h36M12 30h6"/></g></symbol>
+
+    <!-- Socials -->
+    <symbol id="s-ig" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3.5" y="3.5" width="17" height="17" rx="4.5"/><circle cx="12" cy="12" r="4"/><circle cx="17" cy="7" r="1" fill="currentColor" stroke="none"/></g></symbol>
+    <symbol id="s-pin" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="12" cy="12" r="9"/><path d="M11 7a3.5 3.5 0 0 1 4 3.5c0 2-1.5 3.5-3 3.5-1 0-1.5-.5-1.5-1.5L9 21"/></g></symbol>
+    <symbol id="s-tt" viewBox="0 0 24 24"><path d="M15 3v9.5a3.5 3.5 0 1 1-3.5-3.5h.5V12h-.5a1.5 1.5 0 1 0 1.5 1.5V3h2c.2 2 1.8 3.5 4 3.7v2C17.5 8.6 16 7.9 15 6.7Z" fill="currentColor"/></symbol>
+    <symbol id="s-wa" viewBox="0 0 24 24"><path d="M3.5 20.5 5 16a8 8 0 1 1 3 3l-4.5 1.5Zm6.3-5.8c.3.6 1.1 1.4 2 1.7s1.5.2 2-.2c.4-.3.6-.7.6-1l-.3-.4-1.7-.8c-.2 0-.4 0-.5.2l-.4.5c-.2.2-.4.2-.6.1-.7-.3-1.4-.9-1.9-1.7-.1-.2 0-.4.1-.5l.4-.4c.2-.2.2-.3.1-.5L8.9 9.5c-.1-.3-.3-.3-.5-.3-.6 0-1.2.3-1.4.7-.4.6-.4 1.4 0 2.4.4.8 1 1.7 1.8 2.4Z" fill="currentColor"/></symbol>
+  </defs>
+</svg>
+
+
+<!-- ===== CUSTOM CURSOR ===== -->
+<div id="cursor" aria-hidden="true">
+  <span class="cursor__dot"></span>
+  <span class="cursor__flower">✿</span>
+</div>
+
+
+<!-- ===== NAVBAR ===== -->
+<header id="nav" class="nav">
+  <div class="nav__inner">
+    <button class="nav__burger" id="burger" aria-label="Abrir menu">
+      <svg width="24" height="24"><use href="#i-menu"/></svg>
+    </button>
+
+    <a class="logo" href="#top" aria-label="COR & FLOR — página inicial">
+      <svg class="logo__symbol" viewBox="-50 -50 100 100" aria-hidden="true">
+        <use href="#cf-flor"/>
+      </svg>
+      <span class="logo__text">COR <span class="logo__amp">&amp;</span> FLOR</span>
+    </a>
+
+    <nav class="nav__links" aria-label="Principal">
+      <a href="#categorias">Coleções</a>
+      <a href="#novidades">Novidades</a>
+      <a href="#lookbook">Lookbook</a>
+      <a href="#contato">Contato</a>
+    </nav>
+
+    <div class="nav__actions">
+      <button class="ic-btn" aria-label="Buscar"><svg width="20" height="20"><use href="#i-search"/></svg></button>
+      <button class="ic-btn" aria-label="Favoritos"><svg width="20" height="20"><use href="#i-heart"/></svg></button>
+      <button class="ic-btn ic-btn--cart" id="open-cart" aria-label="Carrinho">
+        <svg width="20" height="20"><use href="#i-bag"/></svg>
+        <span class="ic-btn__count" id="cart-count">3</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+
+<!-- ===== MOBILE MENU ===== -->
+<div class="mmenu" id="mmenu" aria-hidden="true">
+  <button class="mmenu__close" id="mmenu-close" aria-label="Fechar menu">
+    <svg width="22" height="22"><use href="#i-x"/></svg>
+  </button>
+  <div class="mmenu__logo">
+    <svg viewBox="-50 -50 100 100" width="48" height="48" style="color:#D4679A"><use href="#cf-flor"/></svg>
+  </div>
+  <nav class="mmenu__links">
+    <a href="#categorias">Coleções</a>
+    <a href="#novidades">Novidades</a>
+    <a href="#lookbook">Lookbook</a>
+    <a href="#contato">Contato</a>
+  </nav>
+  <div class="mmenu__foot">
+    <p class="mmenu__tag"><em>Cor</em> porque a vida pede. <em>Flor</em> porque você merece.</p>
+  </div>
+</div>
+
+
+<!-- ===== HERO ===== -->
+<main id="top">
+<section class="hero" data-screen-label="01 Home — Hero">
+  <div class="hero__bg" data-parallax="0.3">
+    <picture>
+      <source media="(max-width: 720px)" srcset="https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=900&q=80">
+      <img src="https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=1800&q=80" alt="" loading="eager" />
+    </picture>
+  </div>
+  <div class="hero__overlay"></div>
+
+  <!-- Floating petals -->
+  <div class="petals" aria-hidden="true">
+    <svg class="petal p1" viewBox="-25 -45 50 50" style="color:#D4679A"><use href="#cf-petal"/></svg>
+    <svg class="petal p2" viewBox="-25 -45 50 50" style="color:#F4C9D8"><use href="#cf-petal"/></svg>
+    <svg class="petal p3" viewBox="-25 -45 50 50" style="color:#D4679A"><use href="#cf-petal"/></svg>
+    <svg class="petal p4" viewBox="-25 -45 50 50" style="color:#C4956A"><use href="#cf-petal"/></svg>
+  </div>
+
+  <div class="hero__content">
+    <div class="hero__eyebrow"><span>✦</span> COLEÇÃO PRIMAVERA / 2026</div>
+    <h1 class="hero__title">
+      <span class="word">Floresça</span>
+      <span class="word">do</span>
+      <span class="word">seu</span>
+      <span class="word"><em>jeito.</em></span>
+    </h1>
+    <p class="hero__sub">Peças que celebram quem você é —<br>com a delicadeza que você merece.</p>
+    <div class="hero__cta">
+      <a class="btn btn--primary" href="#novidades">Explorar coleção</a>
+      <a class="btn btn--link" href="#categorias">Ver nova coleção <svg width="18" height="18"><use href="#i-arrow"/></svg></a>
+    </div>
+  </div>
+
+  <div class="hero__scroll" aria-hidden="true">
+    <span>role para descobrir</span>
+    <span class="hero__scroll-line"></span>
+  </div>
+</section>
+
+
+<!-- ===== CATEGORIAS ===== -->
+<section id="categorias" class="cats" data-screen-label="03 Categorias">
+  <header class="sec-head">
+    <span class="sec-eyebrow">✦ CATEGORIAS</span>
+    <h2 class="sec-title">Um jardim de <em>possibilidades.</em></h2>
+  </header>
+
+  <div class="cats__grid">
+    <a class="cat cat--big reveal" href="#" style="background-image:url('https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=1200&q=80')">
+      <div class="cat__veil"></div>
+      <div class="cat__info">
+        <span class="cat__label">Vestidos &amp; Saias</span>
+        <h3 class="cat__copy"><em>Para os momentos<br>que pedem memória.</em></h3>
+        <span class="cat__cta">Ver coleção <svg width="16" height="16"><use href="#i-arrow"/></svg></span>
+      </div>
+    </a>
+
+    <a class="cat reveal" href="#" style="background-image:url('https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=900&q=80')">
+      <div class="cat__veil"></div>
+      <div class="cat__info">
+        <span class="cat__label">Blusas &amp; Tops</span>
+        <h3 class="cat__copy"><em>Leveza que transforma o dia.</em></h3>
+        <span class="cat__cta">Ver coleção <svg width="16" height="16"><use href="#i-arrow"/></svg></span>
+      </div>
+    </a>
+
+    <a class="cat reveal" href="#" style="background-image:url('assets/p-look-azul.png')">
+      <div class="cat__veil"></div>
+      <div class="cat__info">
+        <span class="cat__label">Conjuntos</span>
+        <h3 class="cat__copy"><em>Combinações que falam por você.</em></h3>
+        <span class="cat__cta">Ver coleção <svg width="16" height="16"><use href="#i-arrow"/></svg></span>
+      </div>
+    </a>
+  </div>
+</section>
+
+
+<!-- ===== NOVIDADES ===== -->
+<section id="novidades" class="news" data-screen-label="04 Novidades">
+  <header class="sec-head news__head">
+    <div>
+      <span class="sec-eyebrow">✦ RECÉM CHEGADAS</span>
+      <h2 class="sec-title">Peças novas. <em>Histórias novas.</em></h2>
+      <p class="sec-sub">Selecionadas com cuidado para mulheres que sabem o que querem.</p>
+    </div>
+    <a class="btn btn--ghost news__all" href="#">Ver todas <svg width="16" height="16"><use href="#i-arrow"/></svg></a>
+  </header>
+
+  <div class="news__grid" id="news-grid">
+    <!-- products injected by JS -->
+  </div>
+</section>
+
+
+<!-- ===== LOOKBOOK BANNER ===== -->
+<section id="lookbook" class="lookbook reveal" data-screen-label="06 Lookbook">
+  <div class="lookbook__img" data-parallax="0.2">
+    <img src="https://images.unsplash.com/photo-1485968579580-b6d095142e6e?w=1800&q=80" alt="Campanha primavera" loading="lazy"/>
+  </div>
+  <div class="lookbook__veil"></div>
+  <div class="lookbook__content">
+    <span class="sec-eyebrow lookbook__eyebrow">COLEÇÃO PRIMAVERA</span>
+    <h2 class="lookbook__title"><em>Ela não segue tendências.<br>Ela as inspira.</em></h2>
+    <a class="btn btn--white" href="#">Ver lookbook <svg width="16" height="16"><use href="#i-arrow"/></svg></a>
+  </div>
+</section>
+
+
+<!-- ===== DIFERENCIAIS ===== -->
+<section class="perks" data-screen-label="07 Diferenciais">
+  <article class="perk reveal">
+    <svg class="perk__ic" viewBox="0 0 48 48" style="color:#D4679A"><use href="#i-soul"/></svg>
+    <h4>Peças com alma</h4>
+    <p>Cada item escolhido com intenção e cuidado real.</p>
+  </article>
+  <article class="perk reveal">
+    <svg class="perk__ic" viewBox="0 0 48 48" style="color:#D4679A"><use href="#i-truck"/></svg>
+    <h4>Entrega rápida</h4>
+    <p>Para seu novo favorito chegar logo.</p>
+  </article>
+  <article class="perk reveal">
+    <svg class="perk__ic" viewBox="0 0 48 48" style="color:#D4679A"><use href="#i-return"/></svg>
+    <h4>Troca fácil</h4>
+    <p>30 dias. Sem complicação.</p>
+  </article>
+  <article class="perk reveal">
+    <svg class="perk__ic" viewBox="0 0 48 48" style="color:#D4679A"><use href="#i-card"/></svg>
+    <h4>Parcele com carinho</h4>
+    <p>Até 10x sem juros.</p>
+  </article>
+</section>
+
+
+<!-- ===== DEPOIMENTOS ===== -->
+<section class="quotes" data-screen-label="08 Depoimentos">
+  <svg class="quotes__bg" viewBox="-50 -50 100 100" aria-hidden="true" style="color:#D4679A"><use href="#cf-flor"/></svg>
+  <header class="sec-head sec-head--center">
+    <span class="sec-eyebrow">✦ QUEM JÁ FLORESCEU COM A GENTE</span>
+    <h2 class="sec-title">Palavras que <em>nos fazem continuar.</em></h2>
+  </header>
+
+  <div class="quotes__stage" id="quotes-stage">
+    <figure class="quote is-active">
+      <div class="quote__stars" aria-label="5 estrelas">★★★★★</div>
+      <blockquote><em>“Recebi o vestido e me apaixonei. O tecido, o caimento — parece que foi feito pra mim.”</em></blockquote>
+      <figcaption>— Camila R., <span>São Paulo</span></figcaption>
+    </figure>
+    <figure class="quote">
+      <div class="quote__stars" aria-label="5 estrelas">★★★★★</div>
+      <blockquote><em>“Atendimento incrível e peças lindíssimas. Já fiz três pedidos e não me arrependo de nenhum.”</em></blockquote>
+      <figcaption>— Juliana M., <span>Belo Horizonte</span></figcaption>
+    </figure>
+    <figure class="quote">
+      <div class="quote__stars" aria-label="5 estrelas">★★★★★</div>
+      <blockquote><em>“A qualidade é muito acima do esperado. Vale cada centavo e ainda vem embalado com muito carinho.”</em></blockquote>
+      <figcaption>— Patrícia S., <span>Brasília</span></figcaption>
+    </figure>
+  </div>
+
+  <div class="quotes__dots" id="quotes-dots">
+    <button class="dot is-active" aria-label="Depoimento 1"></button>
+    <button class="dot" aria-label="Depoimento 2"></button>
+    <button class="dot" aria-label="Depoimento 3"></button>
+  </div>
+</section>
+
+
+<!-- ===== NEWSLETTER ===== -->
+<section id="contato" class="news-letter" data-screen-label="09 Newsletter">
+  <svg class="news-letter__mark" viewBox="-50 -50 100 100" aria-hidden="true" style="color:#fff"><use href="#cf-flor"/></svg>
+  <div class="news-letter__inner reveal">
+    <span class="sec-eyebrow news-letter__eyebrow">✦ NOSSO JARDIM</span>
+    <h2 class="news-letter__title"><em>Entre para o nosso jardim.</em></h2>
+    <p class="news-letter__sub">Receba novidades, lançamentos exclusivos e ofertas especiais antes de todo mundo.</p>
+    <form class="news-letter__form" onsubmit="event.preventDefault(); this.querySelector('button').textContent='Bem-vinda ✿'; this.querySelector('input').value='';">
+      <input type="email" required placeholder="seu@email.com" aria-label="Seu e-mail"/>
+      <button type="submit">Quero entrar</button>
+    </form>
+    <p class="news-letter__fine">Prometemos apenas flores na sua caixa. Sem spam.</p>
+  </div>
+</section>
+
+</main>
+
+<!-- ===== FOOTER ===== -->
+<footer class="foot">
+  <div class="foot__top">
+    <a class="logo logo--foot" href="#top" aria-label="COR & FLOR">
+      <svg class="logo__symbol" viewBox="-50 -50 100 100" aria-hidden="true"><use href="#cf-flor"/></svg>
+      <span class="logo__text">COR <span class="logo__amp">&amp;</span> FLOR</span>
+    </a>
+    <p class="foot__tag"><em>Cor porque a vida pede. Flor porque você merece.</em></p>
+  </div>
+
+  <div class="foot__cols">
+    <div class="foot__col">
+      <h5>Institucional</h5>
+      <a href="#">Nossa história</a>
+      <a href="#">Sustentabilidade</a>
+      <a href="#">Trabalhe conosco</a>
+      <a href="#">Imprensa</a>
+    </div>
+    <div class="foot__col">
+      <h5>Atendimento</h5>
+      <a href="#">Central de ajuda</a>
+      <a href="#">Trocas &amp; devoluções</a>
+      <a href="#">Formas de pagamento</a>
+      <a href="#">Política de privacidade</a>
+    </div>
+    <div class="foot__col">
+      <h5>Categorias</h5>
+      <a href="#">Vestidos &amp; Saias</a>
+      <a href="#">Blusas &amp; Tops</a>
+      <a href="#">Conjuntos</a>
+      <a href="#">Calças</a>
+      <a href="#">Lookbook</a>
+    </div>
+    <div class="foot__col">
+      <h5>Encontre-nos</h5>
+      <div class="foot__social">
+        <a href="#" aria-label="Instagram"><svg width="20" height="20"><use href="#s-ig"/></svg></a>
+        <a href="#" aria-label="Pinterest"><svg width="20" height="20"><use href="#s-pin"/></svg></a>
+        <a href="#" aria-label="TikTok"><svg width="20" height="20"><use href="#s-tt"/></svg></a>
+        <a href="#" aria-label="WhatsApp"><svg width="20" height="20"><use href="#s-wa"/></svg></a>
+      </div>
+      <p class="foot__small">atelier@coreflor.com.br<br>(11) 9 0000-0000</p>
+    </div>
+  </div>
+
+  <div class="foot__bar">
+    <span>© 2026 Cor &amp; Flor — Todos os direitos reservados.</span>
+    <span>Feito com ✿ em São Paulo</span>
+  </div>
+</footer>
+
+
+<!-- ===== CART SLIDE-OVER ===== -->
+<div class="cart-veil" id="cart-veil" aria-hidden="true"></div>
+<aside class="cart" id="cart" aria-hidden="true" aria-label="Carrinho">
+  <header class="cart__head">
+    <h3 class="cart__title">Meu carrinho <span id="cart-head-count">(3)</span></h3>
+    <button class="ic-btn" id="close-cart" aria-label="Fechar carrinho"><svg width="22" height="22"><use href="#i-x"/></svg></button>
+  </header>
+
+  <div class="cart__banner">
+    <span>✿</span> Falta <strong>R$ 0,00</strong> para frete grátis!
+  </div>
+
+  <ul class="cart__list" id="cart-list">
+    <!-- injected -->
+  </ul>
+
+  <div class="cart__discount">
+    <input type="text" placeholder="Cupom de desconto" />
+    <button>Aplicar</button>
+  </div>
+
+  <dl class="cart__totals">
+    <div><dt>Subtotal</dt><dd id="cart-subtotal">R$ 0,00</dd></div>
+    <div><dt>Frete</dt><dd>Grátis</dd></div>
+    <div class="cart__totals-final"><dt>Total</dt><dd id="cart-total">R$ 0,00</dd></div>
+  </dl>
+
+  <button class="btn btn--primary cart__cta">Finalizar compra</button>
+  <button class="btn btn--link cart__continue" id="cart-continue">Continuar comprando</button>
+</aside>
+
+
+<!-- ===== TOAST ===== -->
+<div id="toast" class="toast" aria-live="polite"></div>
+
+<script src="script.js"></script>
+</body>
+</html>

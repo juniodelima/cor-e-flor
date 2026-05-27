@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel Admin — COR & FLOR</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="admin-style.css">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════ SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar__logo">
+    <svg class="sidebar__flor" viewBox="-50 -50 100 100" aria-hidden="true">
+      <g fill="currentColor"><path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(0)"/><path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(45)"/><path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(90)"/><path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(135)"/><path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(180)"/><path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(225)"/><path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(270)"/><path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(315)"/></g>
+      <circle cx="0" cy="0" r="4.5" fill="#1E1212"/><circle cx="0" cy="0" r="2.2" fill="currentColor"/>
+    </svg>
+    <div>
+      <div class="sidebar__brand">COR &amp; FLOR</div>
+      <div class="sidebar__role">Administrador</div>
+    </div>
+  </div>
+
+  <div class="sidebar__sep"></div>
+
+  <nav class="sidebar__nav" aria-label="Menu admin">
+    <a class="snav" data-sec="dashboard" href="#" onclick="goTo('dashboard');return false;">
+      <i class="bi bi-speedometer2"></i><span>Painel</span>
+    </a>
+    <a class="snav" data-sec="orders" href="#" onclick="goTo('orders');return false;">
+      <i class="bi bi-bag-heart"></i><span>Pedidos Online</span>
+      <span class="snav__badge" id="badge-orders">0</span>
+    </a>
+    <a class="snav" data-sec="products" href="#" onclick="goTo('products');return false;">
+      <i class="bi bi-grid-1x2"></i><span>Produtos</span>
+    </a>
+    <a class="snav" data-sec="physical" href="#" onclick="goTo('physical');return false;">
+      <i class="bi bi-shop"></i><span>Venda Física</span>
+    </a>
+    <a class="snav" data-sec="metrics" href="#" onclick="goTo('metrics');return false;">
+      <i class="bi bi-bar-chart-line"></i><span>Métricas</span>
+    </a>
+    <a class="snav" data-sec="customers" href="#" onclick="goTo('customers');return false;">
+      <i class="bi bi-people"></i><span>Clientes</span>
+    </a>
+    <a class="snav" data-sec="inventory" href="#" onclick="goTo('inventory');return false;">
+      <i class="bi bi-boxes"></i><span>Estoque</span>
+    </a>
+
+    <div class="snav-group-label">Configurações</div>
+    <a class="snav" data-sec="settings" href="#" onclick="goTo('settings');return false;">
+      <i class="bi bi-gear"></i><span>Configurações</span>
+    </a>
+  </nav>
+
+  <div class="sidebar__footer">
+    <a href="index.html" class="snav snav--sub" target="_blank">
+      <i class="bi bi-box-arrow-up-right"></i><span>Ver loja</span>
+    </a>
+    <button class="snav snav--logout" id="btn-logout">
+      <i class="bi bi-box-arrow-left"></i><span>Sair</span>
+    </button>
+  </div>
+</aside>
+
+<!-- ═══════════════════════════════════════════ MAIN WRAPPER -->
+<div class="admin-wrap" id="admin-wrap">
+
+  <!-- HEADER -->
+  <header class="admin-header">
+    <button class="admin-header__burger" id="btn-burger" aria-label="Menu">
+      <i class="bi bi-list"></i>
+    </button>
+    <div class="admin-header__breadcrumb">
+      <span id="breadcrumb-title">Painel</span>
+    </div>
+    <div class="admin-header__actions">
+      <button class="admin-header__notif" id="btn-notif" aria-label="Notificações">
+        <i class="bi bi-bell"></i>
+        <span class="notif-dot" id="notif-dot" style="display:none"></span>
+      </button>
+      <div class="admin-header__user" id="header-user">
+        <div class="admin-header__avatar" id="header-avatar">A</div>
+        <span id="header-name">Admin</span>
+        <i class="bi bi-chevron-down" style="font-size:11px;opacity:.6"></i>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENT AREA -->
+  <main class="admin-content">
+
+    <!-- ─────────────────────────────────── DASHBOARD -->
+    <section class="admin-section active" id="sec-dashboard">
+      <div class="sec-top">
+        <div>
+          <h1 class="sec-title">Bom dia, <span id="dash-name">Admin</span>! 🌸</h1>
+          <p class="sec-sub">Aqui está um resumo do seu negócio hoje.</p>
+        </div>
+        <div class="sec-top__date" id="dash-date"></div>
+      </div>
+
+      <!-- KPI Cards -->
+      <div class="kpi-grid" id="kpi-grid"></div>
+
+      <!-- Dashboard bottom row -->
+      <div class="dash-row">
+        <!-- Recent orders -->
+        <div class="card">
+          <div class="card__head">
+            <h3 class="card__title"><i class="bi bi-bag-heart"></i> Pedidos Recentes</h3>
+            <button class="btn-link" onclick="goTo('orders')">Ver todos →</button>
+          </div>
+          <div class="card__body" id="dash-recent-orders"></div>
+        </div>
+
+        <!-- Top products + quick actions -->
+        <div class="dash-col-r">
+          <div class="card">
+            <div class="card__head">
+              <h3 class="card__title"><i class="bi bi-trophy"></i> Top Produtos</h3>
+            </div>
+            <div class="card__body" id="dash-top-products"></div>
+          </div>
+          <div class="card">
+            <div class="card__head">
+              <h3 class="card__title"><i class="bi bi-lightning"></i> Ações Rápidas</h3>
+            </div>
+            <div class="card__body">
+              <div class="quick-actions">
+                <button class="qa-btn" onclick="openProductModal()"><i class="bi bi-plus-circle"></i>Novo Produto</button>
+                <button class="qa-btn" onclick="goTo('physical');setTimeout(()=>document.getElementById('physical-form').scrollIntoView({behavior:'smooth'}),300)"><i class="bi bi-shop"></i>Venda Física</button>
+                <button class="qa-btn" onclick="goTo('orders')"><i class="bi bi-bag-check"></i>Ver Pedidos</button>
+                <button class="qa-btn" onclick="goTo('metrics')"><i class="bi bi-bar-chart"></i>Métricas</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────────────────────────────── PEDIDOS ONLINE -->
+    <section class="admin-section" id="sec-orders">
+      <div class="sec-top">
+        <div>
+          <h1 class="sec-title">Pedidos Online</h1>
+          <p class="sec-sub">Gerencie e acompanhe todos os pedidos da loja virtual.</p>
+        </div>
+        <div class="sec-top__btns">
+          <select class="form-select" id="order-status-filter" onchange="renderOrders()">
+            <option value="">Todos os status</option>
+            <option value="pending">Aguardando</option>
+            <option value="processing">Em preparo</option>
+            <option value="shipped">Enviado</option>
+            <option value="delivered">Entregue</option>
+            <option value="cancelled">Cancelado</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card" style="padding:0;overflow:hidden">
+        <div class="table-wrap">
+          <table class="admin-table" id="orders-table">
+            <thead>
+              <tr>
+                <th>Pedido</th>
+                <th>Cliente</th>
+                <th>Contato</th>
+                <th>Itens</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Data</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="orders-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────────────────────────────── PRODUTOS -->
+    <section class="admin-section" id="sec-products">
+      <div class="sec-top">
+        <div>
+          <h1 class="sec-title">Produtos</h1>
+          <p class="sec-sub">Cadastre e gerencie o catálogo da loja.</p>
+        </div>
+        <button class="btn-primary" onclick="openProductModal()">
+          <i class="bi bi-plus-lg"></i> Novo Produto
+        </button>
+      </div>
+
+      <!-- Filters -->
+      <div class="filter-bar">
+        <input type="text" class="form-input sm" id="product-search" placeholder="🔍  Buscar produto..." oninput="renderProducts()">
+        <select class="form-select" id="product-cat-filter" onchange="renderProducts()">
+          <option value="">Todas as categorias</option>
+          <option value="vestidos">Vestidos & Saias</option>
+          <option value="blusas">Blusas & Tops</option>
+          <option value="conjuntos">Conjuntos</option>
+          <option value="calcas">Calças</option>
+          <option value="blazers">Blazers</option>
+          <option value="acessorios">Acessórios</option>
+        </select>
+        <select class="form-select" id="product-status-filter" onchange="renderProducts()">
+          <option value="">Todos</option>
+          <option value="active">Ativo</option>
+          <option value="inactive">Inativo</option>
+        </select>
+      </div>
+
+      <div class="products-grid" id="products-grid"></div>
+    </section>
+
+    <!-- ─────────────────────────────────── VENDA FÍSICA -->
+    <section class="admin-section" id="sec-physical">
+      <div class="sec-top">
+        <div>
+          <h1 class="sec-title">Venda Física</h1>
+          <p class="sec-sub">Registre as vendas realizadas na loja física.</p>
+        </div>
+      </div>
+
+      <div class="dash-row" style="align-items:flex-start">
+        <!-- Form -->
+        <div class="card" id="physical-form" style="flex:1;min-width:300px;max-width:500px">
+          <div class="card__head">
+            <h3 class="card__title"><i class="bi bi-plus-circle"></i> Registrar Nova Venda</h3>
+          </div>
+          <div class="card__body">
+            <form id="physical-sale-form" onsubmit="submitPhysicalSale(event)">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Produto *</label>
+                  <input type="text" class="form-input" id="ps-product" placeholder="Nome do produto" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Categoria</label>
+                  <select class="form-select" id="ps-category">
+                    <option value="vestidos">Vestidos & Saias</option>
+                    <option value="blusas">Blusas & Tops</option>
+                    <option value="conjuntos">Conjuntos</option>
+                    <option value="calcas">Calças</option>
+                    <option value="blazers">Blazers</option>
+                    <option value="acessorios">Acessórios</option>
+                    <option value="outros">Outros</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Quantidade *</label>
+                  <input type="number" class="form-input" id="ps-qty" value="1" min="1" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Valor Unitário (R$) *</label>
+                  <input type="number" class="form-input" id="ps-price" placeholder="0,00" step="0.01" min="0" required>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Desconto (R$)</label>
+                  <input type="number" class="form-input" id="ps-discount" value="0" step="0.01" min="0">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Forma de Pagamento *</label>
+                  <select class="form-select" id="ps-payment">
+                    <option value="dinheiro">Dinheiro</option>
+                    <option value="pix">Pix</option>
+                    <option value="credito">Cartão de Crédito</option>
+                    <option value="debito">Cartão de Débito</option>
+                    <option value="boleto">Boleto</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Vendedor(a)</label>
+                <input type="text" class="form-input" id="ps-seller" placeholder="Nome do(a) vendedor(a)">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Nome do Cliente (opcional)</label>
+                <input type="text" class="form-input" id="ps-customer" placeholder="Identificação do cliente">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Tamanho / Cor</label>
+                <input type="text" class="form-input" id="ps-details" placeholder="ex: M / Rosa">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Observações</label>
+                <textarea class="form-input" id="ps-notes" rows="2" placeholder="Alguma observação sobre a venda..."></textarea>
+              </div>
+              <!-- Total preview -->
+              <div class="sale-total-preview" id="sale-total-preview">
+                <span>Total estimado:</span>
+                <strong id="sale-total-val">R$ 0,00</strong>
+              </div>
+              <button type="submit" class="btn-primary w-full">
+                <i class="bi bi-check-circle"></i> Registrar Venda
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- History -->
+        <div class="card" style="flex:2;min-width:300px;padding:0;overflow:hidden">
+          <div class="card__head" style="padding:20px 24px">
+            <h3 class="card__title"><i class="bi bi-clock-history"></i> Histórico de Vendas Físicas</h3>
+            <div style="display:flex;gap:8px;align-items:center">
+              <select class="form-select" id="ps-period-filter" onchange="renderPhysicalSales()" style="font-size:12px;padding:6px 10px">
+                <option value="all">Todos</option>
+                <option value="today">Hoje</option>
+                <option value="week">Esta semana</option>
+                <option value="month" selected>Este mês</option>
+              </select>
+              <span class="badge badge--rose" id="ps-total-badge">R$ 0,00</span>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Produto</th>
+                  <th>Qtd</th>
+                  <th>Total</th>
+                  <th>Pagamento</th>
+                  <th>Vendedor</th>
+                  <th>Data/Hora</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="physical-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────────────────────────────── MÉTRICAS -->
+    <section class="admin-section" id="sec-metrics">
+      <div class="sec-top">
+        <div>
+          <h1 class="sec-title">Métricas & Relatórios</h1>
+          <p class="sec-sub">Acompanhe o desempenho da sua loja em números.</p>
+        </div>
+        <select class="form-select" id="metrics-year" onchange="renderMetrics()">
+          <option value="2026">2026</option>
+          <option value="2025">2025</option>
+        </select>
+      </div>
+
+      <!-- Metric KPIs -->
+      <div class="kpi-grid" id="metrics-kpi"></div>
+
+      <!-- Charts row 1 -->
+      <div class="charts-row">
+        <div class="card chart-card">
+          <div class="card__head">
+            <h3 class="card__title"><i class="bi bi-bar-chart"></i> Receita Mensal (R$)</h3>
+          </div>
+          <div class="chart-wrap"><canvas id="chart-revenue"></canvas></div>
+        </div>
+        <div class="card chart-card chart-card--sm">
+          <div class="card__head">
+            <h3 class="card__title"><i class="bi bi-pie-chart"></i> Vendas por Canal</h3>
+          </div>
+          <div class="chart-wrap chart-wrap--sm"><canvas id="chart-channel"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Charts row 2 -->
+      <div class="charts-row">
+        <div class="card chart-card chart-card--sm">
+          <div class="card__head">
+            <h3 class="card__title"><i class="bi bi-graph-up"></i> Pedidos por Mês</h3>
+          </div>
+          <div class="chart-wrap chart-wrap--sm"><canvas id="chart-orders"></canvas></div>
+        </div>
+        <div class="card chart-card">
+          <div class="card__head">
+            <h3 class="card__title"><i class="bi bi-trophy"></i> Top Produtos (Receita)</h3>
+          </div>
+          <div class="chart-wrap"><canvas id="chart-top-prod"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Payment methods + Category -->
+      <div class="charts-row">
+        <div class="card chart-card">
+          <div class="card__head">
+            <h3 class="card__title"><i class="bi bi-credit-card"></i> Formas de Pagamento</h3>
+          </div>
+          <div class="chart-wrap"><canvas id="chart-payment"></canvas></div>
+        </div>
+        <div class="card chart-card">
+          <div class="card__head">
+            <h3 class="card__title"><i class="bi bi-tag"></i> Vendas por Categoria</h3>
+          </div>
+          <div class="chart-wrap"><canvas id="chart-category"></canvas></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────────────────────────────── CLIENTES -->
+    <section class="admin-section" id="sec-customers">
+      <div class="sec-top">
+        <div>
+          <h1 class="sec-title">Clientes</h1>
+          <p class="sec-sub">Base de clientes cadastrados via pedidos online.</p>
+        </div>
+        <input type="text" class="form-input sm" id="customer-search" placeholder="🔍  Buscar cliente..." oninput="renderCustomers()" style="min-width:220px">
+      </div>
+
+      <div class="card" style="padding:0;overflow:hidden">
+        <div class="table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th>E-mail</th>
+                <th>Telefone</th>
+                <th>Endereço</th>
+                <th>Pedidos</th>
+                <th>Total Gasto</th>
+                <th>Último Pedido</th>
+              </tr>
+            </thead>
+            <tbody id="customers-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────────────────────────────── ESTOQUE -->
+    <section class="admin-section" id="sec-inventory">
+      <div class="sec-top">
+        <div>
+          <h1 class="sec-title">Controle de Estoque</h1>
+          <p class="sec-sub">Monitore e atualize o estoque dos produtos.</p>
+        </div>
+        <select class="form-select" id="inv-filter" onchange="renderInventory()">
+          <option value="all">Todos</option>
+          <option value="low">Estoque baixo (≤5)</option>
+          <option value="out">Sem estoque</option>
+        </select>
+      </div>
+
+      <div class="card" style="padding:0;overflow:hidden">
+        <div class="table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Produto</th>
+                <th>Categoria</th>
+                <th>Preço</th>
+                <th>Estoque P</th>
+                <th>Estoque M</th>
+                <th>Estoque G</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="inventory-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────────────────────────────── CONFIGURAÇÕES -->
+    <section class="admin-section" id="sec-settings">
+      <div class="sec-top">
+        <div>
+          <h1 class="sec-title">Configurações</h1>
+          <p class="sec-sub">Personalize as informações e configurações da loja.</p>
+        </div>
+      </div>
+
+      <div class="settings-grid">
+        <!-- Store info -->
+        <div class="card">
+          <div class="card__head"><h3 class="card__title"><i class="bi bi-shop"></i> Informações da Loja</h3></div>
+          <div class="card__body">
+            <form id="settings-store" onsubmit="saveSettings(event,'store')">
+              <div class="form-group"><label class="form-label">Nome da Loja</label><input type="text" class="form-input" id="cfg-store-name" value="Cor &amp; Flor"></div>
+              <div class="form-group"><label class="form-label">CNPJ</label><input type="text" class="form-input" id="cfg-cnpj" placeholder="00.000.000/0001-00"></div>
+              <div class="form-group"><label class="form-label">Telefone</label><input type="text" class="form-input" id="cfg-phone" placeholder="(11) 9 0000-0000"></div>
+              <div class="form-group"><label class="form-label">E-mail</label><input type="email" class="form-input" id="cfg-email" value="atelier@coreflor.com.br"></div>
+              <div class="form-group"><label class="form-label">Endereço da Loja Física</label><input type="text" class="form-input" id="cfg-address" placeholder="Rua, número, bairro, cidade - UF"></div>
+              <div class="form-group"><label class="form-label">Instagram</label><input type="text" class="form-input" id="cfg-ig" placeholder="@coreflor"></div>
+              <button type="submit" class="btn-primary"><i class="bi bi-check-lg"></i> Salvar</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Shipping / Coupon -->
+        <div class="card">
+          <div class="card__head"><h3 class="card__title"><i class="bi bi-truck"></i> Frete & Descontos</h3></div>
+          <div class="card__body">
+            <form id="settings-shipping" onsubmit="saveSettings(event,'shipping')">
+              <div class="form-group"><label class="form-label">Frete grátis acima de (R$)</label><input type="number" class="form-input" id="cfg-free-ship" value="300" step="0.01"></div>
+              <div class="form-group"><label class="form-label">Taxa de frete padrão (R$)</label><input type="number" class="form-input" id="cfg-ship-cost" value="25.90" step="0.01"></div>
+              <div class="form-group"><label class="form-label">Prazo de entrega (dias úteis)</label><input type="number" class="form-input" id="cfg-ship-days" value="5" min="1"></div>
+              <div class="card__head" style="padding:0;margin:20px 0 12px"><h3 class="card__title"><i class="bi bi-ticket-perforated"></i> Cupons Ativos</h3></div>
+              <div id="coupons-list"></div>
+              <button type="button" class="btn-outline" style="margin-top:8px" onclick="addCoupon()"><i class="bi bi-plus"></i> Adicionar Cupom</button>
+              <button type="submit" class="btn-primary" style="margin-top:14px"><i class="bi bi-check-lg"></i> Salvar</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Admin account -->
+        <div class="card">
+          <div class="card__head"><h3 class="card__title"><i class="bi bi-shield-lock"></i> Conta Admin</h3></div>
+          <div class="card__body">
+            <form id="settings-account" onsubmit="saveSettings(event,'account')">
+              <div class="form-group"><label class="form-label">Nome de exibição</label><input type="text" class="form-input" id="cfg-admin-name" placeholder="Seu nome"></div>
+              <div class="form-group"><label class="form-label">Novo usuário</label><input type="text" class="form-input" id="cfg-new-user" placeholder="Deixe em branco para não alterar"></div>
+              <div class="form-group"><label class="form-label">Nova senha</label><input type="password" class="form-input" id="cfg-new-pass" placeholder="Deixe em branco para não alterar"></div>
+              <div class="form-group"><label class="form-label">Confirmar nova senha</label><input type="password" class="form-input" id="cfg-new-pass2" placeholder=""></div>
+              <p class="cfg-note"><i class="bi bi-info-circle"></i> As credenciais serão salvas no localStorage até conectar o banco de dados.</p>
+              <button type="submit" class="btn-primary"><i class="bi bi-check-lg"></i> Salvar</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Notifications -->
+        <div class="card">
+          <div class="card__head"><h3 class="card__title"><i class="bi bi-bell"></i> Notificações</h3></div>
+          <div class="card__body">
+            <form id="settings-notif" onsubmit="saveSettings(event,'notif')">
+              <div class="toggle-row"><label>Novo pedido online</label><label class="toggle"><input type="checkbox" id="cfg-notif-order" checked><span></span></label></div>
+              <div class="toggle-row"><label>Estoque baixo</label><label class="toggle"><input type="checkbox" id="cfg-notif-stock" checked><span></span></label></div>
+              <div class="toggle-row"><label>Avaliações de clientes</label><label class="toggle"><input type="checkbox" id="cfg-notif-review"><span></span></label></div>
+              <div class="toggle-row"><label>Resumo diário por e-mail</label><label class="toggle"><input type="checkbox" id="cfg-notif-daily"><span></span></label></div>
+              <button type="submit" class="btn-primary" style="margin-top:18px"><i class="bi bi-check-lg"></i> Salvar</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ═══════════════════════════════════════════ MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal-box" id="modal-box">
+    <button class="modal-close" onclick="closeModal()"><i class="bi bi-x-lg"></i></button>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ TOAST -->
+<div id="admin-toast" class="admin-toast"></div>
+
+<!-- ═══════════════════════════════════════════ NOTIFICATION PANEL -->
+<div class="notif-panel" id="notif-panel">
+  <div class="notif-panel__head">
+    <h4>Notificações</h4>
+    <button onclick="clearNotifications()" style="background:none;border:none;cursor:pointer;color:var(--rose);font-size:12px">Limpar</button>
+  </div>
+  <div id="notif-list"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="admin-script.js"></script>
+</body>
+</html>
