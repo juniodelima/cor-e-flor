@@ -64,12 +64,11 @@
       display:flex; flex-direction:column; align-items:center;
       margin-bottom: 36px; text-align:center; gap: 10px;
     }
-    .login-logo svg { width:62px; height:62px; color:var(--rose); }
-    .login-logo__title {
-      font-family:var(--serif); font-size:26px; font-weight:600;
-      letter-spacing:2.5px; color:var(--ink);
+    .login-logo__img {
+      max-width: 190px; height:auto; display:block;
+      mix-blend-mode: multiply;
+      filter: drop-shadow(0 3px 14px rgba(155,48,104,.28));
     }
-    .login-logo__title em { color:var(--rose-deep); font-style:italic; }
     .login-logo__badge {
       display:inline-block; font-size:10px; letter-spacing:3.5px;
       text-transform:uppercase; color:var(--rose); font-weight:500;
@@ -144,21 +143,7 @@
 
 <div class="login-card">
   <div class="login-logo">
-    <svg viewBox="-50 -50 100 100" aria-hidden="true">
-      <g fill="currentColor">
-        <path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(0)"/>
-        <path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(45)"/>
-        <path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(90)"/>
-        <path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(135)"/>
-        <path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(180)"/>
-        <path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(225)"/>
-        <path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(270)"/>
-        <path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(315)"/>
-      </g>
-      <circle cx="0" cy="0" r="4.5" fill="#FDF8F5"/>
-      <circle cx="0" cy="0" r="2.2" fill="currentColor"/>
-    </svg>
-    <div class="login-logo__title">COR <em>&amp;</em> FLOR</div>
+    <img src="assets/logo-original.png" class="login-logo__img" alt="COR &amp; FLOR">
     <div class="login-logo__badge">✦ Painel Administrativo</div>
   </div>
 

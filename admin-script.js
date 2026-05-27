@@ -466,6 +466,7 @@ function openOrderDetail(id) {
 function closeModal(e) {
   if (!e || e.target === document.getElementById('modal-overlay') || e.currentTarget.classList?.contains('modal-close')) {
     document.getElementById('modal-overlay').classList.remove('open');
+    window._pendingImgBase64 = null;
   }
 }
 
@@ -521,8 +522,16 @@ function renderProducts() {
 }
 
 function openProductModal(id) {
+  window._pendingImgBase64 = null;
   const products = DB.get('products') || [];
   const p = id ? products.find(x=>x.id===id) : null;
+
+  const imgAreaHtml = p?.image
+    ? `<img src="${p.image}" class="img-upload-preview" id="img-preview">
+       <p style="font-size:11px;color:var(--rose-deep);margin-top:8px">Clique para trocar a foto</p>`
+    : `<i class="bi bi-cloud-upload" style="font-size:36px;color:var(--rose-soft)"></i>
+       <p style="font-size:13px;color:var(--warm-gray);margin:8px 0 2px">Clique ou arraste a foto aqui</p>
+       <p style="font-size:11px;color:rgba(74,64,64,.35)">PNG, JPG, WEBP — Máx. 5MB</p>`;
 
   document.getElementById('modal-body').innerHTML = `
     <h3 class="modal-title"><i class="bi bi-${p?'pencil':'plus-circle'}"></i> ${p?'Editar':'Novo'} Produto</h3>
@@ -542,8 +551,22 @@ function openProductModal(id) {
         <div class="form-group"><label class="form-label">Preço Original (R$)</label>
           <input type="number" class="form-input" id="pf-orig" value="${p?.originalPrice||''}" step="0.01" min="0" placeholder="Deixe 0 se não houver"></div>
       </div>
-      <div class="form-group"><label class="form-label">URL da Imagem</label>
-        <input type="text" class="form-input" id="pf-img" value="${p?.image||''}" placeholder="assets/meu-produto.png ou https://..."></div>
+
+      <!-- Upload de foto -->
+      <div class="form-group">
+        <label class="form-label">Foto do Produto</label>
+        <div class="img-upload-area" id="img-upload-area"
+             onclick="document.getElementById('pf-img-file').click()"
+             ondragover="event.preventDefault();this.classList.add('drag-over')"
+             ondragleave="this.classList.remove('drag-over')"
+             ondrop="event.preventDefault();this.classList.remove('drag-over');handleImgDrop(event)">
+          ${imgAreaHtml}
+        </div>
+        <input type="file" id="pf-img-file" accept="image/png,image/jpeg,image/webp,image/gif"
+               style="display:none" onchange="onImageUpload(event)">
+        <input type="hidden" id="pf-img-current" value="${p?.image||''}">
+      </div>
+
       <div class="form-group"><label class="form-label">Descrição</label>
         <textarea class="form-input" id="pf-desc" rows="2" placeholder="Descreva o produto...">${p?.description||''}</textarea></div>
       <div class="form-group"><label class="form-label">Cores (separadas por vírgula)</label>
@@ -582,6 +605,42 @@ function openProductModal(id) {
   document.getElementById('modal-overlay').classList.add('open');
 }
 
+function onImageUpload(e) {
+  const file = e.target.files[0];
+  if (file) processImageFile(file);
+}
+function handleImgDrop(e) {
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) processImageFile(file);
+}
+function processImageFile(file) {
+  if (file.size > 5 * 1024 * 1024) { toast('Imagem muito grande. Máx. 5MB.', 'error'); return; }
+  const reader = new FileReader();
+  reader.onload = ev => {
+    window._pendingImgBase64 = ev.target.result;
+    const area = document.getElementById('img-upload-area');
+    if (area) area.innerHTML = `
+      <img src="${ev.target.result}" class="img-upload-preview" id="img-preview">
+      <p style="font-size:11px;color:var(--rose-deep);margin-top:8px;cursor:pointer"
+         onclick="event.stopPropagation();clearImageUpload()">
+        <i class="bi bi-arrow-repeat"></i> Trocar foto
+      </p>`;
+  };
+  reader.readAsDataURL(file);
+}
+function clearImageUpload() {
+  window._pendingImgBase64 = null;
+  const area = document.getElementById('img-upload-area');
+  if (area) area.innerHTML = `
+    <i class="bi bi-cloud-upload" style="font-size:36px;color:var(--rose-soft)"></i>
+    <p style="font-size:13px;color:var(--warm-gray);margin:8px 0 2px">Clique ou arraste a foto aqui</p>
+    <p style="font-size:11px;color:rgba(74,64,64,.35)">PNG, JPG, WEBP — Máx. 5MB</p>`;
+  const fi = document.getElementById('pf-img-file');
+  if (fi) fi.value = '';
+  const hi = document.getElementById('pf-img-current');
+  if (hi) hi.value = '';
+}
+
 function saveProduct(e, id) {
   e.preventDefault();
   const products = DB.get('products') || [];
@@ -592,7 +651,7 @@ function saveProduct(e, id) {
     category:      document.getElementById('pf-cat').value,
     price:         parseFloat(document.getElementById('pf-price').value) || 0,
     originalPrice: parseFloat(document.getElementById('pf-orig').value)  || 0,
-    image:         document.getElementById('pf-img').value.trim(),
+    image:         window._pendingImgBase64 || document.getElementById('pf-img-current')?.value || '',
     description:   document.getElementById('pf-desc').value.trim(),
     colors:        document.getElementById('pf-colors').value.split(',').map(s=>s.trim()).filter(Boolean),
     sizes,

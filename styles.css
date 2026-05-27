@@ -67,21 +67,51 @@ em{ font-style: italic; }
   display:inline-flex; align-items:center; gap: 10px;
   color: var(--ink);
 }
-.logo__symbol{
-  width: 34px; height: 34px;
-  color: var(--rose);
-  filter: drop-shadow(0 2px 6px rgba(212,103,154,.25));
+
+/* PNG logo — fundo removido via mix-blend-mode */
+.logo__img {
+  max-height: 48px;
+  width: auto;
+  display: block;
+  mix-blend-mode: multiply;
+  filter: drop-shadow(0 2px 10px rgba(155,48,104,.24));
+  transition: filter .3s var(--ease);
 }
-.logo__text{
-  font-family: var(--serif);
-  font-weight: 600;
-  font-size: 20px;
-  letter-spacing: 2px;
-  color: var(--ink);
-  line-height:1;
-  white-space: nowrap;
+.logo:hover .logo__img {
+  filter: drop-shadow(0 4px 16px rgba(155,48,104,.38));
 }
-.logo__amp{ color: var(--rose-deep); font-style: italic; padding: 0 1px; }
+
+/* Veil (intro) logo */
+.veil__logo-img {
+  width: 220px; height: auto;
+  mix-blend-mode: multiply;
+  filter: drop-shadow(0 6px 20px rgba(155,48,104,.18));
+}
+
+/* Mobile menu logo */
+.mmenu__logo-img {
+  max-height: 72px; width: auto;
+  mix-blend-mode: multiply;
+  filter: drop-shadow(0 3px 12px rgba(155,48,104,.22));
+}
+
+/* Logo em fundo escuro (rodapé) — envolve em caixa clara */
+.logo-on-dark {
+  background: rgba(253,248,245,.92);
+  border-radius: 12px;
+  padding: 8px 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px -4px rgba(0,0,0,.3);
+  transition: box-shadow .3s var(--ease);
+}
+.logo-on-dark:hover {
+  box-shadow: 0 8px 30px -6px rgba(155,48,104,.4);
+}
+.logo-on-dark .logo__img {
+  max-height: 38px;
+}
 
 
 /* =========================================================
