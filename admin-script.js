@@ -147,7 +147,7 @@ function goTo(sec) {
   if (sec === 'dashboard') renderDashboard();
   if (sec === 'orders')    renderOrders();
   if (sec === 'products')  renderProducts();
-  if (sec === 'physical')  { renderPhysicalSales(); updateSalePreview(); }
+  if (sec === 'physical')  { populateCatalogSelect(); renderPhysicalSales(); updateSalePreview(); }
   if (sec === 'metrics')   setTimeout(renderMetrics, 50);
   if (sec === 'customers') renderCustomers();
   if (sec === 'inventory') renderInventory();
@@ -205,7 +205,7 @@ function renderDashboard() {
     return t <= 5;
   }).length;
 
-  // KPIs
+  // KPIs — 6 cards
   document.getElementById('kpi-grid').innerHTML = `
     <div class="kpi-card kpi-card--rose">
       <div class="kpi-card__icon"><i class="bi bi-currency-dollar"></i></div>
@@ -215,24 +215,36 @@ function renderDashboard() {
     </div>
     <div class="kpi-card kpi-card--deep">
       <div class="kpi-card__icon"><i class="bi bi-bag-heart"></i></div>
-      <p class="kpi-card__label">Pedidos Online</p>
-      <div class="kpi-card__value">${orders.length}</div>
-      <span class="kpi-card__delta ${pendingOrders>0?'kpi-card__delta--down':'kpi-card__delta--flat'}">
-        ${pendingOrders > 0 ? `<i class="bi bi-clock"></i> ${pendingOrders} aguardando` : 'Tudo em dia ✓'}
-      </span>
+      <p class="kpi-card__label">Receita Online</p>
+      <div class="kpi-card__value">${fmtBRL(onlineTotal)}</div>
+      <span class="kpi-card__delta kpi-card__delta--flat">${orders.filter(o=>o.status!=='cancelled').length} pedidos confirmados</span>
     </div>
     <div class="kpi-card kpi-card--gold">
       <div class="kpi-card__icon"><i class="bi bi-shop"></i></div>
-      <p class="kpi-card__label">Vendas Físicas</p>
-      <div class="kpi-card__value">${physical.length}</div>
-      <span class="kpi-card__delta kpi-card__delta--up"><i class="bi bi-arrow-up"></i> ${fmtBRL(physicalTotal)}</span>
+      <p class="kpi-card__label">Receita Física</p>
+      <div class="kpi-card__value">${fmtBRL(physicalTotal)}</div>
+      <span class="kpi-card__delta kpi-card__delta--flat">${physical.length} vendas registradas</span>
+    </div>
+    <div class="kpi-card kpi-card--rose">
+      <div class="kpi-card__icon"><i class="bi bi-clock-history"></i></div>
+      <p class="kpi-card__label">Pedidos Pendentes</p>
+      <div class="kpi-card__value">${pendingOrders}</div>
+      <span class="kpi-card__delta ${pendingOrders>0?'kpi-card__delta--down':'kpi-card__delta--flat'}">
+        ${pendingOrders > 0 ? `<i class="bi bi-exclamation-circle"></i> Aguardando ação` : 'Tudo em dia ✓'}
+      </span>
     </div>
     <div class="kpi-card kpi-card--green">
       <div class="kpi-card__icon"><i class="bi bi-people"></i></div>
       <p class="kpi-card__label">Clientes</p>
       <div class="kpi-card__value">${totalClients}</div>
+      <span class="kpi-card__delta kpi-card__delta--flat">base cadastrada</span>
+    </div>
+    <div class="kpi-card kpi-card--green">
+      <div class="kpi-card__icon"><i class="bi bi-boxes"></i></div>
+      <p class="kpi-card__label">Alertas Estoque</p>
+      <div class="kpi-card__value">${lowStock}</div>
       <span class="kpi-card__delta ${lowStock>0?'kpi-card__delta--down':'kpi-card__delta--flat'}">
-        ${lowStock>0?`<i class="bi bi-exclamation-triangle"></i> ${lowStock} prod. baixo estoque`:'Estoque OK ✓'}
+        ${lowStock>0?`<i class="bi bi-exclamation-triangle"></i> ${lowStock} produto(s) baixo`:'Estoque OK ✓'}
       </span>
     </div>
   `;
@@ -331,11 +343,66 @@ function updateOrderStatus(id, status) {
   const orders = DB.get('orders') || [];
   const idx = orders.findIndex(o=>o.id===id);
   if (idx < 0) return;
+  const prev = orders[idx].status;
   orders[idx].status = status;
+
+  // Deduz estoque ao confirmar preparo (pending → processing)
+  if (status === 'processing' && !orders[idx].stockDeducted && prev === 'pending') {
+    deductStockForOrder(orders[idx]);
+    orders[idx].stockDeducted = true;
+    toast(`Pedido ${id} em preparo — estoque atualizado ✓`, 'success');
+  }
+  // Restaura estoque se cancelado após já ter deduzido
+  else if (status === 'cancelled' && orders[idx].stockDeducted) {
+    restoreStockForOrder(orders[idx]);
+    orders[idx].stockDeducted = false;
+    toast(`Pedido ${id} cancelado — estoque restaurado`, 'info');
+  }
+  else {
+    toast(`Pedido ${id} → ${STATUS_LABELS[status]}`, 'success');
+  }
+
   DB.set('orders', orders);
-  toast(`Pedido ${id} → ${STATUS_LABELS[status]}`, 'success');
   updateOrderBadge();
   renderOrders();
+}
+
+function deductStockForOrder(order) {
+  const products = DB.get('products') || [];
+  let changed = false;
+  order.items.forEach(item => {
+    const pIdx = products.findIndex(p => p.name === item.name);
+    if (pIdx < 0) return;
+    const size = item.size || 'M';
+    const qty  = item.qty  || 1;
+    if (products[pIdx].stock[size] !== undefined) {
+      products[pIdx].stock[size] = Math.max(0, products[pIdx].stock[size] - qty);
+      changed = true;
+    }
+  });
+  if (changed) {
+    DB.set('products', products);
+    if (currentSection === 'inventory') renderInventory();
+  }
+}
+
+function restoreStockForOrder(order) {
+  const products = DB.get('products') || [];
+  let changed = false;
+  order.items.forEach(item => {
+    const pIdx = products.findIndex(p => p.name === item.name);
+    if (pIdx < 0) return;
+    const size = item.size || 'M';
+    const qty  = item.qty  || 1;
+    if (products[pIdx].stock[size] !== undefined) {
+      products[pIdx].stock[size] += qty;
+      changed = true;
+    }
+  });
+  if (changed) {
+    DB.set('products', products);
+    if (currentSection === 'inventory') renderInventory();
+  }
 }
 
 function openOrderDetail(id) {
@@ -564,34 +631,153 @@ function deleteProduct(id) {
 // ── PHYSICAL SALES ────────────────────────────────────────────
 function submitPhysicalSale(e) {
   e.preventDefault();
-  const qty   = parseInt(document.getElementById('ps-qty').value)   || 1;
-  const price = parseFloat(document.getElementById('ps-price').value)|| 0;
-  const disc  = parseFloat(document.getElementById('ps-discount').value)||0;
+  const isCatalog = document.querySelector('input[name="ps-prod-type"]:checked')?.value === 'catalog';
+  const qty   = parseInt(document.getElementById('ps-qty').value)        || 1;
+  const price = parseFloat(document.getElementById('ps-price').value)    || 0;
+  const disc  = parseFloat(document.getElementById('ps-discount').value) || 0;
+
+  if (price <= 0) { toast('Informe o valor unitário da venda.', 'error'); return; }
+
+  let productName, categoryVal, catalogProductId = null, saleSize = '';
+
+  if (isCatalog) {
+    const sel = document.getElementById('ps-catalog-select');
+    if (!sel.value) { toast('Selecione um produto do catálogo.', 'error'); return; }
+    const products = DB.get('products') || [];
+    const p = products.find(x => x.id === sel.value);
+    if (!p) { toast('Produto não encontrado.', 'error'); return; }
+    productName      = p.name;
+    categoryVal      = p.category;
+    catalogProductId = p.id;
+    saleSize         = document.getElementById('ps-size-select')?.value || '';
+  } else {
+    productName = document.getElementById('ps-product-new')?.value.trim();
+    categoryVal = document.getElementById('ps-category')?.value || 'outros';
+    if (!productName) { toast('Informe o nome do produto.', 'error'); return; }
+  }
+
   const sale = {
     id: 'FS' + uid(),
-    product:  document.getElementById('ps-product').value.trim(),
-    category: document.getElementById('ps-category').value,
+    product: productName, category: categoryVal,
+    catalogProductId, size: saleSize,
     quantity: qty, unitPrice: price, discount: disc,
     total: Math.max(0, price * qty - disc),
-    payment: document.getElementById('ps-payment').value,
-    seller:  document.getElementById('ps-seller').value.trim(),
-    customer:document.getElementById('ps-customer').value.trim(),
-    details: document.getElementById('ps-details').value.trim(),
-    notes:   document.getElementById('ps-notes').value.trim(),
+    payment:  document.getElementById('ps-payment').value,
+    seller:   document.getElementById('ps-seller').value.trim(),
+    customer: document.getElementById('ps-customer').value.trim(),
+    details:  document.getElementById('ps-details').value.trim(),
+    notes:    document.getElementById('ps-notes').value.trim(),
     createdAt: now(),
   };
+
+  // ── Deduz estoque do produto do catálogo ──────────────────
+  if (catalogProductId) {
+    const products = DB.get('products') || [];
+    const pIdx = products.findIndex(p => p.id === catalogProductId);
+    if (pIdx >= 0) {
+      if (saleSize && products[pIdx].stock[saleSize] !== undefined) {
+        products[pIdx].stock[saleSize] = Math.max(0, products[pIdx].stock[saleSize] - qty);
+      } else {
+        // Deduz do tamanho com mais estoque
+        const maxEntry = Object.entries(products[pIdx].stock).sort((a,b) => b[1]-a[1])[0];
+        if (maxEntry) products[pIdx].stock[maxEntry[0]] = Math.max(0, maxEntry[1] - qty);
+      }
+      DB.set('products', products);
+      const total = Object.values(products[pIdx].stock).reduce((a,b)=>a+b,0);
+      if (total <= 3) addNotification(`⚠️ Estoque baixo: ${products[pIdx].name} (${total} un. restantes)`, 'bi-exclamation-triangle');
+      if (currentSection === 'inventory') renderInventory();
+    }
+  }
+
   const physical = DB.get('physical') || [];
   physical.unshift(sale);
   DB.set('physical', physical);
   e.target.reset();
   document.getElementById('ps-qty').value = 1;
   document.getElementById('ps-discount').value = 0;
+  togglePsType('catalog');
+  populateCatalogSelect();
   updateSalePreview();
   renderPhysicalSales();
   toast(`Venda registrada — ${fmtBRL(sale.total)} ✓`, 'success');
-
-  // add notification
   addNotification(`Nova venda física: ${sale.product} — ${fmtBRL(sale.total)}`, 'bi-shop');
+}
+
+// ── Toggle catálogo / novo produto ────────────────────────────
+function togglePsType(type) {
+  const catalogWrap = document.getElementById('ps-catalog-wrap');
+  const newWrap     = document.getElementById('ps-new-wrap');
+  if (catalogWrap) catalogWrap.style.display = type === 'catalog' ? '' : 'none';
+  if (newWrap)     newWrap.style.display     = type === 'new'     ? '' : 'none';
+  document.querySelectorAll('.ps-type-opt').forEach(opt => {
+    opt.classList.toggle('ps-type-opt--active', opt.dataset.type === type);
+  });
+  const radio = document.querySelector(`input[name="ps-prod-type"][value="${type}"]`);
+  if (radio) radio.checked = true;
+  // Limpa price ao trocar para novo produto
+  if (type === 'new') {
+    const priceInput = document.getElementById('ps-price');
+    if (priceInput) priceInput.value = '';
+    updateSalePreview();
+  }
+}
+
+function populateCatalogSelect() {
+  const sel = document.getElementById('ps-catalog-select');
+  if (!sel) return;
+  const products = DB.get('products') || [];
+  const active   = products.filter(p => p.status === 'active');
+  sel.innerHTML  = '<option value="">— Selecione um produto —</option>' +
+    active.map(p => {
+      const total = Object.values(p.stock).reduce((a,b)=>a+b,0);
+      return `<option value="${p.id}">${p.name} — ${fmtBRL(p.price)} · Estoque: ${total} un.</option>`;
+    }).join('');
+}
+
+function onCatalogSelect() {
+  const products = DB.get('products') || [];
+  const id = document.getElementById('ps-catalog-select').value;
+  const p  = products.find(x => x.id === id);
+  const sizeSelect = document.getElementById('ps-size-select');
+  const stockInfo  = document.getElementById('ps-stock-info');
+  const priceInput = document.getElementById('ps-price');
+
+  if (!p) {
+    sizeSelect.innerHTML  = '<option value="">Todos / Único</option>';
+    stockInfo.textContent = 'Selecione um produto';
+    if (priceInput) priceInput.value = '';
+    updateSalePreview();
+    return;
+  }
+
+  // Tamanhos disponíveis com estoque
+  sizeSelect.innerHTML = '<option value="">Todos / Único</option>' +
+    Object.entries(p.stock)
+      .filter(([,v]) => v > 0)
+      .map(([sz, qty]) => `<option value="${sz}">${sz} — ${qty} un. disponíveis</option>`)
+      .join('');
+
+  // Preço do catálogo (editável)
+  if (priceInput) priceInput.value = p.price;
+
+  // Info de estoque
+  const total = Object.values(p.stock).reduce((a,b)=>a+b,0);
+  const color = total === 0 ? '#dc2626' : total <= 5 ? '#d97706' : '#059669';
+  stockInfo.innerHTML = `Estoque total: <strong style="color:${color}">${total} un.</strong>`;
+
+  updateSalePreview();
+}
+
+function onSizeSelect() {
+  const products = DB.get('products') || [];
+  const prodId = document.getElementById('ps-catalog-select')?.value;
+  const size   = document.getElementById('ps-size-select')?.value;
+  const p = products.find(x => x.id === prodId);
+  if (!p || !size) return;
+  const qty = p.stock[size] || 0;
+  const color = qty === 0 ? '#dc2626' : qty <= 3 ? '#d97706' : '#059669';
+  const stockInfo = document.getElementById('ps-stock-info');
+  if (stockInfo) stockInfo.innerHTML = `Tamanho <strong>${size}</strong>: <strong style="color:${color}">${qty} un. disponíveis</strong>`;
 }
 
 function renderPhysicalSales() {

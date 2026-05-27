@@ -233,24 +233,66 @@
           </div>
           <div class="card__body">
             <form id="physical-sale-form" onsubmit="submitPhysicalSale(event)">
-              <div class="form-row">
-                <div class="form-group">
-                  <label class="form-label">Produto *</label>
-                  <input type="text" class="form-input" id="ps-product" placeholder="Nome do produto" required>
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Categoria</label>
-                  <select class="form-select" id="ps-category">
-                    <option value="vestidos">Vestidos & Saias</option>
-                    <option value="blusas">Blusas & Tops</option>
-                    <option value="conjuntos">Conjuntos</option>
-                    <option value="calcas">Calças</option>
-                    <option value="blazers">Blazers</option>
-                    <option value="acessorios">Acessórios</option>
-                    <option value="outros">Outros</option>
-                  </select>
+
+              <!-- Toggle: Catálogo vs Novo Produto -->
+              <div class="form-group">
+                <label class="form-label">Origem do Produto *</label>
+                <div class="ps-type-toggle">
+                  <label class="ps-type-opt ps-type-opt--active" data-type="catalog" onclick="togglePsType('catalog')">
+                    <input type="radio" name="ps-prod-type" value="catalog" checked style="display:none">
+                    <i class="bi bi-grid-1x2"></i> Do Catálogo Online
+                  </label>
+                  <label class="ps-type-opt" data-type="new" onclick="togglePsType('new')">
+                    <input type="radio" name="ps-prod-type" value="new" style="display:none">
+                    <i class="bi bi-plus-circle"></i> Produto Novo
+                  </label>
                 </div>
               </div>
+
+              <!-- CATÁLOGO: produto existente -->
+              <div id="ps-catalog-wrap">
+                <div class="form-group">
+                  <label class="form-label">Produto do Catálogo *</label>
+                  <select class="form-select" id="ps-catalog-select" onchange="onCatalogSelect()">
+                    <option value="">— Selecione um produto —</option>
+                  </select>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Tamanho</label>
+                    <select class="form-select" id="ps-size-select" onchange="onSizeSelect()">
+                      <option value="">Todos / Único</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Estoque Disponível</label>
+                    <div class="stock-info-badge" id="ps-stock-info">Selecione um produto</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- NOVO PRODUTO: não cadastrado ainda -->
+              <div id="ps-new-wrap" style="display:none">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Nome do Produto *</label>
+                    <input type="text" class="form-input" id="ps-product-new" placeholder="Nome do produto">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Categoria</label>
+                    <select class="form-select" id="ps-category">
+                      <option value="vestidos">Vestidos & Saias</option>
+                      <option value="blusas">Blusas & Tops</option>
+                      <option value="conjuntos">Conjuntos</option>
+                      <option value="calcas">Calças</option>
+                      <option value="blazers">Blazers</option>
+                      <option value="acessorios">Acessórios</option>
+                      <option value="outros">Outros</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
               <div class="form-row">
                 <div class="form-group">
                   <label class="form-label">Quantidade *</label>
