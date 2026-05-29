@@ -68,49 +68,44 @@ em{ font-style: italic; }
   color: var(--ink);
 }
 
-/* PNG logo — fundo removido via mix-blend-mode */
+/* PNG logo — transparente, sem necessidade de mix-blend-mode */
 .logo__img {
   max-height: 48px;
   width: auto;
   display: block;
-  mix-blend-mode: multiply;
-  filter: drop-shadow(0 2px 10px rgba(155,48,104,.24));
+  filter: drop-shadow(0 2px 10px rgba(155,48,104,.2));
   transition: filter .3s var(--ease);
 }
 .logo:hover .logo__img {
-  filter: drop-shadow(0 4px 16px rgba(155,48,104,.38));
+  filter: drop-shadow(0 4px 18px rgba(155,48,104,.36));
+}
+
+/* Hero / nav transparente — logo fica clara com brilho */
+.nav:not(.is-scrolled) .logo__img {
+  filter: drop-shadow(0 2px 12px rgba(0,0,0,.5)) brightness(1.08);
 }
 
 /* Veil (intro) logo */
 .veil__logo-img {
-  width: 220px; height: auto;
-  mix-blend-mode: multiply;
-  filter: drop-shadow(0 6px 20px rgba(155,48,104,.18));
+  width: 200px; height: auto;
+  filter: drop-shadow(0 6px 20px rgba(155,48,104,.22));
 }
 
 /* Mobile menu logo */
 .mmenu__logo-img {
   max-height: 72px; width: auto;
-  mix-blend-mode: multiply;
-  filter: drop-shadow(0 3px 12px rgba(155,48,104,.22));
+  filter: drop-shadow(0 3px 12px rgba(155,48,104,.2));
 }
 
-/* Logo em fundo escuro (rodapé) — envolve em caixa clara */
+/* Logo em fundo escuro (rodapé) — sem wrapper, logo já é transparente */
 .logo-on-dark {
-  background: rgba(253,248,245,.92);
-  border-radius: 12px;
-  padding: 8px 18px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 20px -4px rgba(0,0,0,.3);
-  transition: box-shadow .3s var(--ease);
-}
-.logo-on-dark:hover {
-  box-shadow: 0 8px 30px -6px rgba(155,48,104,.4);
 }
 .logo-on-dark .logo__img {
-  max-height: 38px;
+  max-height: 42px;
+  filter: drop-shadow(0 2px 14px rgba(255,255,255,.15)) brightness(1.15);
 }
 
 
@@ -371,8 +366,8 @@ em{ font-style: italic; }
 .hero__overlay{
   position: absolute; inset: 0; z-index: -1;
   background:
-    radial-gradient(120% 80% at 30% 30%, transparent 30%, rgba(28,20,20,.45) 100%),
-    linear-gradient(180deg, rgba(28,20,20,.12) 0%, rgba(28,20,20,.05) 40%, rgba(212,103,154,.35) 88%, rgba(253,248,245,.6) 100%);
+    linear-gradient(100deg, rgba(28,20,20,.72) 0%, rgba(28,20,20,.45) 42%, rgba(28,20,20,.1) 70%, transparent 100%),
+    linear-gradient(180deg, rgba(28,20,20,.18) 0%, transparent 40%, rgba(212,103,154,.32) 88%, rgba(253,248,245,.55) 100%);
 }
 
 .hero__content{
