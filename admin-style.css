@@ -684,12 +684,15 @@ textarea.form-input { min-height: 80px; }
   border-bottom: 1px solid rgba(255,255,255,.06);
 }
 .sidebar__logo-img-wrap {
+  background: rgba(253,248,245,.92);
+  border-radius: 12px; padding: 8px 16px;
   display: inline-flex; align-items: center; justify-content: center;
-  padding: 4px 8px;
+  box-shadow: 0 4px 20px -4px rgba(0,0,0,.35);
 }
 .sidebar__logo-img {
-  max-height: 44px; width: auto; display: block;
-  filter: drop-shadow(0 2px 10px rgba(212,103,154,.4)) brightness(1.1);
+  max-height: 42px; width: auto; display: block;
+  mix-blend-mode: multiply;
+  filter: drop-shadow(0 1px 4px rgba(155,48,104,.15));
 }
 .sidebar__role {
   font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
