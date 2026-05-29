@@ -6,25 +6,67 @@
 const products = [
   { id: 1, name: "Blusa Drapeado Sereno", category: "Blusa", price: 129, originalPrice: 199.90, badge: "SALE",
     image: "assets/p-blusa-azul.png",
-    colors: ["#9CAEB8"], sizes: ["36","42"] },
+    colors: [{ name: "Azul Sereno", hex: "#9CAEB8" }],
+    sizes: ["36","42"],
+    description: "Blusa de tecido fluido com drapeado assimétrico que valoriza o corpo com suavidade. Ideal para compor looks do dia a dia com elegância descomplicada.",
+    material: "96% viscose, 4% elastano. Tecido leve, fluido e de toque macio. Não amassa.",
+    care: "Lavar à mão ou na máquina em ciclo delicado, água fria. Não torcer. Secar à sombra na horizontal.",
+    fit: "Modelagem solta com queda suave. Veste bem nos tamanhos 34 ao 42. A modelo usa tamanho 36."
+  },
   { id: 2, name: "Vestido Citrus", category: "Vestido Midi", price: 149, originalPrice: null, badge: "NOVO",
     image: "assets/p-vestido-laranja.png",
-    colors: ["#F4A05B"], sizes: ["P","M","G"] },
+    colors: [{ name: "Laranja Citrus", hex: "#F4A05B" }, { name: "Rosa Claro", hex: "#F4C9D8" }],
+    sizes: ["P","M","G"],
+    description: "Vestido midi vibrante em tom citrus, com caimento elegante e corte que valoriza a silhueta. Uma peça que transforma qualquer dia em celebração.",
+    material: "100% algodão com fio egípcio. Tecido respirável, macio e de alta durabilidade.",
+    care: "Lavar na máquina em ciclo delicado com água fria. Passar com ferro morno pelo avesso.",
+    fit: "Modelagem ajustada no busto com saia evazê. Para um caimento soltinho, suba um tamanho."
+  },
   { id: 3, name: "Conjunto Rosé", category: "Conjunto Cropped", price: 259, originalPrice: null, badge: "NOVO",
     image: "assets/p-conjunto-rosa.png",
-    colors: ["#E29AB0"], sizes: ["36","38","40","42"] },
+    colors: [{ name: "Rosé", hex: "#E29AB0" }, { name: "Nude", hex: "#F9EFF0" }],
+    sizes: ["36","38","40","42"],
+    description: "Conjunto cropped + calça pantalona em tecido de malha rosé. Peças vendidas juntas que combinam conforto e sofisticação em harmonia perfeita.",
+    material: "85% poliéster, 15% elastano. Malha de alta compressão com brilho acetinado.",
+    care: "Lavar à mão com sabão neutro. Não usar amaciante. Secar à sombra.",
+    fit: "Cropped com ajuste abaixo do busto. Calça modelagem slim de cintura alta. Segue tabela padrão."
+  },
   { id: 4, name: "Body Bronze", category: "Body Drapeado", price: 199, originalPrice: null, badge: "EXCLUSIVO",
     image: "assets/p-body-marrom.png",
-    colors: ["#7A4234"], sizes: ["P"] },
+    colors: [{ name: "Bronze Escuro", hex: "#7A4234" }, { name: "Caramelo", hex: "#C4956A" }],
+    sizes: ["P"],
+    description: "Body drapeado em tom bronze com abertura profunda nas costas. Peça exclusiva que exige atitude — para noites que ficam na memória.",
+    material: "78% nylon, 22% elastano. Tecido com compressão suave e acabamento fosco premium.",
+    care: "Lavar somente à mão com água fria e sabonete neutro. Secar sobre superfície plana.",
+    fit: "Modelagem colada ao corpo. Recomendamos medir busto e quadril antes de escolher. Disponível em tamanho P."
+  },
   { id: 5, name: "Saia Cetim Lua", category: "Saia Longa", price: 239, originalPrice: null, badge: null,
     image: "assets/p-saia-cetim.png",
-    colors: ["#C9CACE"], sizes: ["36"] },
+    colors: [{ name: "Prata Lua", hex: "#C9CACE" }, { name: "Preto", hex: "#1C1414" }],
+    sizes: ["36","38","40"],
+    description: "Saia longa de cetim com reflexos suaves que evocam o brilho da lua. Fluida, elegante e atemporal — a peça-chave de um guarda-roupa consciente.",
+    material: "100% poliéster cetinado de gramatura alta. Forro interno em chiffon.",
+    care: "Lavar na máquina em ciclo delicado. Passar com ferro a vapor pelo avesso em temperatura média.",
+    fit: "Cós elástico para conforto máximo. Comprimento midi até o tornozelo (aprox. 90cm). Para corpos mais altos, considere um tamanho acima."
+  },
   { id: 6, name: "Blazer Camélia", category: "Blazer", price: 379, originalPrice: null, badge: "NOVO",
     image: "assets/p-blazer-caqui.png",
-    colors: ["#8C7350"], sizes: ["40","42"] },
+    colors: [{ name: "Caqui Camélia", hex: "#8C7350" }, { name: "Preto", hex: "#1C1414" }],
+    sizes: ["38","40","42"],
+    description: "Blazer estruturado em tweed misto com botões dourados e lapela clássica. Transita do trabalho à noite com elegância natural e sem esforço.",
+    material: "60% lã, 35% poliéster, 5% elastano. Forro de seda sintética. Botões em metal dourado.",
+    care: "Limpeza a seco recomendada. Para lavagem em casa, ciclo delicado em água fria com cuidado extra na estrutura dos ombros.",
+    fit: "Modelagem slim com ombros levemente estruturados. Caimento alinhado ao corpo. Comprimento no quadril."
+  },
   { id: 7, name: "Regata Pérola", category: "Regata Cetim", price: 89, originalPrice: 139.90, badge: "SALE",
     image: "assets/p-regata-branca.png",
-    colors: ["#F5F2EC"], sizes: ["42"] }
+    colors: [{ name: "Pérola", hex: "#F5F2EC" }, { name: "Bege", hex: "#E8DDD0" }],
+    sizes: ["P","M","G","GG"],
+    description: "Regata de cetim leve com alças finas e bojo removível. Uma peça versátil que funciona sozinha ou por baixo de sobreposições com charme discreto.",
+    material: "100% seda sintética cetinada. Bojo em esponja removível. Alças reguláveis.",
+    care: "Lavar somente à mão com sabonete neutro. Não torcer. Secar à sombra deitada sobre toalha.",
+    fit: "Modelagem ajustada com bojo leve. Para usar por baixo de blazers e sobreposições, suba um tamanho."
+  }
 ];
 
 const BRL = n => "R$ " + n.toFixed(2).replace(".", ",");
@@ -36,7 +78,7 @@ products.forEach((p, i) => {
                     : p.badge === "EXCLUSIVO" ? "card__badge--exclusive" : "";
   const badge = p.badge ? `<span class="card__badge ${badgeClass}">${p.badge}</span>` : "";
   const was = p.originalPrice ? `<span class="card__price-was">${BRL(p.originalPrice)}</span>` : "";
-  const swatches = p.colors.map(c => `<span class="card__sw" style="background:${c}"></span>`).join("");
+  const swatches = p.colors.map(c => `<span class="card__sw" style="background:${c.hex||c}"></span>`).join("");
   const delay = (i % 4) * 100;
 
   const el = document.createElement("article");
@@ -50,11 +92,11 @@ products.forEach((p, i) => {
         <svg width="18" height="18"><use href="#i-heart"/></svg>
       </button>
       <img src="${p.image}" alt="${p.name}" loading="lazy"/>
-      <button class="card__add" data-add="${p.id}">+ Adicionar ao carrinho</button>
+      <button class="card__add" data-add="${p.id}"><svg width="14" height="14"><use href="#i-bag"/></svg> Adicionar</button>
     </div>
     <div class="card__body">
       <span class="card__cat">${p.category}</span>
-      <h3 class="card__name">${p.name}</h3>
+      <h3 class="card__name"><a href="produto.html?id=${p.id}" style="color:inherit">${p.name}</a></h3>
       <div class="card__price">
         <span class="card__price-now">${BRL(p.price)}</span>
         ${was}
@@ -62,6 +104,11 @@ products.forEach((p, i) => {
       <div class="card__colors" aria-label="Cores disponíveis">${swatches}</div>
     </div>
   `;
+  el.querySelector('.card__media').addEventListener('click', (e) => {
+    if (!e.target.closest('button')) {
+      window.location.href = `produto.html?id=${p.id}`;
+    }
+  });
   grid.appendChild(el);
 });
 
@@ -157,14 +204,11 @@ const cartTotal    = document.getElementById("cart-total");
 const cartBanner   = document.querySelector(".cart__banner");
 const FRETE_FREE_MIN = 299;
 
-// seed cart with 3 items (matches default count)
-let cartState = [
-  { id: 1, qty: 1, size: "36" },   // Blusa azul
-  { id: 5, qty: 1, size: "36" },   // Saia cetim
-  { id: 7, qty: 1, size: "42" }    // Regata
-];
+// Carrega do localStorage ou inicia vazio (não seed)
+let cartState = JSON.parse(localStorage.getItem('cf_cart') || '[]');
 
 function renderCart() {
+  localStorage.setItem('cf_cart', JSON.stringify(cartState));
   cartList.innerHTML = "";
   let subtotal = 0;
   let count = 0;
@@ -238,9 +282,10 @@ cartList.addEventListener("click", e => {
 
 function addToCart(id){
   const p = products.find(x => x.id === id);
+  if (!p) return;
   const existing = cartState.find(x => x.id === id);
   if (existing) existing.qty += 1;
-  else cartState.push({ id, qty: 1, size: p.sizes[1] || p.sizes[0] });
+  else cartState.push({ id, qty: 1, size: p.sizes[0] || 'Único', color: p.colors[0]?.hex || p.colors[0] || '' });
   renderCart();
   toast(`✿ ${p.name} entrou no seu jardim`);
   // bump bag icon

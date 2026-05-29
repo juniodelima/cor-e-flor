@@ -1,0 +1,866 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title id="page-title">Produto — COR &amp; FLOR</title>
+<meta name="description" content="COR & FLOR — moda feminina premium. Peças que celebram quem você é, com a delicadeza que você merece." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Raleway:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body>
+
+<!-- ===== REUSABLE SVG SYMBOLS ===== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="cf-flor" viewBox="-50 -50 100 100">
+      <g class="flor">
+        <g fill="currentColor">
+          <path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(0)"/>
+          <path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(45)"/>
+          <path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(90)"/>
+          <path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(135)"/>
+          <path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(180)"/>
+          <path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(225)"/>
+          <path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(270)"/>
+          <path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(315)"/>
+        </g>
+        <circle cx="0" cy="0" r="4.5" fill="#FDF8F5"/>
+        <circle cx="0" cy="0" r="2.2" fill="currentColor"/>
+      </g>
+    </symbol>
+
+    <symbol id="cf-petal" viewBox="-25 -45 50 50">
+      <path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" fill="currentColor"/>
+    </symbol>
+
+    <symbol id="cf-logo-full" viewBox="0 0 200 90">
+      <g transform="translate(100,28)">
+        <g transform="scale(0.42)" style="color:#D4679A">
+          <use href="#cf-flor"/>
+        </g>
+      </g>
+      <text x="100" y="68" text-anchor="middle"
+            font-family="'Playfair Display', serif" font-weight="600" font-size="22"
+            letter-spacing="2" fill="#1C1414">COR <tspan fill="#9B3068" font-style="italic">&amp;</tspan> FLOR</text>
+      <path d="M 50,80 C 80,76 130,84 150,78" stroke="#F4C9D8" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.85"/>
+    </symbol>
+
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+    <symbol id="i-heart-fill" viewBox="0 0 24 24"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10Z" fill="currentColor"/></symbol>
+    <symbol id="i-bag" viewBox="0 0 24 24"><path d="M6 8h12l-1 12H7L6 8Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M9 8V6a3 3 0 0 1 6 0v2" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 8h16M4 16h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-5-6 6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+
+    <symbol id="i-soul" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="24" r="3"/><path d="M24 10c4 4 4 8 0 14M24 38c-4-4-4-8 0-14M10 24c4-4 8-4 14 0M38 24c-4 4-8 4-14 0"/></g></symbol>
+    <symbol id="i-truck" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14h22v18H4zM26 20h11l5 6v6H26z"/><circle cx="13" cy="36" r="3"/><circle cx="33" cy="36" r="3"/></g></symbol>
+    <symbol id="i-return" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M10 24a14 14 0 1 0 4.2-10"/><path d="M14 6v9h9"/></g></symbol>
+    <symbol id="i-card" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="12" width="36" height="24" rx="2"/><path d="M6 20h36M12 30h6"/></g></symbol>
+
+    <symbol id="s-ig" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3.5" y="3.5" width="17" height="17" rx="4.5"/><circle cx="12" cy="12" r="4"/><circle cx="17" cy="7" r="1" fill="currentColor" stroke="none"/></g></symbol>
+    <symbol id="s-pin" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="12" cy="12" r="9"/><path d="M11 7a3.5 3.5 0 0 1 4 3.5c0 2-1.5 3.5-3 3.5-1 0-1.5-.5-1.5-1.5L9 21"/></g></symbol>
+    <symbol id="s-tt" viewBox="0 0 24 24"><path d="M15 3v9.5a3.5 3.5 0 1 1-3.5-3.5h.5V12h-.5a1.5 1.5 0 1 0 1.5 1.5V3h2c.2 2 1.8 3.5 4 3.7v2C17.5 8.6 16 7.9 15 6.7Z" fill="currentColor"/></symbol>
+    <symbol id="s-wa" viewBox="0 0 24 24"><path d="M3.5 20.5 5 16a8 8 0 1 1 3 3l-4.5 1.5Zm6.3-5.8c.3.6 1.1 1.4 2 1.7s1.5.2 2-.2c.4-.3.6-.7.6-1l-.3-.4-1.7-.8c-.2 0-.4 0-.5.2l-.4.5c-.2.2-.4.2-.6.1-.7-.3-1.4-.9-1.9-1.7-.1-.2 0-.4.1-.5l.4-.4c.2-.2.2-.3.1-.5L8.9 9.5c-.1-.3-.3-.3-.5-.3-.6 0-1.2.3-1.4.7-.4.6-.4 1.4 0 2.4.4.8 1 1.7 1.8 2.4Z" fill="currentColor"/></symbol>
+  </defs>
+</svg>
+
+
+<!-- ===== CUSTOM CURSOR ===== -->
+<div id="cursor" aria-hidden="true">
+  <span class="cursor__dot"></span>
+  <span class="cursor__flower">✿</span>
+</div>
+
+
+<!-- ===== NAVBAR ===== -->
+<header id="nav" class="nav is-scrolled">
+  <div class="nav__inner">
+    <button class="nav__burger" id="burger" aria-label="Abrir menu">
+      <svg width="24" height="24"><use href="#i-menu"/></svg>
+    </button>
+
+    <a class="logo" href="index.html" aria-label="COR & FLOR — página inicial">
+      <img src="assets/logo-original.png" class="logo__img" alt="COR &amp; FLOR">
+    </a>
+
+    <nav class="nav__links" aria-label="Principal">
+      <a href="index.html#categorias">Coleções</a>
+      <a href="index.html#novidades">Novidades</a>
+      <a href="index.html#lookbook">Lookbook</a>
+      <a href="index.html#contato">Contato</a>
+    </nav>
+
+    <div class="nav__actions">
+      <button class="ic-btn" aria-label="Buscar"><svg width="20" height="20"><use href="#i-search"/></svg></button>
+      <button class="ic-btn" aria-label="Favoritos"><svg width="20" height="20"><use href="#i-heart"/></svg></button>
+      <button class="ic-btn ic-btn--cart" id="open-cart" aria-label="Carrinho">
+        <svg width="20" height="20"><use href="#i-bag"/></svg>
+        <span class="ic-btn__count" id="cart-count">0</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+
+<!-- ===== MOBILE MENU ===== -->
+<div class="mmenu" id="mmenu" aria-hidden="true">
+  <button class="mmenu__close" id="mmenu-close" aria-label="Fechar menu">
+    <svg width="22" height="22"><use href="#i-x"/></svg>
+  </button>
+  <div class="mmenu__logo">
+    <img src="assets/logo-original.png" class="mmenu__logo-img" alt="COR &amp; FLOR">
+  </div>
+  <nav class="mmenu__links">
+    <a href="index.html#categorias">Coleções</a>
+    <a href="index.html#novidades">Novidades</a>
+    <a href="index.html#lookbook">Lookbook</a>
+    <a href="index.html#contato">Contato</a>
+  </nav>
+  <div class="mmenu__foot">
+    <p class="mmenu__tag"><em>Cor</em> porque a vida pede. <em>Flor</em> porque você merece.</p>
+  </div>
+</div>
+
+
+<main id="top">
+
+<!-- ===== BREADCRUMB ===== -->
+<nav class="breadcrumb" id="breadcrumb" aria-label="Navegação">
+  <a href="index.html">Home</a>
+  <span class="breadcrumb__sep">›</span>
+  <a href="index.html#novidades" id="bc-cat">Categoria</a>
+  <span class="breadcrumb__sep">›</span>
+  <span id="bc-name">Produto</span>
+</nav>
+
+
+<!-- ===== PRODUTO DETAIL ===== -->
+<section class="prod-detail">
+  <div class="prod-detail__inner">
+
+    <!-- Media -->
+    <div class="prod-detail__media">
+      <div class="prod-detail__img-main" id="img-main-wrap">
+        <img id="prod-main-img" src="" alt="">
+      </div>
+      <div class="prod-detail__thumbs" id="prod-thumbs"></div>
+    </div>
+
+    <!-- Info -->
+    <div class="prod-detail__info">
+      <div id="prod-badge-wrap"></div>
+      <div class="prod-detail__cat" id="prod-cat"></div>
+      <h1 class="prod-detail__name" id="prod-name"></h1>
+      <div class="prod-detail__stars">
+        ★★★★★ <span id="prod-rating">(24 avaliações)</span>
+      </div>
+      <div class="prod-detail__price">
+        <span class="prod-detail__price-now" id="prod-price-now"></span>
+        <span class="prod-detail__price-was" id="prod-price-was"></span>
+      </div>
+      <div class="prod-detail__installments" id="prod-installments"></div>
+
+      <div class="prod-detail__sep"></div>
+
+      <!-- Cor -->
+      <div class="prod-detail__opt" id="color-opt">
+        <div class="prod-detail__opt-label">
+          Cor: <strong id="color-label">—</strong>
+        </div>
+        <div class="prod-detail__colors" id="prod-colors"></div>
+      </div>
+
+      <!-- Tamanho -->
+      <div class="prod-detail__opt" id="size-opt">
+        <div class="prod-detail__opt-label">
+          Tamanho: <strong id="size-label">—</strong>
+          <button class="size-guide-btn" onclick="openSizeGuide()">Guia de tamanhos</button>
+        </div>
+        <div class="prod-detail__sizes" id="prod-sizes"></div>
+      </div>
+
+      <!-- Quantidade -->
+      <div class="prod-detail__opt">
+        <div class="prod-detail__opt-label">Quantidade</div>
+        <div class="prod-qty">
+          <button id="qty-minus" aria-label="Diminuir">−</button>
+          <span id="qty-val">1</span>
+          <button id="qty-plus" aria-label="Aumentar">+</button>
+        </div>
+      </div>
+
+      <!-- CTAs -->
+      <div class="prod-detail__ctas">
+        <button class="btn btn--primary prod-cta-main" id="btn-add-cart">
+          <svg width="18" height="18"><use href="#i-bag"/></svg>
+          Adicionar ao Carrinho
+        </button>
+        <button class="prod-fav-btn" id="btn-fav" aria-label="Favoritar">
+          <svg width="20" height="20"><use href="#i-heart" id="fav-icon"/></svg>
+        </button>
+      </div>
+      <button class="btn btn--outline prod-buy-now" id="btn-buy-now">
+        Comprar Agora →
+      </button>
+
+      <!-- Perks -->
+      <div class="prod-detail__perks">
+        <div>Frete grátis acima de R$ 299</div>
+        <div>Troca fácil em 30 dias</div>
+        <div>Até 10× sem juros</div>
+        <div>Pagamento seguro</div>
+      </div>
+
+      <!-- Descrição -->
+      <p class="prod-detail__desc" id="prod-desc"></p>
+
+      <!-- Accordion -->
+      <div class="prod-accordion" id="prod-accordion">
+        <div class="prod-acc-item">
+          <button class="prod-acc-btn" onclick="toggleAcc(this)">
+            Material &amp; Composição <i class="bi bi-plus"></i>
+          </button>
+          <div class="prod-acc-body" id="acc-material"></div>
+        </div>
+        <div class="prod-acc-item">
+          <button class="prod-acc-btn" onclick="toggleAcc(this)">
+            Cuidados com a Peça <i class="bi bi-plus"></i>
+          </button>
+          <div class="prod-acc-body" id="acc-care"></div>
+        </div>
+        <div class="prod-acc-item">
+          <button class="prod-acc-btn" onclick="toggleAcc(this)">
+            Modelagem &amp; Caimento <i class="bi bi-plus"></i>
+          </button>
+          <div class="prod-acc-body" id="acc-fit"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ===== RELACIONADOS ===== -->
+<section class="related">
+  <header class="sec-head sec-head--center">
+    <span class="sec-eyebrow">✦ VOCÊ TAMBÉM VAI AMAR</span>
+    <h2 class="sec-title">Outras <em>peças para você.</em></h2>
+  </header>
+  <div class="news__grid" id="related-grid"></div>
+</section>
+
+</main>
+
+
+<!-- ===== FOOTER ===== -->
+<footer class="foot">
+  <div class="foot__top">
+    <a class="logo logo--foot" href="index.html" aria-label="COR & FLOR">
+      <div class="logo-on-dark">
+        <img src="assets/logo-original.png" class="logo__img" alt="COR &amp; FLOR">
+      </div>
+    </a>
+    <p class="foot__tag"><em>Cor porque a vida pede. Flor porque você merece.</em></p>
+  </div>
+
+  <div class="foot__cols">
+    <div class="foot__col">
+      <h5>Institucional</h5>
+      <a href="#">Nossa história</a>
+      <a href="#">Sustentabilidade</a>
+      <a href="#">Trabalhe conosco</a>
+      <a href="#">Imprensa</a>
+    </div>
+    <div class="foot__col">
+      <h5>Atendimento</h5>
+      <a href="#">Central de ajuda</a>
+      <a href="#">Trocas &amp; devoluções</a>
+      <a href="#">Formas de pagamento</a>
+      <a href="#">Política de privacidade</a>
+    </div>
+    <div class="foot__col">
+      <h5>Categorias</h5>
+      <a href="#">Vestidos &amp; Saias</a>
+      <a href="#">Blusas &amp; Tops</a>
+      <a href="#">Conjuntos</a>
+      <a href="#">Calças</a>
+      <a href="#">Lookbook</a>
+    </div>
+    <div class="foot__col">
+      <h5>Encontre-nos</h5>
+      <div class="foot__social">
+        <a href="#" aria-label="Instagram"><svg width="20" height="20"><use href="#s-ig"/></svg></a>
+        <a href="#" aria-label="Pinterest"><svg width="20" height="20"><use href="#s-pin"/></svg></a>
+        <a href="#" aria-label="TikTok"><svg width="20" height="20"><use href="#s-tt"/></svg></a>
+        <a href="#" aria-label="WhatsApp"><svg width="20" height="20"><use href="#s-wa"/></svg></a>
+      </div>
+      <p class="foot__small">atelier@coreflor.com.br<br>(11) 9 0000-0000</p>
+    </div>
+  </div>
+
+  <div class="foot__bar">
+    <span>© 2026 Cor &amp; Flor — Todos os direitos reservados.</span>
+    <span>Feito com ✿ em São Paulo</span>
+  </div>
+</footer>
+
+
+<!-- ===== CART SLIDE-OVER ===== -->
+<div class="cart-veil" id="cart-veil" aria-hidden="true"></div>
+<aside class="cart" id="cart" aria-hidden="true" aria-label="Carrinho">
+  <header class="cart__head">
+    <h3 class="cart__title">Meu carrinho <span id="cart-head-count">(0)</span></h3>
+    <button class="ic-btn" id="close-cart" aria-label="Fechar carrinho"><svg width="22" height="22"><use href="#i-x"/></svg></button>
+  </header>
+
+  <div class="cart__banner">
+    <span>✿</span> Falta <strong>R$ 299,00</strong> para frete grátis!
+  </div>
+
+  <ul class="cart__list" id="cart-list">
+    <!-- injected -->
+  </ul>
+
+  <div class="cart__discount">
+    <input type="text" placeholder="Cupom de desconto" />
+    <button>Aplicar</button>
+  </div>
+
+  <dl class="cart__totals">
+    <div><dt>Subtotal</dt><dd id="cart-subtotal">R$ 0,00</dd></div>
+    <div><dt>Frete</dt><dd>Grátis</dd></div>
+    <div class="cart__totals-final"><dt>Total</dt><dd id="cart-total">R$ 0,00</dd></div>
+  </dl>
+
+  <button class="btn btn--primary cart__cta">Finalizar compra</button>
+  <button class="btn btn--link cart__continue" id="cart-continue">Continuar comprando</button>
+</aside>
+
+
+<!-- ===== TOAST ===== -->
+<div id="toast" class="toast" aria-live="polite"></div>
+
+
+<!-- ===== SIZE GUIDE MODAL ===== -->
+<div class="cart-veil" id="sg-veil" aria-hidden="true"></div>
+<div id="sg-modal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:200;background:#fff;border-radius:20px;padding:36px;max-width:520px;width:calc(100% - 40px);box-shadow:0 40px 100px -20px rgba(28,20,20,.3)">
+  <button onclick="closeSizeGuide()" style="position:absolute;top:14px;right:14px;background:var(--nude);border:none;width:34px;height:34px;border-radius:8px;cursor:pointer;font-size:16px;display:grid;place-items:center">×</button>
+  <h3 style="font-family:var(--serif);margin:0 0 20px;font-size:20px">Guia de Tamanhos</h3>
+  <p style="font-size:12px;color:var(--warm-gray);margin-bottom:16px">Medidas em centímetros</p>
+  <table style="width:100%;border-collapse:collapse;font-size:13px">
+    <thead><tr style="background:var(--nude)">
+      <th style="padding:10px;text-align:left;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--warm-gray)">Tamanho</th>
+      <th style="padding:10px;text-align:center;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--warm-gray)">Busto</th>
+      <th style="padding:10px;text-align:center;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--warm-gray)">Cintura</th>
+      <th style="padding:10px;text-align:center;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--warm-gray)">Quadril</th>
+    </tr></thead>
+    <tbody>
+      <tr style="border-bottom:1px solid rgba(212,103,154,.1)"><td style="padding:10px;font-weight:500">PP / 34–36</td><td style="padding:10px;text-align:center;color:var(--warm-gray)">80–84</td><td style="padding:10px;text-align:center;color:var(--warm-gray)">62–66</td><td style="padding:10px;text-align:center;color:var(--warm-gray)">88–92</td></tr>
+      <tr style="border-bottom:1px solid rgba(212,103,154,.1)"><td style="padding:10px;font-weight:500">P / 36–38</td><td style="padding:10px;text-align:center;color:var(--warm-gray)">84–88</td><td style="padding:10px;text-align:center;color:var(--warm-gray)">66–70</td><td style="padding:10px;text-align:center;color:var(--warm-gray)">92–96</td></tr>
+      <tr style="border-bottom:1px solid rgba(212,103,154,.1)"><td style="padding:10px;font-weight:500">M / 38–40</td><td style="padding:10px;text-align:center;color:var(--warm-gray)">88–92</td><td style="padding:10px;text-align:center;color:var(--warm-gray)">70–74</td><td style="padding:10px;text-align:center;color:var(--warm-gray)">96–100</td></tr>
+      <tr style="border-bottom:1px solid rgba(212,103,154,.1)"><td style="padding:10px;font-weight:500">G / 40–42</td><td style="padding:10px;text-align:center;color:var(--warm-gray)">92–96</td><td style="padding:10px;text-align:center;color:var(--warm-gray)">74–78</td><td style="padding:10px;text-align:center;color:var(--warm-gray)">100–104</td></tr>
+      <tr><td style="padding:10px;font-weight:500">GG / 44–46</td><td style="padding:10px;text-align:center;color:var(--warm-gray)">96–102</td><td style="padding:10px;text-align:center;color:var(--warm-gray)">78–84</td><td style="padding:10px;text-align:center;color:var(--warm-gray)">104–110</td></tr>
+    </tbody>
+  </table>
+</div>
+
+
+<script>
+'use strict';
+
+/* ========= CATALOG ========= */
+const CATALOG = [
+  {
+    id: 1, name: "Blusa Drapeado Sereno", category: "Blusa", price: 129, originalPrice: 199.90, badge: "SALE",
+    image: "assets/p-blusa-azul.png",
+    colors: [{ name: "Azul Sereno", hex: "#9CAEB8" }],
+    sizes: ["36","42"],
+    description: "Blusa de tecido fluido com drapeado assimétrico que valoriza o corpo com suavidade. Ideal para compor looks do dia a dia com elegância descomplicada.",
+    material: "96% viscose, 4% elastano. Tecido leve, fluido e de toque macio. Não amassa.",
+    care: "Lavar à mão ou na máquina em ciclo delicado, água fria. Não torcer. Secar à sombra na horizontal.",
+    fit: "Modelagem solta com queda suave. Veste bem nos tamanhos 34 ao 42. A modelo usa tamanho 36."
+  },
+  {
+    id: 2, name: "Vestido Citrus", category: "Vestido Midi", price: 149, originalPrice: null, badge: "NOVO",
+    image: "assets/p-vestido-laranja.png",
+    colors: [{ name: "Laranja Citrus", hex: "#F4A05B" }, { name: "Rosa Claro", hex: "#F4C9D8" }],
+    sizes: ["P","M","G"],
+    description: "Vestido midi vibrante em tom citrus, com caimento elegante e corte que valoriza a silhueta. Uma peça que transforma qualquer dia em celebração.",
+    material: "100% algodão com fio egípcio. Tecido respirável, macio e de alta durabilidade.",
+    care: "Lavar na máquina em ciclo delicado com água fria. Passar com ferro morno pelo avesso.",
+    fit: "Modelagem ajustada no busto com saia evazê. Para um caimento soltinho, suba um tamanho."
+  },
+  {
+    id: 3, name: "Conjunto Rosé", category: "Conjunto Cropped", price: 259, originalPrice: null, badge: "NOVO",
+    image: "assets/p-conjunto-rosa.png",
+    colors: [{ name: "Rosé", hex: "#E29AB0" }, { name: "Nude", hex: "#F9EFF0" }],
+    sizes: ["36","38","40","42"],
+    description: "Conjunto cropped + calça pantalona em tecido de malha rosé. Peças vendidas juntas que combinam conforto e sofisticação em harmonia perfeita.",
+    material: "85% poliéster, 15% elastano. Malha de alta compressão com brilho acetinado.",
+    care: "Lavar à mão com sabão neutro. Não usar amaciante. Secar à sombra.",
+    fit: "Cropped com ajuste abaixo do busto. Calça modelagem slim de cintura alta. Segue tabela padrão."
+  },
+  {
+    id: 4, name: "Body Bronze", category: "Body Drapeado", price: 199, originalPrice: null, badge: "EXCLUSIVO",
+    image: "assets/p-body-marrom.png",
+    colors: [{ name: "Bronze Escuro", hex: "#7A4234" }, { name: "Caramelo", hex: "#C4956A" }],
+    sizes: ["P"],
+    description: "Body drapeado em tom bronze com abertura profunda nas costas. Peça exclusiva que exige atitude — para noites que ficam na memória.",
+    material: "78% nylon, 22% elastano. Tecido com compressão suave e acabamento fosco premium.",
+    care: "Lavar somente à mão com água fria e sabonete neutro. Secar sobre superfície plana.",
+    fit: "Modelagem colada ao corpo. Recomendamos medir busto e quadril antes de escolher. Disponível em tamanho P."
+  },
+  {
+    id: 5, name: "Saia Cetim Lua", category: "Saia Longa", price: 239, originalPrice: null, badge: null,
+    image: "assets/p-saia-cetim.png",
+    colors: [{ name: "Prata Lua", hex: "#C9CACE" }, { name: "Preto", hex: "#1C1414" }],
+    sizes: ["36","38","40"],
+    description: "Saia longa de cetim com reflexos suaves que evocam o brilho da lua. Fluida, elegante e atemporal — a peça-chave de um guarda-roupa consciente.",
+    material: "100% poliéster cetinado de gramatura alta. Forro interno em chiffon.",
+    care: "Lavar na máquina em ciclo delicado. Passar com ferro a vapor pelo avesso em temperatura média.",
+    fit: "Cós elástico para conforto máximo. Comprimento midi até o tornozelo (aprox. 90cm)."
+  },
+  {
+    id: 6, name: "Blazer Camélia", category: "Blazer", price: 379, originalPrice: null, badge: "NOVO",
+    image: "assets/p-blazer-caqui.png",
+    colors: [{ name: "Caqui Camélia", hex: "#8C7350" }, { name: "Preto", hex: "#1C1414" }],
+    sizes: ["38","40","42"],
+    description: "Blazer estruturado em tweed misto com botões dourados e lapela clássica. Transita do trabalho à noite com elegância natural e sem esforço.",
+    material: "60% lã, 35% poliéster, 5% elastano. Forro de seda sintética. Botões em metal dourado.",
+    care: "Limpeza a seco recomendada. Para lavagem em casa, ciclo delicado em água fria.",
+    fit: "Modelagem slim com ombros levemente estruturados. Caimento alinhado ao corpo. Comprimento no quadril."
+  },
+  {
+    id: 7, name: "Regata Pérola", category: "Regata Cetim", price: 89, originalPrice: 139.90, badge: "SALE",
+    image: "assets/p-regata-branca.png",
+    colors: [{ name: "Pérola", hex: "#F5F2EC" }, { name: "Bege", hex: "#E8DDD0" }],
+    sizes: ["P","M","G","GG"],
+    description: "Regata de cetim leve com alças finas e bojo removível. Uma peça versátil que funciona sozinha ou por baixo de sobreposições com charme discreto.",
+    material: "100% seda sintética cetinada. Bojo em esponja removível. Alças reguláveis.",
+    care: "Lavar somente à mão com sabonete neutro. Não torcer. Secar à sombra deitada sobre toalha.",
+    fit: "Modelagem ajustada com bojo leve. Para usar por baixo de blazers e sobreposições, suba um tamanho."
+  }
+];
+
+/* ========= UTILS ========= */
+const BRL = n => "R$ " + Number(n).toFixed(2).replace(".", ",");
+const FRETE_FREE_MIN = 299;
+
+/* ========= CART STATE ========= */
+let cartState = JSON.parse(localStorage.getItem('cf_cart') || '[]');
+const adminProds = JSON.parse(localStorage.getItem('cf_products') || '[]');
+
+/* ========= FIND PRODUCT ========= */
+const params = new URLSearchParams(window.location.search);
+const rawId = params.get('id');
+let product = null;
+const numId = parseInt(rawId, 10);
+if (!isNaN(numId)) {
+  product = CATALOG.find(p => p.id === numId);
+}
+if (!product) {
+  product = adminProds.find(p => String(p.id) === String(rawId));
+}
+if (!product && adminProds.length > 0) {
+  product = adminProds[0];
+}
+if (!product) {
+  window.location.href = 'index.html';
+}
+
+/* Normalise admin product format */
+if (product && !Array.isArray(product.colors)) {
+  product = { ...product, colors: [{ name: 'Única', hex: '#D4679A' }] };
+} else if (product && product.colors.length > 0 && typeof product.colors[0] === 'string') {
+  product = { ...product, colors: product.colors.map((c, i) => ({ name: 'Cor ' + (i + 1), hex: c })) };
+}
+
+/* ========= PAGE META ========= */
+document.title = product.name + ' — COR & FLOR';
+
+/* ========= BREADCRUMB ========= */
+document.getElementById('bc-cat').textContent = product.category;
+document.getElementById('bc-name').textContent = product.name;
+
+/* ========= BADGE ========= */
+if (product.badge) {
+  const badgeClass = product.badge === 'SALE' ? '' : product.badge === 'EXCLUSIVO' ? 'prod-detail__badge--exclusive' : 'prod-detail__badge--novo';
+  document.getElementById('prod-badge-wrap').innerHTML = '<span class="prod-detail__badge ' + badgeClass + '">' + product.badge + '</span>';
+}
+
+/* ========= CATEGORY & NAME ========= */
+document.getElementById('prod-cat').textContent = product.category;
+document.getElementById('prod-name').textContent = product.name;
+
+/* ========= PRICE ========= */
+document.getElementById('prod-price-now').textContent = BRL(product.price);
+const wasEl = document.getElementById('prod-price-was');
+if (product.originalPrice) {
+  wasEl.textContent = BRL(product.originalPrice);
+} else {
+  wasEl.style.display = 'none';
+}
+document.getElementById('prod-installments').innerHTML = 'ou <strong>10× de ' + BRL(product.price / 10) + '</strong> sem juros';
+
+/* ========= IMAGE ========= */
+const mainImg = document.getElementById('prod-main-img');
+mainImg.src = product.image;
+mainImg.alt = product.name;
+
+/* Thumbnails — repeat main image 3x as demo */
+const thumbsEl = document.getElementById('prod-thumbs');
+[product.image, product.image, product.image].forEach(function(src, i) {
+  const div = document.createElement('div');
+  div.className = 'prod-thumb' + (i === 0 ? ' active' : '');
+  const img = document.createElement('img');
+  img.src = src;
+  img.alt = product.name;
+  div.appendChild(img);
+  div.addEventListener('click', function() {
+    mainImg.src = src;
+    thumbsEl.querySelectorAll('.prod-thumb').forEach(function(t) { t.classList.remove('active'); });
+    div.classList.add('active');
+  });
+  thumbsEl.appendChild(div);
+});
+
+/* ========= COLORS ========= */
+const colorsEl = document.getElementById('prod-colors');
+const colorLabel = document.getElementById('color-label');
+let selectedColor = null;
+
+(product.colors || []).forEach(function(c, i) {
+  const btn = document.createElement('button');
+  btn.className = 'prod-color' + (i === 0 ? ' active' : '');
+  btn.style.background = c.hex;
+  btn.title = c.name;
+  btn.setAttribute('aria-label', c.name);
+  if (i === 0) {
+    colorLabel.textContent = c.name;
+    selectedColor = c;
+  }
+  btn.addEventListener('click', function() {
+    colorsEl.querySelectorAll('.prod-color').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    colorLabel.textContent = c.name;
+    selectedColor = c;
+  });
+  colorsEl.appendChild(btn);
+});
+
+/* ========= SIZES ========= */
+const sizesEl = document.getElementById('prod-sizes');
+const sizeLabel = document.getElementById('size-label');
+let selectedSize = null;
+
+(product.sizes || []).forEach(function(sz) {
+  const btn = document.createElement('button');
+  btn.className = 'prod-size';
+  btn.textContent = sz;
+  btn.addEventListener('click', function() {
+    sizesEl.querySelectorAll('.prod-size').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    sizeLabel.textContent = sz;
+    selectedSize = sz;
+  });
+  sizesEl.appendChild(btn);
+});
+
+/* ========= ACCORDION CONTENT ========= */
+document.getElementById('acc-material').textContent = product.material || 'Informação não disponível.';
+document.getElementById('acc-care').textContent = product.care || 'Consulte a etiqueta.';
+document.getElementById('acc-fit').textContent = product.fit || 'Consulte o guia de tamanhos.';
+
+/* ========= DESCRIPTION ========= */
+document.getElementById('prod-desc').textContent = product.description || '';
+
+/* ========= QUANTITY ========= */
+let qty = 1;
+document.getElementById('qty-minus').addEventListener('click', function() {
+  if (qty > 1) { qty--; document.getElementById('qty-val').textContent = qty; }
+});
+document.getElementById('qty-plus').addEventListener('click', function() {
+  qty++;
+  document.getElementById('qty-val').textContent = qty;
+});
+
+/* ========= FAVORITE ========= */
+let isFav = false;
+document.getElementById('btn-fav').addEventListener('click', function() {
+  isFav = !isFav;
+  document.getElementById('btn-fav').classList.toggle('active', isFav);
+  document.getElementById('fav-icon').setAttribute('href', isFav ? '#i-heart-fill' : '#i-heart');
+  toast(isFav ? '✿ Adicionado aos favoritos' : 'Removido dos favoritos');
+});
+
+/* ========= ADD TO CART ========= */
+document.getElementById('btn-add-cart').addEventListener('click', function() {
+  if (!selectedSize && product.sizes && product.sizes.length > 0) {
+    sizeLabel.style.color = '#dc2626';
+    setTimeout(function() { sizeLabel.style.color = ''; }, 1500);
+    toast('⚠️ Selecione um tamanho');
+    return;
+  }
+  addToCart(product, selectedSize || 'Único', selectedColor ? selectedColor.name : '', qty);
+});
+
+/* ========= BUY NOW ========= */
+document.getElementById('btn-buy-now').addEventListener('click', function() {
+  if (!selectedSize && product.sizes && product.sizes.length > 0) {
+    toast('⚠️ Selecione um tamanho');
+    return;
+  }
+  addToCart(product, selectedSize || 'Único', selectedColor ? selectedColor.name : '', qty);
+  openCart();
+});
+
+function addToCart(prod, size, color, amount) {
+  const existing = cartState.find(function(x) { return String(x.id) === String(prod.id) && x.size === size; });
+  if (existing) {
+    existing.qty += amount;
+  } else {
+    cartState.push({ id: prod.id, qty: amount, size: size, color: color });
+  }
+  localStorage.setItem('cf_cart', JSON.stringify(cartState));
+  renderCart();
+  toast('✿ ' + prod.name + ' entrou no seu jardim');
+  const ic = document.getElementById('open-cart');
+  ic.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.2)' }, { transform: 'scale(1)' }], { duration: 400, easing: 'ease' });
+}
+
+/* ========= RELATED PRODUCTS ========= */
+const related = CATALOG.filter(function(p) { return p.id !== product.id; }).slice(0, 4);
+const relGrid = document.getElementById('related-grid');
+related.forEach(function(p) {
+  const was = p.originalPrice ? '<span class="card__price-was">' + BRL(p.originalPrice) + '</span>' : '';
+  const badgeCls = p.badge === 'SALE' ? 'card__badge--sale' : p.badge === 'EXCLUSIVO' ? 'card__badge--exclusive' : '';
+  const badge = p.badge ? '<span class="card__badge ' + badgeCls + '">' + p.badge + '</span>' : '';
+  const swatches = (p.colors || []).map(function(c) { return '<span class="card__sw" style="background:' + (c.hex || c) + '"></span>'; }).join('');
+  const el = document.createElement('article');
+  el.className = 'card reveal';
+  el.innerHTML = '<div class="card__media">' +
+    badge +
+    '<button class="card__fav" aria-label="Favoritar ' + p.name + '"><svg width="18" height="18"><use href="#i-heart"/></svg></button>' +
+    '<img src="' + p.image + '" alt="' + p.name + '" loading="lazy"/>' +
+    '<button class="card__add" data-add="' + p.id + '"><svg width="14" height="14"><use href="#i-bag"/></svg> Adicionar</button>' +
+    '</div>' +
+    '<div class="card__body">' +
+    '<span class="card__cat">' + p.category + '</span>' +
+    '<h3 class="card__name"><a href="produto.html?id=' + p.id + '" style="color:inherit">' + p.name + '</a></h3>' +
+    '<div class="card__price"><span class="card__price-now">' + BRL(p.price) + '</span>' + was + '</div>' +
+    '<div class="card__colors">' + swatches + '</div>' +
+    '</div>';
+
+  el.querySelector('[data-add]').addEventListener('click', function(e) {
+    e.stopPropagation();
+    addToCart(p, p.sizes[0] || 'Único', '', 1);
+  });
+  el.querySelector('.card__media').addEventListener('click', function(ev) {
+    if (!ev.target.closest('button')) window.location.href = 'produto.html?id=' + p.id;
+  });
+  el.querySelector('.card__fav').addEventListener('click', function(e) {
+    e.stopPropagation();
+    e.currentTarget.classList.toggle('is-on');
+    const sv = e.currentTarget.querySelector('use');
+    sv.setAttribute('href', e.currentTarget.classList.contains('is-on') ? '#i-heart-fill' : '#i-heart');
+  });
+  relGrid.appendChild(el);
+});
+
+/* ========= ACCORDION ========= */
+function toggleAcc(btn) {
+  const body = btn.nextElementSibling;
+  const isOpen = body.classList.contains('open');
+  document.querySelectorAll('.prod-acc-body').forEach(function(b) { b.classList.remove('open'); });
+  document.querySelectorAll('.prod-acc-btn').forEach(function(b) { b.classList.remove('open'); });
+  if (!isOpen) {
+    body.classList.add('open');
+    btn.classList.add('open');
+  }
+}
+
+/* ========= SIZE GUIDE ========= */
+function openSizeGuide() {
+  document.getElementById('sg-modal').style.display = 'block';
+  document.getElementById('sg-veil').classList.add('is-open');
+}
+function closeSizeGuide() {
+  document.getElementById('sg-modal').style.display = 'none';
+  document.getElementById('sg-veil').classList.remove('is-open');
+}
+document.getElementById('sg-veil').addEventListener('click', closeSizeGuide);
+
+/* ========= CART RENDER ========= */
+const cartEl      = document.getElementById('cart');
+const cartVeil    = document.getElementById('cart-veil');
+const cartList    = document.getElementById('cart-list');
+const cartCount   = document.getElementById('cart-count');
+const cartHeadCount = document.getElementById('cart-head-count');
+const cartSubtotal  = document.getElementById('cart-subtotal');
+const cartTotal     = document.getElementById('cart-total');
+const cartBanner    = document.querySelector('.cart__banner');
+
+function findProduct(id) {
+  return CATALOG.find(function(x) { return x.id === id || String(x.id) === String(id); }) ||
+         adminProds.find(function(x) { return String(x.id) === String(id); });
+}
+
+function renderCart() {
+  localStorage.setItem('cf_cart', JSON.stringify(cartState));
+  cartList.innerHTML = '';
+  let subtotal = 0;
+  let count = 0;
+
+  cartState.forEach(function(it, idx) {
+    const p = findProduct(it.id);
+    if (!p) return;
+    subtotal += p.price * it.qty;
+    count += it.qty;
+
+    const li = document.createElement('li');
+    li.className = 'cart__item';
+    li.innerHTML =
+      '<div class="cart__item-img">' +
+        '<button class="cart__item-img-x" data-remove="' + idx + '" aria-label="Remover">×</button>' +
+        '<img src="' + p.image + '" alt="' + p.name + '"/>' +
+      '</div>' +
+      '<div class="cart__item-body">' +
+        '<h4 class="cart__item-name">' + p.name + '</h4>' +
+        '<span class="cart__item-size">Tamanho ' + it.size + '</span>' +
+        '<div class="cart__qty">' +
+          '<button data-q="-1" data-i="' + idx + '" aria-label="Diminuir"><svg width="14" height="14"><use href="#i-minus"/></svg></button>' +
+          '<span>' + it.qty + '</span>' +
+          '<button data-q="1" data-i="' + idx + '" aria-label="Aumentar"><svg width="14" height="14"><use href="#i-plus"/></svg></button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="cart__item-price">' + BRL(p.price * it.qty) + '</div>';
+    cartList.appendChild(li);
+  });
+
+  if (cartState.length === 0) {
+    cartList.innerHTML = '<li style="text-align:center;padding:60px 20px;color:var(--warm-gray);font-family:var(--serif);font-style:italic;">Seu jardim está vazio. ✿<br><span style="font-size:13px;font-family:var(--sans);font-style:normal;">Adicione peças que façam você florescer.</span></li>';
+  }
+
+  cartCount.textContent = count;
+  cartHeadCount.textContent = '(' + count + ')';
+  cartSubtotal.textContent = BRL(subtotal);
+  cartTotal.textContent = BRL(subtotal);
+
+  const missing = Math.max(0, FRETE_FREE_MIN - subtotal);
+  cartBanner.innerHTML = missing > 0
+    ? '<span>✿</span> Falta <strong>' + BRL(missing) + '</strong> para frete grátis!'
+    : '<span>✿</span> <strong>Você ganhou frete grátis!</strong> 💌';
+}
+renderCart();
+
+cartList.addEventListener('click', function(e) {
+  const q = e.target.closest('[data-q]');
+  if (q) {
+    const i = parseInt(q.dataset.i, 10);
+    const d = parseInt(q.dataset.q, 10);
+    cartState[i].qty = Math.max(0, cartState[i].qty + d);
+    if (cartState[i].qty === 0) cartState.splice(i, 1);
+    renderCart();
+    return;
+  }
+  const r = e.target.closest('[data-remove]');
+  if (r) {
+    cartState.splice(parseInt(r.dataset.remove, 10), 1);
+    renderCart();
+  }
+});
+
+/* ========= CART OPEN/CLOSE ========= */
+document.getElementById('open-cart').addEventListener('click', openCart);
+document.getElementById('close-cart').addEventListener('click', closeCart);
+document.getElementById('cart-continue').addEventListener('click', closeCart);
+cartVeil.addEventListener('click', closeCart);
+
+function openCart() {
+  cartEl.classList.add('is-open');
+  cartVeil.classList.add('is-open');
+  cartEl.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+}
+function closeCart() {
+  cartEl.classList.remove('is-open');
+  cartVeil.classList.remove('is-open');
+  cartEl.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}
+
+/* ========= TOAST ========= */
+const toastEl = document.getElementById('toast');
+let toastT;
+function toast(msg) {
+  toastEl.textContent = msg;
+  toastEl.classList.add('is-show');
+  clearTimeout(toastT);
+  toastT = setTimeout(function() { toastEl.classList.remove('is-show'); }, 2600);
+}
+
+/* ========= NAVBAR SCROLL ========= */
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', function() {
+  nav.classList.toggle('is-scrolled', window.scrollY > 40);
+}, { passive: true });
+
+/* ========= MOBILE MENU ========= */
+const burger = document.getElementById('burger');
+const mmenu  = document.getElementById('mmenu');
+const mclose = document.getElementById('mmenu-close');
+burger.addEventListener('click', function() {
+  mmenu.classList.add('is-open');
+  mmenu.setAttribute('aria-hidden', 'false');
+});
+mclose.addEventListener('click', function() {
+  mmenu.classList.remove('is-open');
+  mmenu.setAttribute('aria-hidden', 'true');
+});
+mmenu.querySelectorAll('a').forEach(function(a) {
+  a.addEventListener('click', function() {
+    mmenu.classList.remove('is-open');
+    mmenu.setAttribute('aria-hidden', 'true');
+  });
+});
+
+/* ========= INTERSECTION OBSERVER REVEALS ========= */
+const io = new IntersectionObserver(function(entries) {
+  entries.forEach(function(en) {
+    if (en.isIntersecting) {
+      en.target.classList.add('is-in');
+      io.unobserve(en.target);
+    }
+  });
+}, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+document.querySelectorAll('.reveal').forEach(function(el) { io.observe(el); });
+
+/* ========= CUSTOM CURSOR ========= */
+const cursor = document.getElementById('cursor');
+if (window.matchMedia('(hover:hover) and (pointer:fine)').matches) {
+  let x = 0, y = 0, cx = 0, cy = 0;
+  window.addEventListener('mousemove', function(e) { x = e.clientX; y = e.clientY; });
+  const tick = function() {
+    cx += (x - cx) * 0.22;
+    cy += (y - cy) * 0.22;
+    cursor.style.transform = 'translate(' + cx.toFixed(1) + 'px, ' + cy.toFixed(1) + 'px)';
+    requestAnimationFrame(tick);
+  };
+  tick();
+  document.querySelectorAll('a, button, .card, .prod-color, .prod-size, .prod-thumb').forEach(function(el) {
+    el.addEventListener('mouseenter', function() { cursor.classList.add('is-hover'); });
+    el.addEventListener('mouseleave', function() { cursor.classList.remove('is-hover'); });
+  });
+}
+</script>
+</body>
+</html>
