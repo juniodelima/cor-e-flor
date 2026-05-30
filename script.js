@@ -157,13 +157,12 @@ window.addEventListener("load", () => {
 });
 
 
-/* ---------- HERO SLIDER ---------- */
+/* ---------- HERO SLIDER (automático + swipe) ---------- */
 (function () {
   const bgs   = document.querySelectorAll(".hs-bg");
   const conts = document.querySelectorAll(".hs-content");
   const dots  = document.querySelectorAll(".hs-dot");
-  const prev  = document.getElementById("hs-prev");
-  const next  = document.getElementById("hs-next");
+  const hero  = document.querySelector(".hero");
   if (!bgs.length) return;
 
   let cur = 0, timer;
@@ -180,11 +179,18 @@ window.addEventListener("load", () => {
     timer = setInterval(() => go(cur + 1), 6000);
   }
 
-  prev?.addEventListener("click", () => go(cur - 1));
-  next?.addEventListener("click", () => go(cur + 1));
+  // Dots
   dots.forEach((d, i) => d.addEventListener("click", () => go(i)));
 
-  // Also update parallax query to include hs-img
+  // Swipe (mobile)
+  let touchX = 0;
+  hero?.addEventListener("touchstart", e => { touchX = e.touches[0].clientX; }, { passive: true });
+  hero?.addEventListener("touchend",   e => {
+    const diff = touchX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 48) go(diff > 0 ? cur + 1 : cur - 1);
+  }, { passive: true });
+
+  // Auto
   timer = setInterval(() => go(cur + 1), 6000);
 })();
 
