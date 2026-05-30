@@ -177,12 +177,28 @@
 <!-- ===== HERO ===== -->
 <main id="top">
 <section class="hero" data-screen-label="01 Home — Hero">
-  <div class="hero__bg" data-parallax="0.3">
-    <img src="assets/hero-capa.png" alt="Cor &amp; Flor — Coleção" loading="eager" style="object-position:center top"/>
-  </div>
-  <div class="hero__overlay"></div>
 
-  <!-- Floating petals -->
+  <!-- ═══ SLIDES DE FUNDO ═══ -->
+  <div class="hs-bg active">
+    <div class="hs-img" data-parallax="0.3">
+      <img src="assets/hero-conjunto.png" alt="" loading="eager" style="object-position:center top"/>
+    </div>
+    <div class="hs-overlay"></div>
+  </div>
+  <div class="hs-bg">
+    <div class="hs-img">
+      <img src="assets/hero-blusa.png" alt="" loading="lazy" style="object-position:center top"/>
+    </div>
+    <div class="hs-overlay"></div>
+  </div>
+  <div class="hs-bg">
+    <div class="hs-img">
+      <img src="assets/hero-vestido.png" alt="" loading="lazy" style="object-position:center top"/>
+    </div>
+    <div class="hs-overlay"></div>
+  </div>
+
+  <!-- ═══ PETALS ═══ -->
   <div class="petals" aria-hidden="true">
     <svg class="petal p1" viewBox="-25 -45 50 50" style="color:#D4679A"><use href="#cf-petal"/></svg>
     <svg class="petal p2" viewBox="-25 -45 50 50" style="color:#F4C9D8"><use href="#cf-petal"/></svg>
@@ -190,20 +206,64 @@
     <svg class="petal p4" viewBox="-25 -45 50 50" style="color:#C4956A"><use href="#cf-petal"/></svg>
   </div>
 
-  <div class="hero__content">
-    <div class="hero__eyebrow"><span>✦</span> OFERTA ESPECIAL DA SEMANA</div>
-    <h1 class="hero__title">
-      <span class="word">Aproveite</span>
-      <span class="word">até</span>
-      <span class="word"><em>35%</em></span>
-      <span class="word">off.</span>
-    </h1>
-    <p class="hero__sub">Peças selecionadas com muito cuidado —<br>por tempo limitado. Não perca.</p>
-    <div class="hero__cta">
-      <a class="btn btn--primary" href="#novidades">Ver ofertas</a>
-      <a class="btn btn--link" href="#categorias">Explorar coleção <svg width="18" height="18"><use href="#i-arrow"/></svg></a>
+  <!-- ═══ SLIDE 1 — Conjunto (Oferta 35%) ═══ -->
+  <div class="hs-content active">
+    <div class="hero__content">
+      <div class="hero__eyebrow"><span>✦</span> OFERTA ESPECIAL DA SEMANA</div>
+      <h1 class="hero__title">
+        <span class="word">Aproveite</span>
+        <span class="word">até</span>
+        <span class="word"><em>35%</em></span>
+        <span class="word">off.</span>
+      </h1>
+      <p class="hero__sub">Peças selecionadas com muito cuidado —<br>por tempo limitado. Não perca.</p>
+      <div class="hero__cta">
+        <a class="btn btn--primary" href="#novidades">Ver ofertas</a>
+        <a class="btn btn--link" href="#categorias">Explorar coleção <svg width="18" height="18"><use href="#i-arrow"/></svg></a>
+      </div>
     </div>
   </div>
+
+  <!-- ═══ SLIDE 2 — Blusa ═══ -->
+  <div class="hs-content">
+    <div class="hero__content">
+      <div class="hero__eyebrow"><span>✦</span> BLUSAS &amp; TOPS — NOVA COLEÇÃO</div>
+      <h1 class="hero__title hs-title-static">
+        Sofisticação<br>em cada <em>detalhe.</em>
+      </h1>
+      <p class="hero__sub hs-sub-static">Peças que revelam quem você é —<br>com elegância e personalidade únicas.</p>
+      <div class="hero__cta hs-cta-static">
+        <a class="btn btn--primary" href="#novidades">Comprar agora</a>
+        <a class="btn btn--link" href="#categorias">Ver blusas <svg width="18" height="18"><use href="#i-arrow"/></svg></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 3 — Vestido ═══ -->
+  <div class="hs-content">
+    <div class="hero__content">
+      <div class="hero__eyebrow"><span>✦</span> VESTIDOS — PRIMAVERA 2026</div>
+      <h1 class="hero__title hs-title-static">
+        Vista-se de<br><em>memórias.</em>
+      </h1>
+      <p class="hero__sub hs-sub-static">Vestidos que transformam momentos<br>em histórias inesquecíveis.</p>
+      <div class="hero__cta hs-cta-static">
+        <a class="btn btn--primary" href="#novidades">Ver vestidos</a>
+        <a class="btn btn--link" href="#categorias">Ver coleção <svg width="18" height="18"><use href="#i-arrow"/></svg></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ DOTS ═══ -->
+  <div class="hs-dots" id="hs-dots">
+    <button class="hs-dot active" aria-label="Slide 1"></button>
+    <button class="hs-dot" aria-label="Slide 2"></button>
+    <button class="hs-dot" aria-label="Slide 3"></button>
+  </div>
+
+  <!-- ═══ ARROWS ═══ -->
+  <button class="hs-arrow hs-arrow--prev" id="hs-prev" aria-label="Slide anterior">&#8249;</button>
+  <button class="hs-arrow hs-arrow--next" id="hs-next" aria-label="Próximo slide">&#8250;</button>
 
   <div class="hero__scroll" aria-hidden="true">
     <span>role para descobrir</span>
@@ -220,7 +280,7 @@
   </header>
 
   <div class="cats__grid">
-    <a class="cat cat--big reveal" href="#" style="background-image:url('https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=1200&q=80')">
+    <a class="cat cat--big reveal" href="#" style="background-image:url('assets/hero-vestido.png')">
       <div class="cat__veil"></div>
       <div class="cat__info">
         <span class="cat__label">Vestidos &amp; Saias</span>
@@ -229,16 +289,16 @@
       </div>
     </a>
 
-    <a class="cat reveal" href="#" style="background-image:url('https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=900&q=80')">
+    <a class="cat reveal" href="#" style="background-image:url('assets/hero-blusa.png')">
       <div class="cat__veil"></div>
       <div class="cat__info">
         <span class="cat__label">Blusas &amp; Tops</span>
-        <h3 class="cat__copy"><em>Leveza que transforma o dia.</em></h3>
+        <h3 class="cat__copy"><em>Sofisticação em cada detalhe.</em></h3>
         <span class="cat__cta">Ver coleção <svg width="16" height="16"><use href="#i-arrow"/></svg></span>
       </div>
     </a>
 
-    <a class="cat reveal" href="#" style="background-image:url('assets/p-look-azul.png')">
+    <a class="cat reveal" href="#" style="background-image:url('assets/hero-conjunto.png')">
       <div class="cat__veil"></div>
       <div class="cat__info">
         <span class="cat__label">Conjuntos</span>

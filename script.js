@@ -134,7 +134,7 @@ const nav = document.getElementById("nav");
 const onScroll = () => {
   nav.classList.toggle("is-scrolled", window.scrollY > 80);
   // parallax
-  document.querySelectorAll("[data-parallax]").forEach(el => {
+  document.querySelectorAll("[data-parallax], .hs-img").forEach(el => {
     const speed = parseFloat(el.dataset.parallax);
     const rect = el.getBoundingClientRect();
     const offset = (rect.top + rect.height / 2 - window.innerHeight / 2) * speed * -1;
@@ -155,6 +155,38 @@ window.addEventListener("load", () => {
     document.getElementById("page-veil").remove();
   }, 1900);
 });
+
+
+/* ---------- HERO SLIDER ---------- */
+(function () {
+  const bgs   = document.querySelectorAll(".hs-bg");
+  const conts = document.querySelectorAll(".hs-content");
+  const dots  = document.querySelectorAll(".hs-dot");
+  const prev  = document.getElementById("hs-prev");
+  const next  = document.getElementById("hs-next");
+  if (!bgs.length) return;
+
+  let cur = 0, timer;
+
+  function go(n) {
+    bgs[cur].classList.remove("active");
+    conts[cur].classList.remove("active");
+    dots[cur].classList.remove("active");
+    cur = ((n % bgs.length) + bgs.length) % bgs.length;
+    bgs[cur].classList.add("active");
+    conts[cur].classList.add("active");
+    dots[cur].classList.add("active");
+    clearInterval(timer);
+    timer = setInterval(() => go(cur + 1), 6000);
+  }
+
+  prev?.addEventListener("click", () => go(cur - 1));
+  next?.addEventListener("click", () => go(cur + 1));
+  dots.forEach((d, i) => d.addEventListener("click", () => go(i)));
+
+  // Also update parallax query to include hs-img
+  timer = setInterval(() => go(cur + 1), 6000);
+})();
 
 
 /* ---------- INTERSECTION OBSERVER REVEALS ---------- */
