@@ -19,9 +19,9 @@ const DB = {
 };
 
 // ── AI Studio state ───────────────────────────────────────────
-let aiStudioState = { open:false, referenceImages:[], generatedImages:[], selectedImages:[] };
+let aiStudioState = { open:false, referenceImages:[], generatedImages:[], selectedImages:[], generationSlots:[{type:'flatlay',count:1}] };
 function resetAIStudio() {
-  aiStudioState = { open:false, referenceImages:[], generatedImages:[], selectedImages:[] };
+  aiStudioState = { open:false, referenceImages:[], generatedImages:[], selectedImages:[], generationSlots:[{type:'flatlay',count:1}] };
 }
 
 // ── Utilities ─────────────────────────────────────────────────
@@ -543,42 +543,23 @@ function openProductModal(id) {
   document.getElementById('modal-body').innerHTML = `
     <h3 class="modal-title"><i class="bi bi-${p?'pencil':'plus-circle'}"></i> ${p?'Editar':'Novo'} Produto</h3>
     <form id="prod-form" onsubmit="saveProduct(event,'${id||''}')">
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Nome do Produto *</label>
-          <input type="text" class="form-input" id="pf-name" value="${p?.name||''}" required placeholder="ex: Vestido Floral Rosa"></div>
-        <div class="form-group"><label class="form-label">Categoria *</label>
-          <select class="form-select" id="pf-cat">
-            ${[['vestidos','Vestidos & Saias'],['blusas','Blusas & Tops'],['conjuntos','Conjuntos'],['calcas','Calças'],['blazers','Blazers'],['acessorios','Acessórios']].map(([v,l])=>`<option value="${v}"${p?.category===v?' selected':''}>${l}</option>`).join('')}
-          </select>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Preço (R$) *</label>
-          <input type="number" class="form-input" id="pf-price" value="${p?.price||''}" step="0.01" min="0" required placeholder="0,00"></div>
-        <div class="form-group"><label class="form-label">Preço Original (R$)</label>
-          <input type="number" class="form-input" id="pf-orig" value="${p?.originalPrice||''}" step="0.01" min="0" placeholder="Deixe 0 se não houver"></div>
-      </div>
 
-      <!-- Upload de foto -->
-      <div class="form-group">
-        <label class="form-label">Foto do Produto</label>
-        <div class="img-upload-area" id="img-upload-area"
-             onclick="document.getElementById('pf-img-file').click()"
-             ondragover="event.preventDefault();this.classList.add('drag-over')"
-             ondragleave="this.classList.remove('drag-over')"
-             ondrop="event.preventDefault();this.classList.remove('drag-over');handleImgDrop(event)">
-          ${imgAreaHtml}
-        </div>
-        <input type="file" id="pf-img-file" accept="image/png,image/jpeg,image/webp,image/gif"
-               style="display:none" onchange="onImageUpload(event)">
-        <input type="hidden" id="pf-img-current" value="${p?.image||''}">
+      <p class="modal-section-label"><i class="bi bi-images"></i> Fotos do Produto</p>
+      <div class="img-upload-area" id="img-upload-area"
+           onclick="document.getElementById('pf-img-file').click()"
+           ondragover="event.preventDefault();this.classList.add('drag-over')"
+           ondragleave="this.classList.remove('drag-over')"
+           ondrop="event.preventDefault();this.classList.remove('drag-over');handleImgDrop(event)">
+        ${imgAreaHtml}
       </div>
+      <input type="file" id="pf-img-file" accept="image/png,image/jpeg,image/webp,image/gif"
+             style="display:none" onchange="onImageUpload(event)">
+      <input type="hidden" id="pf-img-current" value="${p?.image||''}">
 
-      <!-- ── AI STUDIO ───────────────────── -->
       <div class="ai-studio-bar">
         <button type="button" class="ai-studio-bar__btn" onclick="toggleAIStudio()">
           <i class="bi bi-stars"></i>
-          <span>Gerar fotos com IA</span>
+          <span>Gerar mais fotos com IA</span>
           <i class="bi bi-chevron-down" id="ai-chev" style="margin-left:auto;transition:transform .3s"></i>
         </button>
       </div>
@@ -586,31 +567,17 @@ function openProductModal(id) {
         <div class="ai-ref-section">
           <p class="form-label">Fotos de referência (até 3)</p>
           <div class="ai-ref-list" id="ai-ref-list">
-            <button type="button" class="ai-ref-add-btn" onclick="document.getElementById('ai-ref-input').click()">
-              <i class="bi bi-plus-lg"></i>
-            </button>
+            <button type="button" class="ai-ref-add-btn" onclick="document.getElementById('ai-ref-input').click()"><i class="bi bi-plus-lg"></i></button>
           </div>
           <input type="file" id="ai-ref-input" accept="image/*" multiple style="display:none" onchange="addAIRefImages(event)">
-          <p style="font-size:11px;color:rgba(74,64,64,.45);margin-top:8px">
-            Envie fotos reais do produto para a IA usar de referência.
-          </p>
+          <p style="font-size:11px;color:rgba(74,64,64,.45);margin-top:8px">Envie fotos reais do produto para a IA usar de referência.</p>
         </div>
-        <div class="ai-type-section">
-          <p class="form-label">Tipo de foto a criar</p>
-          <div class="ai-type-row">
-            <button type="button" class="ai-type-btn active" data-type="flatlay" onclick="setAIType('flatlay')">
-              <i class="bi bi-hanger2" style="font-size:20px"></i>
-              <span>Flat lay</span><small>Peça em cabide</small>
-            </button>
-            <button type="button" class="ai-type-btn" data-type="modelo" onclick="setAIType('modelo')">
-              <i class="bi bi-person-standing-dress" style="font-size:20px"></i>
-              <span>Na modelo</span><small>Vestindo a peça</small>
-            </button>
-            <button type="button" class="ai-type-btn" data-type="editorial" onclick="setAIType('editorial')">
-              <i class="bi bi-camera" style="font-size:20px"></i>
-              <span>Editorial</span><small>Foto artística</small>
-            </button>
+        <div class="ai-slots-section">
+          <div class="ai-slots-header">
+            <p class="form-label" style="margin:0">O que gerar</p>
+            <span id="ai-slots-total" class="ai-slots-total"></span>
           </div>
+          <div id="ai-slots-container"></div>
         </div>
         <button type="button" class="ai-gen-btn" id="ai-gen-btn" onclick="generateWithAI()">
           <i class="bi bi-stars"></i> Gerar imagens com IA
@@ -630,11 +597,47 @@ function openProductModal(id) {
         </div>
       </div>
 
-      <div class="form-group"><label class="form-label">Descrição</label>
-        <textarea class="form-input" id="pf-desc" rows="2" placeholder="Descreva o produto...">${p?.description||''}</textarea></div>
-      <div class="form-group"><label class="form-label">Cores (separadas por vírgula)</label>
-        <input type="text" class="form-input" id="pf-colors" value="${p?.colors?.join(', ')||''}" placeholder="Rosa, Azul, Preto"></div>
-      <div class="form-group"><label class="form-label">Tamanhos disponíveis</label>
+      <div class="modal-section-divider"><span>Informações do Produto</span></div>
+
+      <button type="button" class="ai-text-gen-btn" id="ai-text-btn" onclick="generateProductText()">
+        <i class="bi bi-stars"></i> Gerar título e descrição com IA
+      </button>
+
+      <div class="form-row">
+        <div class="form-group" style="flex:2">
+          <label class="form-label">Nome do Produto *</label>
+          <input type="text" class="form-input" id="pf-name" value="${p?.name||''}" required placeholder="ex: Vestido Floral Rosa">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Categoria *</label>
+          <select class="form-select" id="pf-cat">
+            ${[['vestidos','Vestidos & Saias'],['blusas','Blusas & Tops'],['conjuntos','Conjuntos'],['calcas','Calças'],['blazers','Blazers'],['acessorios','Acessórios']].map(([v,l])=>`<option value="${v}"${p?.category===v?' selected':''}>${l}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Preço (R$) *</label>
+          <input type="number" class="form-input" id="pf-price" value="${p?.price||''}" step="0.01" min="0" required placeholder="0,00">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Preço Original (R$)</label>
+          <input type="number" class="form-input" id="pf-orig" value="${p?.originalPrice||''}" step="0.01" min="0" placeholder="Deixe 0 se não houver">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Descrição</label>
+        <textarea class="form-input" id="pf-desc" rows="3" placeholder="Descreva o produto, tecido, caimento, ocasião de uso...">${p?.description||''}</textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Cores (separadas por vírgula)</label>
+        <input type="text" class="form-input" id="pf-colors" value="${p?.colors?.join(', ')||''}" placeholder="Rosa, Azul, Preto">
+      </div>
+
+      <div class="modal-section-divider"><span>Tamanhos & Estoque</span></div>
+
+      <div class="form-group">
+        <label class="form-label">Tamanhos disponíveis</label>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
           ${['PP','P','M','G','GG','U'].map(sz=>`
             <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px">
@@ -666,6 +669,7 @@ function openProductModal(id) {
     </form>
   `;
   document.getElementById('modal-overlay').classList.add('open');
+  renderAISlots();
 }
 
 function onImageUpload(e) {
@@ -764,57 +768,66 @@ function setAIType(type) {
 
 async function generateWithAI() {
   const key = getOpenAIKey();
-  if (!key) {
-    toast('Configure a chave API OpenAI em Configurações → Estúdio IA.', 'error');
-    return;
-  }
-  const type = document.querySelector('.ai-type-btn.active')?.dataset.type || 'flatlay';
-  const prompts = {
+  if (!key) { toast('Configure a chave API OpenAI em Configurações → Estúdio IA.', 'error'); return; }
+
+  const PROMPTS = {
     flatlay:   'Professional fashion product photography. Clothing item displayed hanging on a wooden hanger against a clean warm cream background. Studio lighting. High-end Brazilian fashion brand Cor & Flor. Ultra detailed, editorial quality.',
     modelo:    'Professional Brazilian fashion photography. A stylish woman with natural makeup wearing this clothing item. Confident elegant pose. Neutral studio background. Premium fashion brand look. High quality.',
     editorial: 'Editorial fashion photography for Brazilian women\'s fashion brand Cor & Flor. Artistic composition with rose and cream tones. Luxurious feminine aesthetic. Premium quality.',
   };
   const cfg     = DB.get('settings') || {};
   const quality = cfg.aiQuality || 'medium';
+  const slots   = aiStudioState.generationSlots;
+  const total   = slots.reduce((s, sl) => s + sl.count, 0);
   const genBtn  = document.getElementById('ai-gen-btn');
   const statusEl= document.getElementById('ai-gen-status');
-  if (genBtn)   { genBtn.disabled = true; genBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Gerando...'; }
-  if (statusEl) { statusEl.style.display = 'block'; statusEl.innerHTML = '<div class="ai-loading"><div class="ai-spinner"></div> Gerando imagens com IA… isso leva cerca de 20 segundos.</div>'; }
 
-  try {
-    let responseData;
-    if (aiStudioState.referenceImages.length > 0) {
-      const formData = new FormData();
-      formData.append('model', 'gpt-image-1');
-      formData.append('prompt', prompts[type]);
-      formData.append('n', '2');
-      formData.append('size', '1024x1024');
-      formData.append('quality', quality);
-      const b64  = aiStudioState.referenceImages[0].dataUrl;
-      const blob = await fetch(b64).then(r => r.blob());
-      formData.append('image[]', blob, 'reference.png');
+  if (genBtn)   { genBtn.disabled = true; genBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Gerando...'; }
+  if (statusEl) { statusEl.style.display = 'block'; statusEl.innerHTML = `<div class="ai-loading"><div class="ai-spinner"></div> Gerando ${total} foto${total>1?'s':''} com IA… isso leva cerca de ${total * 15} segundos.</div>`; }
+
+  const hasRef = aiStudioState.referenceImages.length > 0;
+  let refBlob = null;
+  if (hasRef) {
+    refBlob = await fetch(aiStudioState.referenceImages[0].dataUrl).then(r => r.blob());
+  }
+
+  async function callAPI(slotType, count) {
+    if (hasRef) {
+      const fd = new FormData();
+      fd.append('model', 'gpt-image-1');
+      fd.append('prompt', PROMPTS[slotType]);
+      fd.append('n', String(count));
+      fd.append('size', '1024x1024');
+      fd.append('quality', quality);
+      fd.append('image[]', refBlob, 'reference.png');
       const res = await fetch('https://api.openai.com/v1/images/edits', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${key}` },
-        body: formData,
+        method:'POST', headers:{'Authorization':`Bearer ${key}`}, body:fd
       });
-      if (!res.ok) { const err = await res.json(); throw new Error(err.error?.message || `HTTP ${res.status}`); }
-      responseData = await res.json();
+      if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || `HTTP ${res.status}`); }
+      return (await res.json()).data;
     } else {
       const res = await fetch('https://api.openai.com/v1/images/generations', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model:'gpt-image-1', prompt:prompts[type], n:2, size:'1024x1024', quality, output_format:'b64_json' }),
+        method:'POST',
+        headers:{'Authorization':`Bearer ${key}`,'Content-Type':'application/json'},
+        body: JSON.stringify({ model:'gpt-image-1', prompt:PROMPTS[slotType], n:count, size:'1024x1024', quality, output_format:'b64_json' })
       });
-      if (!res.ok) { const err = await res.json(); throw new Error(err.error?.message || `HTTP ${res.status}`); }
-      responseData = await res.json();
+      if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || `HTTP ${res.status}`); }
+      return (await res.json()).data;
     }
-    aiStudioState.generatedImages = responseData.data.map(d =>
-      d.b64_json ? `data:image/png;base64,${d.b64_json}` : d.url
-    );
+  }
+
+  try {
+    const allImages = [];
+    for (let i = 0; i < slots.length; i++) {
+      const sl = slots[i];
+      if (statusEl) statusEl.innerHTML = `<div class="ai-loading"><div class="ai-spinner"></div> Gerando tipo ${i+1}/${slots.length}: ${AI_TYPE_LABELS[sl.type]}…</div>`;
+      const imgs = await callAPI(sl.type, sl.count);
+      imgs.forEach(d => allImages.push({ url: d.b64_json ? `data:image/png;base64,${d.b64_json}` : d.url, type: sl.type }));
+    }
+    aiStudioState.generatedImages = allImages.map(x => x.url);
     if (statusEl) statusEl.style.display = 'none';
     renderAIGeneratedImages();
-    toast('Imagens geradas! Clique para selecionar as que deseja usar.', 'success');
+    toast(`${allImages.length} imagem${allImages.length>1?'s':''} gerada${allImages.length>1?'s':''}! Clique para selecionar.`, 'success');
   } catch (err) {
     if (statusEl) statusEl.innerHTML = `<div class="ai-error"><i class="bi bi-x-circle"></i> Erro: ${err.message}</div>`;
     toast('Erro ao gerar: ' + err.message, 'error');
@@ -904,6 +917,114 @@ function toggleKeyVisibility() {
   const isPass = inp.type === 'password';
   inp.type = isPass ? 'text' : 'password';
   if (icon) { icon.className = isPass ? 'bi bi-eye-slash' : 'bi bi-eye'; }
+}
+
+// ── AI SLOTS ──────────────────────────────────────────────────
+const AI_TYPE_LABELS = {
+  flatlay:   'Flat lay — peça em cabide',
+  modelo:    'Na modelo — vestindo a peça',
+  editorial: 'Editorial — foto artística',
+};
+
+function renderAISlots() {
+  const container = document.getElementById('ai-slots-container');
+  const totalEl   = document.getElementById('ai-slots-total');
+  if (!container) return;
+
+  const slots = aiStudioState.generationSlots;
+  container.innerHTML = slots.map((slot, i) => `
+    <div class="ai-slot-row">
+      <select class="ai-slot-select" onchange="updateAISlot(${i},'type',this.value)">
+        ${Object.entries(AI_TYPE_LABELS).map(([v,l]) =>
+          `<option value="${v}"${slot.type===v?' selected':''}>${l}</option>`
+        ).join('')}
+      </select>
+      <select class="ai-slot-qty" onchange="updateAISlot(${i},'count',+this.value)">
+        ${[1,2,3].map(n => `<option value="${n}"${slot.count===n?' selected':''}>${n} foto${n>1?'s':''}</option>`).join('')}
+      </select>
+      ${slots.length > 1
+        ? `<button type="button" class="ai-slot-remove" onclick="removeAISlot(${i})"><i class="bi bi-x"></i></button>`
+        : '<span class="ai-slot-spacer"></span>'
+      }
+    </div>
+  `).join('');
+
+  if (slots.length < 4) {
+    container.innerHTML += `<button type="button" class="ai-add-slot-btn" onclick="addAISlot()">
+      <i class="bi bi-plus"></i> Adicionar outro tipo
+    </button>`;
+  }
+
+  const total = slots.reduce((s, sl) => s + sl.count, 0);
+  if (totalEl) totalEl.textContent = `${total} foto${total > 1 ? 's' : ''} no total`;
+}
+
+function addAISlot() {
+  if (aiStudioState.generationSlots.length >= 4) return;
+  aiStudioState.generationSlots.push({ type: 'modelo', count: 1 });
+  renderAISlots();
+}
+
+function removeAISlot(idx) {
+  aiStudioState.generationSlots.splice(idx, 1);
+  renderAISlots();
+}
+
+function updateAISlot(idx, field, val) {
+  aiStudioState.generationSlots[idx][field] = val;
+  renderAISlots();
+}
+
+// ── AI TEXT GENERATION ────────────────────────────────────────
+async function generateProductText() {
+  const key = getOpenAIKey();
+  if (!key) { toast('Configure a chave API OpenAI em Configurações → Estúdio IA.', 'error'); return; }
+
+  const imageCtx = aiStudioState.selectedImages[0]
+    || aiStudioState.referenceImages[0]?.dataUrl
+    || window._pendingImgBase64
+    || document.getElementById('pf-img-current')?.value
+    || '';
+
+  const btn = document.getElementById('ai-text-btn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Gerando...'; }
+
+  const systemPrompt = 'Você é especialista em moda feminina brasileira premium. '
+    + 'Analise a peça de roupa e crie: '
+    + '1) Um título comercial atraente para loja online (máx 55 caracteres, sem emoji, português) '
+    + '2) Uma descrição persuasiva (2-3 frases: tecido, caimento, ocasião de uso). '
+    + 'A loja se chama Cor & Flor, moda feminina premium de Brasília — DF. '
+    + 'Responda APENAS com JSON válido: {"title":"...","description":"..."}';
+
+  try {
+    const content = imageCtx
+      ? [{ type:'image_url', image_url:{ url: imageCtx } }, { type:'text', text: systemPrompt }]
+      : systemPrompt + (document.getElementById('pf-name')?.value ? ` Peça: ${document.getElementById('pf-name').value}.` : '');
+
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [{ role:'user', content }],
+        max_tokens: 300,
+        response_format: { type: 'json_object' },
+      }),
+    });
+    if (!res.ok) { const err = await res.json(); throw new Error(err.error?.message || `HTTP ${res.status}`); }
+    const data = await res.json();
+    const json = JSON.parse(data.choices[0].message.content);
+
+    const nameEl = document.getElementById('pf-name');
+    const descEl = document.getElementById('pf-desc');
+    if (nameEl && json.title)       { nameEl.value = json.title;       nameEl.classList.add('ai-filled'); setTimeout(() => nameEl.classList.remove('ai-filled'), 2500); }
+    if (descEl && json.description) { descEl.value = json.description; descEl.classList.add('ai-filled'); setTimeout(() => descEl.classList.remove('ai-filled'), 2500); }
+    toast('Título e descrição gerados! Edite à vontade antes de salvar.', 'success');
+  } catch (err) {
+    toast('Erro ao gerar texto: ' + err.message, 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-stars"></i> Gerar título e descrição com IA'; }
+  }
 }
 
 // ─────────────────────────────────────────────────────────────
