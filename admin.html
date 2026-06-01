@@ -579,6 +579,49 @@
             </form>
           </div>
         </div>
+
+        <!-- AI Studio -->
+        <div class="card ai-settings-card">
+          <div class="card__head">
+            <h3 class="card__title"><i class="bi bi-stars"></i> Estúdio IA — Fotos de Produto</h3>
+          </div>
+          <div class="card__body">
+            <div class="ai-settings-badge">Powered by OpenAI gpt-image-1</div>
+            <form id="settings-ai" onsubmit="saveSettings(event,'ai')">
+              <div class="form-group">
+                <label class="form-label">Chave API OpenAI</label>
+                <div style="position:relative">
+                  <input type="password" class="form-input" id="cfg-openai-key" placeholder="sk-proj-...">
+                  <button type="button" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--warm-gray)" onclick="toggleKeyVisibility()">
+                    <i class="bi bi-eye" id="key-eye-icon"></i>
+                  </button>
+                </div>
+                <p class="cfg-note" style="margin-top:8px">
+                  <i class="bi bi-shield-lock"></i>
+                  Salva no navegador. Obtenha em <strong>platform.openai.com/api-keys</strong>
+                </p>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Qualidade das imagens geradas</label>
+                <select class="form-select" id="cfg-ai-quality">
+                  <option value="medium">Média — rápida (~R$ 0,20/imagem)</option>
+                  <option value="high">Alta — mais detalhada (~R$ 0,40/imagem)</option>
+                  <option value="low">Econômica (~R$ 0,10/imagem)</option>
+                </select>
+              </div>
+              <div class="ai-settings-info">
+                <i class="bi bi-info-circle"></i>
+                <div>
+                  <strong>Como usar:</strong> Ao cadastrar/editar um produto, clique em
+                  <em>"Gerar fotos com IA"</em>, envie fotos de referência, escolha o tipo
+                  (flat lay, na modelo ou editorial) e clique em Gerar. Selecione as melhores
+                  e defina a ordem antes de salvar.
+                </div>
+              </div>
+              <button type="submit" class="btn-primary"><i class="bi bi-check-lg"></i> Salvar chave</button>
+            </form>
+          </div>
+        </div>
       </div>
     </section>
 

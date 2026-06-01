@@ -920,3 +920,232 @@ textarea.form-input { min-height: 80px; }
   background: rgba(28,20,20,.5); z-index: 199;
 }
 .sidebar-veil.show { display: block; }
+
+/* ============================================================
+   AI STUDIO — Geração de fotos com IA
+============================================================ */
+
+/* Toggle bar */
+.ai-studio-bar {
+  margin: 6px 0 4px;
+}
+.ai-studio-bar__btn {
+  width: 100%;
+  display: flex; align-items: center; gap: 8px;
+  background: linear-gradient(135deg, rgba(212,103,154,.07) 0%, rgba(155,48,104,.04) 100%);
+  border: 1.5px dashed rgba(212,103,154,.38);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-family: var(--sans); font-size: 13px; font-weight: 600;
+  color: var(--rose-deep); cursor: pointer;
+  transition: background .2s, border-color .2s;
+}
+.ai-studio-bar__btn:hover {
+  background: rgba(212,103,154,.13);
+  border-color: var(--rose);
+}
+.ai-studio-bar__btn .bi-stars { font-size: 16px; color: var(--rose); }
+
+/* Panel */
+.ai-studio-panel {
+  background: rgba(212,103,154,.04);
+  border: 1px solid rgba(212,103,154,.18);
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 6px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+
+/* Reference images */
+.ai-ref-section .form-label { margin-bottom: 10px; }
+.ai-ref-list {
+  display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+}
+.ai-ref-thumb-wrap {
+  position: relative; width: 80px; height: 80px; flex-shrink: 0;
+}
+.ai-ref-thumb {
+  width: 80px; height: 80px;
+  border-radius: 10px; object-fit: cover;
+  border: 2px solid rgba(212,103,154,.3);
+}
+.ai-ref-remove {
+  position: absolute; top: -6px; right: -6px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: #ef4444; color: #fff; border: none;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; cursor: pointer; line-height: 1;
+}
+.ai-ref-add-btn {
+  width: 80px; height: 80px;
+  border: 2px dashed rgba(212,103,154,.4);
+  border-radius: 10px;
+  background: rgba(212,103,154,.04);
+  color: var(--rose); font-size: 22px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: background .2s, border-color .2s;
+}
+.ai-ref-add-btn:hover { background: rgba(212,103,154,.1); border-color: var(--rose); }
+
+/* Type selector */
+.ai-type-section .form-label { margin-bottom: 10px; }
+.ai-type-row {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 8px;
+}
+.ai-type-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 12px 8px;
+  border: 1.5px solid rgba(212,103,154,.22);
+  border-radius: 12px; background: #fff;
+  font-family: var(--sans); font-size: 12px; font-weight: 500;
+  color: var(--warm-gray); cursor: pointer; text-align: center;
+  transition: all .2s; line-height: 1.3;
+}
+.ai-type-btn span { font-weight: 600; font-size: 13px; }
+.ai-type-btn small { font-size: 10px; font-weight: 400; opacity: .7; }
+.ai-type-btn:hover { border-color: var(--rose); background: rgba(212,103,154,.06); }
+.ai-type-btn.active {
+  border-color: var(--rose);
+  background: rgba(212,103,154,.1);
+  color: var(--rose-deep);
+}
+
+/* Generate button */
+.ai-gen-btn {
+  width: 100%; padding: 13px;
+  background: linear-gradient(135deg, var(--rose) 0%, var(--rose-deep) 100%);
+  color: #fff; border: none; border-radius: 12px;
+  font-family: var(--sans); font-size: 13px; font-weight: 700;
+  letter-spacing: .8px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: opacity .2s, transform .1s;
+}
+.ai-gen-btn:hover  { opacity: .92; }
+.ai-gen-btn:active { transform: scale(.98); }
+.ai-gen-btn:disabled { opacity: .55; cursor: not-allowed; }
+
+/* Loading */
+.ai-loading {
+  display: flex; align-items: center; gap: 12px;
+  padding: 16px; border-radius: 10px;
+  background: rgba(212,103,154,.06);
+  color: var(--rose-deep); font-size: 13px;
+}
+.ai-spinner {
+  width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0;
+  border: 2px solid rgba(212,103,154,.3);
+  border-top-color: var(--rose);
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.ai-error {
+  padding: 12px 16px; border-radius: 10px;
+  background: rgba(239,68,68,.07); color: #dc2626;
+  font-size: 13px; display: flex; gap: 8px; align-items: center;
+}
+
+/* Results grid */
+.ai-results-grid {
+  display: grid; grid-template-columns: repeat(2,1fr); gap: 10px;
+}
+.ai-result-divider {
+  font-size: 11px; font-weight: 600; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--warm-gray);
+  opacity: .6; padding: 4px 0 2px;
+}
+.ai-result-item {
+  position: relative; border-radius: 10px; overflow: hidden;
+  cursor: pointer;
+  border: 2.5px solid rgba(212,103,154,.15);
+  transition: border-color .2s, transform .15s;
+}
+.ai-result-item img {
+  width: 100%; aspect-ratio: 1/1; object-fit: cover; display: block;
+}
+.ai-result-item:hover { border-color: rgba(212,103,154,.5); transform: scale(1.02); }
+.ai-result-item.selected { border-color: var(--rose); }
+.ai-result-check {
+  position: absolute; top: 7px; right: 7px;
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--rose); color: #fff;
+  display: none; align-items: center; justify-content: center;
+  font-size: 13px; box-shadow: 0 2px 8px rgba(0,0,0,.25);
+}
+.ai-result-item.selected .ai-result-check { display: flex; }
+.ai-result-label {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(to top, rgba(0,0,0,.55) 0%, transparent 100%);
+  color: #fff; font-size: 11px; font-weight: 500;
+  padding: 18px 8px 7px; text-align: center;
+}
+
+/* Final selection list */
+.ai-sel-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 20px; height: 20px; border-radius: 999px;
+  background: var(--rose); color: #fff;
+  font-size: 11px; font-weight: 700; padding: 0 6px;
+  vertical-align: middle; margin-left: 4px;
+}
+.ai-final-list {
+  display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px;
+}
+.ai-final-item {
+  position: relative; width: 90px; flex-shrink: 0;
+}
+.ai-final-item img {
+  width: 90px; height: 90px; border-radius: 10px; object-fit: cover;
+  border: 2px solid rgba(212,103,154,.3); display: block;
+}
+.ai-final-order {
+  position: absolute; top: 5px; left: 5px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--rose); color: #fff;
+  font-size: 11px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 1px 4px rgba(0,0,0,.3);
+}
+.ai-final-remove {
+  position: absolute; top: 5px; right: 5px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: rgba(0,0,0,.55); color: #fff; border: none;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; cursor: pointer;
+}
+.ai-final-arrows {
+  display: flex; gap: 4px; justify-content: center; margin-top: 5px;
+}
+.ai-arrow-btn {
+  flex: 1; padding: 4px;
+  border: 1px solid rgba(212,103,154,.3); border-radius: 6px;
+  background: rgba(212,103,154,.06); color: var(--rose-deep);
+  font-size: 11px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.ai-arrow-btn:hover { background: rgba(212,103,154,.18); }
+.ai-final-note {
+  font-size: 11px; color: rgba(74,64,64,.5);
+  margin-top: 8px; font-style: italic;
+}
+
+/* Settings card */
+.ai-settings-card .card__head {
+  background: linear-gradient(135deg, rgba(212,103,154,.08) 0%, rgba(155,48,104,.04) 100%);
+}
+.ai-settings-badge {
+  display: inline-block; font-size: 10px; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--rose-deep); font-weight: 600;
+  background: rgba(212,103,154,.1); padding: 4px 12px;
+  border-radius: 999px; border: 1px solid rgba(212,103,154,.25);
+  margin-bottom: 16px;
+}
+.ai-settings-info {
+  display: flex; gap: 10px;
+  background: rgba(212,103,154,.05); border: 1px solid rgba(212,103,154,.15);
+  border-radius: 10px; padding: 12px 14px;
+  font-size: 12px; color: var(--warm-gray); margin: 14px 0;
+  line-height: 1.6;
+}
+.ai-settings-info .bi-info-circle {
+  font-size: 16px; color: var(--rose); flex-shrink: 0; margin-top: 2px;
+}

@@ -18,6 +18,12 @@ const DB = {
   set: (k,v) => localStorage.setItem(`cf_${k}`, JSON.stringify(v)),
 };
 
+// ── AI Studio state ───────────────────────────────────────────
+let aiStudioState = { open:false, referenceImages:[], generatedImages:[], selectedImages:[] };
+function resetAIStudio() {
+  aiStudioState = { open:false, referenceImages:[], generatedImages:[], selectedImages:[] };
+}
+
 // ── Utilities ─────────────────────────────────────────────────
 const fmtBRL = n => 'R$ ' + Number(n).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
 const fmtDate = s => new Date(s).toLocaleDateString('pt-BR', {day:'2-digit',month:'2-digit',year:'numeric'});
@@ -523,6 +529,7 @@ function renderProducts() {
 
 function openProductModal(id) {
   window._pendingImgBase64 = null;
+  resetAIStudio();
   const products = DB.get('products') || [];
   const p = id ? products.find(x=>x.id===id) : null;
 
@@ -565,6 +572,62 @@ function openProductModal(id) {
         <input type="file" id="pf-img-file" accept="image/png,image/jpeg,image/webp,image/gif"
                style="display:none" onchange="onImageUpload(event)">
         <input type="hidden" id="pf-img-current" value="${p?.image||''}">
+      </div>
+
+      <!-- ── AI STUDIO ───────────────────── -->
+      <div class="ai-studio-bar">
+        <button type="button" class="ai-studio-bar__btn" onclick="toggleAIStudio()">
+          <i class="bi bi-stars"></i>
+          <span>Gerar fotos com IA</span>
+          <i class="bi bi-chevron-down" id="ai-chev" style="margin-left:auto;transition:transform .3s"></i>
+        </button>
+      </div>
+      <div class="ai-studio-panel" id="ai-studio-panel" style="display:none">
+        <div class="ai-ref-section">
+          <p class="form-label">Fotos de referência (até 3)</p>
+          <div class="ai-ref-list" id="ai-ref-list">
+            <button type="button" class="ai-ref-add-btn" onclick="document.getElementById('ai-ref-input').click()">
+              <i class="bi bi-plus-lg"></i>
+            </button>
+          </div>
+          <input type="file" id="ai-ref-input" accept="image/*" multiple style="display:none" onchange="addAIRefImages(event)">
+          <p style="font-size:11px;color:rgba(74,64,64,.45);margin-top:8px">
+            Envie fotos reais do produto para a IA usar de referência.
+          </p>
+        </div>
+        <div class="ai-type-section">
+          <p class="form-label">Tipo de foto a criar</p>
+          <div class="ai-type-row">
+            <button type="button" class="ai-type-btn active" data-type="flatlay" onclick="setAIType('flatlay')">
+              <i class="bi bi-hanger2" style="font-size:20px"></i>
+              <span>Flat lay</span><small>Peça em cabide</small>
+            </button>
+            <button type="button" class="ai-type-btn" data-type="modelo" onclick="setAIType('modelo')">
+              <i class="bi bi-person-standing-dress" style="font-size:20px"></i>
+              <span>Na modelo</span><small>Vestindo a peça</small>
+            </button>
+            <button type="button" class="ai-type-btn" data-type="editorial" onclick="setAIType('editorial')">
+              <i class="bi bi-camera" style="font-size:20px"></i>
+              <span>Editorial</span><small>Foto artística</small>
+            </button>
+          </div>
+        </div>
+        <button type="button" class="ai-gen-btn" id="ai-gen-btn" onclick="generateWithAI()">
+          <i class="bi bi-stars"></i> Gerar imagens com IA
+        </button>
+        <div id="ai-gen-status" style="display:none"></div>
+        <div id="ai-results-section" style="display:none">
+          <p class="form-label" style="margin-top:16px">Imagens geradas — clique para selecionar</p>
+          <div class="ai-results-grid" id="ai-results-grid"></div>
+        </div>
+        <div id="ai-final-section" style="display:none">
+          <p class="form-label" style="margin-top:16px">
+            Fotos do produto <span class="ai-sel-badge" id="ai-sel-count">0</span>
+            <small style="font-weight:400;color:rgba(74,64,64,.6)"> — ordene com as setas</small>
+          </p>
+          <div class="ai-final-list" id="ai-final-list"></div>
+          <p class="ai-final-note">A 1ª foto será a principal exibida na loja.</p>
+        </div>
       </div>
 
       <div class="form-group"><label class="form-label">Descrição</label>
@@ -641,6 +704,210 @@ function clearImageUpload() {
   if (hi) hi.value = '';
 }
 
+// ── AI STUDIO FUNCTIONS ───────────────────────────────────────
+
+function getOpenAIKey() {
+  return (DB.get('settings') || {}).openaiKey || '';
+}
+
+function toggleAIStudio() {
+  aiStudioState.open = !aiStudioState.open;
+  const panel = document.getElementById('ai-studio-panel');
+  const chev  = document.getElementById('ai-chev');
+  if (!panel) return;
+  panel.style.display = aiStudioState.open ? 'block' : 'none';
+  if (chev) chev.style.transform = aiStudioState.open ? 'rotate(180deg)' : '';
+}
+
+function addAIRefImages(e) {
+  const maxMore = 3 - aiStudioState.referenceImages.length;
+  const files = [...e.target.files].slice(0, maxMore);
+  files.forEach(f => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      aiStudioState.referenceImages.push({ dataUrl: ev.target.result, name: f.name });
+      renderAIRefImages();
+    };
+    reader.readAsDataURL(f);
+  });
+  e.target.value = '';
+}
+
+function renderAIRefImages() {
+  const list = document.getElementById('ai-ref-list');
+  if (!list) return;
+  list.innerHTML = aiStudioState.referenceImages.map((img, i) => `
+    <div class="ai-ref-thumb-wrap">
+      <img src="${img.dataUrl}" class="ai-ref-thumb" alt="">
+      <button type="button" class="ai-ref-remove" onclick="removeAIRefImage(${i})">
+        <i class="bi bi-x"></i>
+      </button>
+    </div>
+  `).join('');
+  if (aiStudioState.referenceImages.length < 3) {
+    list.innerHTML += `<button type="button" class="ai-ref-add-btn" onclick="document.getElementById('ai-ref-input').click()">
+      <i class="bi bi-plus-lg"></i>
+    </button>`;
+  }
+}
+
+function removeAIRefImage(idx) {
+  aiStudioState.referenceImages.splice(idx, 1);
+  renderAIRefImages();
+}
+
+function setAIType(type) {
+  document.querySelectorAll('.ai-type-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.type === type)
+  );
+}
+
+async function generateWithAI() {
+  const key = getOpenAIKey();
+  if (!key) {
+    toast('Configure a chave API OpenAI em Configurações → Estúdio IA.', 'error');
+    return;
+  }
+  const type = document.querySelector('.ai-type-btn.active')?.dataset.type || 'flatlay';
+  const prompts = {
+    flatlay:   'Professional fashion product photography. Clothing item displayed hanging on a wooden hanger against a clean warm cream background. Studio lighting. High-end Brazilian fashion brand Cor & Flor. Ultra detailed, editorial quality.',
+    modelo:    'Professional Brazilian fashion photography. A stylish woman with natural makeup wearing this clothing item. Confident elegant pose. Neutral studio background. Premium fashion brand look. High quality.',
+    editorial: 'Editorial fashion photography for Brazilian women\'s fashion brand Cor & Flor. Artistic composition with rose and cream tones. Luxurious feminine aesthetic. Premium quality.',
+  };
+  const cfg     = DB.get('settings') || {};
+  const quality = cfg.aiQuality || 'medium';
+  const genBtn  = document.getElementById('ai-gen-btn');
+  const statusEl= document.getElementById('ai-gen-status');
+  if (genBtn)   { genBtn.disabled = true; genBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Gerando...'; }
+  if (statusEl) { statusEl.style.display = 'block'; statusEl.innerHTML = '<div class="ai-loading"><div class="ai-spinner"></div> Gerando imagens com IA… isso leva cerca de 20 segundos.</div>'; }
+
+  try {
+    let responseData;
+    if (aiStudioState.referenceImages.length > 0) {
+      const formData = new FormData();
+      formData.append('model', 'gpt-image-1');
+      formData.append('prompt', prompts[type]);
+      formData.append('n', '2');
+      formData.append('size', '1024x1024');
+      formData.append('quality', quality);
+      const b64  = aiStudioState.referenceImages[0].dataUrl;
+      const blob = await fetch(b64).then(r => r.blob());
+      formData.append('image[]', blob, 'reference.png');
+      const res = await fetch('https://api.openai.com/v1/images/edits', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${key}` },
+        body: formData,
+      });
+      if (!res.ok) { const err = await res.json(); throw new Error(err.error?.message || `HTTP ${res.status}`); }
+      responseData = await res.json();
+    } else {
+      const res = await fetch('https://api.openai.com/v1/images/generations', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model:'gpt-image-1', prompt:prompts[type], n:2, size:'1024x1024', quality, output_format:'b64_json' }),
+      });
+      if (!res.ok) { const err = await res.json(); throw new Error(err.error?.message || `HTTP ${res.status}`); }
+      responseData = await res.json();
+    }
+    aiStudioState.generatedImages = responseData.data.map(d =>
+      d.b64_json ? `data:image/png;base64,${d.b64_json}` : d.url
+    );
+    if (statusEl) statusEl.style.display = 'none';
+    renderAIGeneratedImages();
+    toast('Imagens geradas! Clique para selecionar as que deseja usar.', 'success');
+  } catch (err) {
+    if (statusEl) statusEl.innerHTML = `<div class="ai-error"><i class="bi bi-x-circle"></i> Erro: ${err.message}</div>`;
+    toast('Erro ao gerar: ' + err.message, 'error');
+  } finally {
+    if (genBtn) { genBtn.disabled = false; genBtn.innerHTML = '<i class="bi bi-stars"></i> Gerar imagens com IA'; }
+  }
+}
+
+function renderAIGeneratedImages() {
+  const section = document.getElementById('ai-results-section');
+  const grid    = document.getElementById('ai-results-grid');
+  if (!section || !grid) return;
+  section.style.display = 'block';
+  const genHtml = aiStudioState.generatedImages.map((url, i) => {
+    const sel = aiStudioState.selectedImages.includes(url);
+    return `<div class="ai-result-item${sel?' selected':''}" id="ai-gen-item-${i}" onclick="toggleAIImageSelect('gen',${i})">
+      <img src="${url}" alt="Gerada ${i+1}">
+      <div class="ai-result-check"><i class="bi bi-check-lg"></i></div>
+      <div class="ai-result-label">Gerada ${i+1}</div>
+    </div>`;
+  }).join('');
+  const refHtml = aiStudioState.referenceImages.length > 0
+    ? `<div class="ai-result-divider" style="grid-column:1/-1">Fotos de referência</div>` +
+      aiStudioState.referenceImages.map((img, i) => {
+        const sel = aiStudioState.selectedImages.includes(img.dataUrl);
+        return `<div class="ai-result-item${sel?' selected':''}" id="ai-ref-item-${i}" onclick="toggleAIImageSelect('ref',${i})">
+          <img src="${img.dataUrl}" alt="Ref ${i+1}">
+          <div class="ai-result-check"><i class="bi bi-check-lg"></i></div>
+          <div class="ai-result-label">Referência ${i+1}</div>
+        </div>`;
+      }).join('')
+    : '';
+  grid.innerHTML = genHtml + refHtml;
+}
+
+function toggleAIImageSelect(source, idx) {
+  const url = source === 'gen'
+    ? aiStudioState.generatedImages[idx]
+    : aiStudioState.referenceImages[idx].dataUrl;
+  const pos = aiStudioState.selectedImages.indexOf(url);
+  if (pos >= 0) aiStudioState.selectedImages.splice(pos, 1);
+  else          aiStudioState.selectedImages.push(url);
+  renderAIGeneratedImages();
+  renderAIFinalImages();
+}
+
+function renderAIFinalImages() {
+  const section  = document.getElementById('ai-final-section');
+  const list     = document.getElementById('ai-final-list');
+  const countEl  = document.getElementById('ai-sel-count');
+  if (!section || !list) return;
+  const imgs = aiStudioState.selectedImages;
+  if (countEl) countEl.textContent = imgs.length;
+  if (imgs.length === 0) { section.style.display = 'none'; return; }
+  section.style.display = 'block';
+  list.innerHTML = imgs.map((url, i) => `
+    <div class="ai-final-item">
+      <span class="ai-final-order">${i + 1}</span>
+      <img src="${url}" alt="Foto ${i+1}">
+      <div class="ai-final-arrows">
+        ${i > 0 ? `<button type="button" class="ai-arrow-btn" onclick="moveAIImage(${i},-1)" title="Mover esquerda"><i class="bi bi-arrow-left"></i></button>` : '<span></span>'}
+        ${i < imgs.length-1 ? `<button type="button" class="ai-arrow-btn" onclick="moveAIImage(${i},1)" title="Mover direita"><i class="bi bi-arrow-right"></i></button>` : '<span></span>'}
+      </div>
+      <button type="button" class="ai-final-remove" onclick="removeAIFinalImage(${i})" title="Remover"><i class="bi bi-x-lg"></i></button>
+    </div>
+  `).join('');
+}
+
+function moveAIImage(idx, dir) {
+  const arr = aiStudioState.selectedImages;
+  const t   = idx + dir;
+  if (t < 0 || t >= arr.length) return;
+  [arr[idx], arr[t]] = [arr[t], arr[idx]];
+  renderAIFinalImages();
+}
+
+function removeAIFinalImage(idx) {
+  aiStudioState.selectedImages.splice(idx, 1);
+  renderAIGeneratedImages();
+  renderAIFinalImages();
+}
+
+function toggleKeyVisibility() {
+  const inp  = document.getElementById('cfg-openai-key');
+  const icon = document.getElementById('key-eye-icon');
+  if (!inp) return;
+  const isPass = inp.type === 'password';
+  inp.type = isPass ? 'text' : 'password';
+  if (icon) { icon.className = isPass ? 'bi bi-eye-slash' : 'bi bi-eye'; }
+}
+
+// ─────────────────────────────────────────────────────────────
+
 function saveProduct(e, id) {
   e.preventDefault();
   const products = DB.get('products') || [];
@@ -651,7 +918,12 @@ function saveProduct(e, id) {
     category:      document.getElementById('pf-cat').value,
     price:         parseFloat(document.getElementById('pf-price').value) || 0,
     originalPrice: parseFloat(document.getElementById('pf-orig').value)  || 0,
-    image:         window._pendingImgBase64 || document.getElementById('pf-img-current')?.value || '',
+    images:        aiStudioState.selectedImages.length > 0
+                     ? aiStudioState.selectedImages
+                     : (window._pendingImgBase64
+                         ? [window._pendingImgBase64]
+                         : (p?.images || (p?.image ? [p.image] : []))),
+    image:         aiStudioState.selectedImages[0] || window._pendingImgBase64 || document.getElementById('pf-img-current')?.value || '',
     description:   document.getElementById('pf-desc').value.trim(),
     colors:        document.getElementById('pf-colors').value.split(',').map(s=>s.trim()).filter(Boolean),
     sizes,
@@ -1194,6 +1466,8 @@ function loadSettings() {
   if (cfg.notifStock  !== undefined) document.getElementById('cfg-notif-stock').checked = cfg.notifStock;
   if (cfg.notifReview !== undefined) document.getElementById('cfg-notif-review').checked = cfg.notifReview;
   if (cfg.notifDaily  !== undefined) document.getElementById('cfg-notif-daily').checked = cfg.notifDaily;
+  if (cfg.openaiKey)  document.getElementById('cfg-openai-key').value = cfg.openaiKey;
+  if (cfg.aiQuality)  document.getElementById('cfg-ai-quality').value = cfg.aiQuality;
   renderCoupons();
 }
 
@@ -1227,6 +1501,12 @@ function saveSettings(e, group) {
     cfg.notifStock  = document.getElementById('cfg-notif-stock').checked;
     cfg.notifReview = document.getElementById('cfg-notif-review').checked;
     cfg.notifDaily  = document.getElementById('cfg-notif-daily').checked;
+  }
+  if (group === 'ai') {
+    const k = document.getElementById('cfg-openai-key').value.trim();
+    if (!k) { toast('Informe a chave API OpenAI.', 'error'); return; }
+    cfg.openaiKey = k;
+    cfg.aiQuality = document.getElementById('cfg-ai-quality').value;
   }
   DB.set('settings', cfg);
   toast('Configurações salvas com sucesso!', 'success');
