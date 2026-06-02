@@ -599,9 +599,17 @@ function openProductModal(id) {
 
       <div class="modal-section-divider"><span>Informações do Produto</span></div>
 
-      <button type="button" class="ai-text-gen-btn" id="ai-text-btn" onclick="generateProductText()">
-        <i class="bi bi-stars"></i> Gerar título e descrição com IA
-      </button>
+      <div class="ai-context-group">
+        <label class="form-label">Descreva o produto com suas palavras <span class="ai-context-hint">(a IA completa o resto)</span></label>
+        <div class="ai-context-wrap">
+          <input type="text" class="form-input" id="ai-product-context"
+            placeholder="ex: calça de couro preta com cinto dourado, elegante para eventos...">
+          <button type="button" class="ai-text-gen-btn" id="ai-text-btn" onclick="generateProductText()">
+            <i class="bi bi-stars"></i> Gerar com IA
+          </button>
+        </div>
+        <p class="ai-context-tip">Fale o que a imagem não mostra — a peça principal, material, estilo — a IA cria o título e descrição completos.</p>
+      </div>
 
       <div class="form-row">
         <div class="form-group" style="flex:2">
@@ -847,6 +855,9 @@ function renderAIGeneratedImages() {
       <img src="${url}" alt="Gerada ${i+1}">
       <div class="ai-result-check"><i class="bi bi-check-lg"></i></div>
       <div class="ai-result-label">Gerada ${i+1}</div>
+      <button type="button" class="ai-preview-btn" onclick="event.stopPropagation();showImagePreview('gen',${i})" title="Visualizar foto">
+        <i class="bi bi-eye"></i>
+      </button>
     </div>`;
   }).join('');
   const refHtml = aiStudioState.referenceImages.length > 0
@@ -857,10 +868,45 @@ function renderAIGeneratedImages() {
           <img src="${img.dataUrl}" alt="Ref ${i+1}">
           <div class="ai-result-check"><i class="bi bi-check-lg"></i></div>
           <div class="ai-result-label">Referência ${i+1}</div>
+          <button type="button" class="ai-preview-btn" onclick="event.stopPropagation();showImagePreview('ref',${i})" title="Visualizar foto">
+            <i class="bi bi-eye"></i>
+          </button>
         </div>`;
       }).join('')
     : '';
   grid.innerHTML = genHtml + refHtml;
+}
+
+function showImagePreview(source, idx) {
+  const url   = source === 'gen'
+    ? aiStudioState.generatedImages[idx]
+    : aiStudioState.referenceImages[idx].dataUrl;
+  const label = source === 'gen' ? `Gerada ${idx + 1}` : `Referência ${idx + 1}`;
+
+  let box = document.getElementById('ai-img-preview-box');
+  if (!box) {
+    box = document.createElement('div');
+    box.id = 'ai-img-preview-box';
+    box.innerHTML = `
+      <div class="ai-preview-overlay" onclick="closeImagePreview()"></div>
+      <div class="ai-preview-content">
+        <button type="button" class="ai-preview-close" onclick="closeImagePreview()"><i class="bi bi-x-lg"></i></button>
+        <img id="ai-preview-img" src="" alt="">
+        <p id="ai-preview-label"></p>
+      </div>`;
+    document.body.appendChild(box);
+  }
+  document.getElementById('ai-preview-img').src = url;
+  document.getElementById('ai-preview-label').textContent = label;
+  box.style.display = 'flex';
+
+  const onKey = e => { if (e.key === 'Escape') { closeImagePreview(); document.removeEventListener('keydown', onKey); } };
+  document.addEventListener('keydown', onKey);
+}
+
+function closeImagePreview() {
+  const box = document.getElementById('ai-img-preview-box');
+  if (box) box.style.display = 'none';
 }
 
 function toggleAIImageSelect(source, idx) {
@@ -986,11 +1032,18 @@ async function generateProductText() {
     || document.getElementById('pf-img-current')?.value
     || '';
 
+  const userContext = (document.getElementById('ai-product-context')?.value || '').trim();
+
   const btn = document.getElementById('ai-text-btn');
   if (btn) { btn.disabled = true; btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Gerando...'; }
 
+  const contextLine = userContext
+    ? `Informação da lojista sobre o produto: "${userContext}". Use isso como base principal — a IA deve complementar e enriquecer, não ignorar. `
+    : '';
+
   const systemPrompt = 'Você é especialista em moda feminina brasileira premium. '
-    + 'Analise a peça de roupa e crie: '
+    + contextLine
+    + 'Crie: '
     + '1) Um título comercial atraente para loja online (máx 55 caracteres, sem emoji, português) '
     + '2) Uma descrição persuasiva (2-3 frases: tecido, caimento, ocasião de uso). '
     + 'A loja se chama Cor & Flor, moda feminina premium de Brasília — DF. '
@@ -999,7 +1052,7 @@ async function generateProductText() {
   try {
     const content = imageCtx
       ? [{ type:'image_url', image_url:{ url: imageCtx } }, { type:'text', text: systemPrompt }]
-      : systemPrompt + (document.getElementById('pf-name')?.value ? ` Peça: ${document.getElementById('pf-name').value}.` : '');
+      : systemPrompt + (!userContext && document.getElementById('pf-name')?.value ? ` Peça: ${document.getElementById('pf-name').value}.` : '');
 
     const res = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',

@@ -1240,3 +1240,71 @@ textarea.form-input { min-height: 80px; }
   0%   { background: rgba(212,103,154,.2); }
   100% { background: var(--cream); }
 }
+
+/* Preview button on generated images */
+.ai-result-item { position: relative; }
+.ai-preview-btn {
+  position: absolute; top: 6px; right: 6px;
+  width: 30px; height: 30px; border-radius: 8px;
+  background: rgba(28,20,20,.6); border: 1px solid rgba(255,255,255,.25);
+  color: #fff; font-size: 13px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity .2s;
+  backdrop-filter: blur(4px);
+  z-index: 2;
+}
+.ai-result-item:hover .ai-preview-btn { opacity: 1; }
+
+/* Image lightbox */
+#ai-img-preview-box {
+  position: fixed; inset: 0; z-index: 9999;
+  display: none; align-items: center; justify-content: center;
+}
+.ai-preview-overlay {
+  position: absolute; inset: 0;
+  background: rgba(28,20,20,.9); backdrop-filter: blur(8px);
+}
+.ai-preview-content {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  max-width: 90vw;
+}
+.ai-preview-content img {
+  max-width: 88vw; max-height: 82vh;
+  border-radius: 18px; object-fit: contain;
+  box-shadow: 0 40px 100px rgba(0,0,0,.6);
+}
+.ai-preview-close {
+  position: absolute; top: -18px; right: -18px;
+  width: 38px; height: 38px; border-radius: 50%;
+  background: rgba(255,255,255,.12); border: 1.5px solid rgba(255,255,255,.25);
+  color: #fff; font-size: 15px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  backdrop-filter: blur(4px); transition: background .2s;
+}
+.ai-preview-close:hover { background: rgba(255,255,255,.25); }
+#ai-preview-label {
+  color: rgba(255,255,255,.6); font-size: 13px;
+  font-family: var(--sans); text-align: center;
+}
+
+/* Context field for AI text generation */
+.ai-context-group { margin-bottom: 14px; }
+.ai-context-hint {
+  font-size: 10px; color: rgba(74,64,64,.45);
+  font-weight: 400; letter-spacing: 0; text-transform: none;
+}
+.ai-context-wrap {
+  display: flex; gap: 8px; align-items: stretch;
+}
+.ai-context-wrap .form-input {
+  flex: 1;
+}
+.ai-context-wrap .ai-text-gen-btn {
+  width: auto; flex-shrink: 0; padding: 10px 18px;
+  margin-bottom: 0; white-space: nowrap;
+}
+.ai-context-tip {
+  font-size: 11px; color: rgba(74,64,64,.45);
+  margin-top: 6px; line-height: 1.5;
+}
