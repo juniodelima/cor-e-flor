@@ -2,6 +2,10 @@
    COR & FLOR, interactions
 ======================================================== */
 
+/* Sempre inicia no topo ao carregar/recarregar */
+if (history.scrollRestoration) history.scrollRestoration = 'manual';
+window.scrollTo(0, 0);
+
 /* ---------- PRODUCT DATA ---------- */
 
 const BRL = n => "R$ " + n.toFixed(2).replace(".", ",");

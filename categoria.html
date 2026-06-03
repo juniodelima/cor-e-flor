@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8" />
@@ -56,6 +56,10 @@
 
   @media (max-width: 1024px) { .cat-grid { grid-template-columns: repeat(3,1fr); } }
   @media (max-width: 768px)  { .cat-grid { grid-template-columns: repeat(2,1fr); gap: 20px 14px; } .card__add { display: none; } .card__fav { opacity:1; transform:translateY(0); } }
+
+
+    to   { opacity: 1; transform: translateY(0); }
+  }
   @media (max-width: 420px)  { .cat-grid { grid-template-columns: 1fr; } }
 </style>
 </head>
@@ -224,8 +228,8 @@ if (!filtered.length) {
     const swatches = p.colors.map(c => `<span class="card__sw" style="background:${c.hex||c}"></span>`).join('');
 
     const el = document.createElement('article');
-    el.className = 'card reveal';
-    el.style.transitionDelay = (i % 4) * 80 + 'ms';
+    el.className = 'card';
+    
     el.dataset.id = p.id;
     el.innerHTML = `
       <div class="card__media">
@@ -308,3 +312,5 @@ if (burger) burger.addEventListener('click', () => {
 </script>
 </body>
 </html>
+
+
