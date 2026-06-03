@@ -366,22 +366,6 @@ function toast(msg){
 }
 
 
-/* ---------- CUSTOM CURSOR ---------- */
-const cursor = document.getElementById("cursor");
-if (window.matchMedia("(hover:hover) and (pointer:fine)").matches){
-  let x = 0, y = 0, cx = 0, cy = 0;
-  window.addEventListener("mousemove", e => { x = e.clientX; y = e.clientY; });
-  const tick = () => {
-    cx += (x - cx) * 0.22;
-    cy += (y - cy) * 0.22;
-    cursor.style.transform = `translate(${cx}px, ${cy}px)`;
-    requestAnimationFrame(tick);
-  };
-  tick();
-  document.querySelectorAll("a, button, .card").forEach(el => {
-    el.addEventListener("mouseenter", () => cursor.classList.add("is-hover"));
-    el.addEventListener("mouseleave", () => cursor.classList.remove("is-hover"));
-  });
-}
+/* Cursor padrão do sistema */
 
 
