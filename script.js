@@ -354,6 +354,7 @@ DISPLAY_CATS.forEach(cat => {
 
   const block = document.createElement('div');
   block.className = 'cat-block reveal';
+  block.id = 'cat-' + cat.key;
   block.innerHTML = `
     <div class="cat-block__head">
       <div>
@@ -377,6 +378,18 @@ DISPLAY_CATS.forEach(cat => {
   items.forEach(p => track.appendChild(makeCard(p)));
   catRoot.appendChild(block);
   initCarousel(block);
+});
+
+/* Scroll suave com offset do navbar para links de categoria */
+document.querySelectorAll('a[href^="#cat-"], a[href^="#novidades"]').forEach(link => {
+  link.addEventListener('click', e => {
+    const target = document.querySelector(link.getAttribute('href'));
+    if (!target) return;
+    e.preventDefault();
+    const offset = 90;
+    const top = target.getBoundingClientRect().top + window.scrollY - offset;
+    window.scrollTo({ top, behavior: 'smooth' });
+  });
 });
 
 /* Favoritar + Carrinho (event delegation no root) */
