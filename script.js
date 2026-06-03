@@ -1,5 +1,5 @@
-/* ========================================================
-   COR & FLOR — interactions
+﻿/* ========================================================
+   COR & FLOR, interactions
 ======================================================== */
 
 /* ---------- PRODUCT DATA ---------- */
@@ -35,7 +35,7 @@ const products = [
     image: "assets/p-body-marrom.png",
     colors: [{ name: "Bronze Escuro", hex: "#7A4234" }, { name: "Caramelo", hex: "#C4956A" }],
     sizes: ["P"],
-    description: "Body drapeado em tom bronze com abertura profunda nas costas. Peça exclusiva que exige atitude — para noites que ficam na memória.",
+    description: "Body drapeado em tom bronze com abertura profunda nas costas. Peça exclusiva que exige atitude, para noites que ficam na memória.",
     material: "78% nylon, 22% elastano. Tecido com compressão suave e acabamento fosco premium.",
     care: "Lavar somente à mão com água fria e sabonete neutro. Secar sobre superfície plana.",
     fit: "Modelagem colada ao corpo. Recomendamos medir busto e quadril antes de escolher. Disponível em tamanho P."
@@ -44,7 +44,7 @@ const products = [
     image: "assets/p-saia-cetim.png",
     colors: [{ name: "Prata Lua", hex: "#C9CACE" }, { name: "Preto", hex: "#1C1414" }],
     sizes: ["36","38","40"],
-    description: "Saia longa de cetim com reflexos suaves que evocam o brilho da lua. Fluida, elegante e atemporal — a peça-chave de um guarda-roupa consciente.",
+    description: "Saia longa de cetim com reflexos suaves que evocam o brilho da lua. Fluida, elegante e atemporal, a peça-chave de um guarda-roupa consciente.",
     material: "100% poliéster cetinado de gramatura alta. Forro interno em chiffon.",
     care: "Lavar na máquina em ciclo delicado. Passar com ferro a vapor pelo avesso em temperatura média.",
     fit: "Cós elástico para conforto máximo. Comprimento midi até o tornozelo (aprox. 90cm). Para corpos mais altos, considere um tamanho acima."
@@ -363,3 +363,4 @@ if (window.matchMedia("(hover:hover) and (pointer:fine)").matches){
     el.addEventListener("mouseleave", () => cursor.classList.remove("is-hover"));
   });
 }
+

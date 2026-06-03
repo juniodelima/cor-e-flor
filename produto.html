@@ -1,11 +1,12 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title id="page-title">Produto — COR &amp; FLOR</title>
-<meta name="description" content="COR & FLOR — moda feminina premium. Peças que celebram quem você é, com a delicadeza que você merece." />
+<title id="page-title">Produto | COR &amp; FLOR</title>
+<meta name="description" content="COR & FLOR, moda feminina premium. Peças que celebram quem você é, com a delicadeza que você merece." />
 
+<link rel="icon" type="image/png" href="assets/logo-nova.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Raleway:wght@200;300;400;500;600&display=swap" rel="stylesheet">
@@ -88,7 +89,7 @@
       <svg width="24" height="24"><use href="#i-menu"/></svg>
     </button>
 
-    <a class="logo" href="index.html" aria-label="COR & FLOR — página inicial">
+    <a class="logo" href="index.html" aria-label="COR & FLOR">
       <img src="assets/logo-nova.png" class="logo__img" alt="COR &amp; FLOR">
     </a>
 
@@ -174,7 +175,7 @@
       <!-- Cor -->
       <div class="prod-detail__opt" id="color-opt">
         <div class="prod-detail__opt-label">
-          Cor: <strong id="color-label">—</strong>
+          Cor: <strong id="color-label"></strong>
         </div>
         <div class="prod-detail__colors" id="prod-colors"></div>
       </div>
@@ -182,7 +183,7 @@
       <!-- Tamanho -->
       <div class="prod-detail__opt" id="size-opt">
         <div class="prod-detail__opt-label">
-          Tamanho: <strong id="size-label">—</strong>
+          Tamanho: <strong id="size-label"></strong>
           <button class="size-guide-btn" onclick="openSizeGuide()">Guia de tamanhos</button>
         </div>
         <div class="prod-detail__sizes" id="prod-sizes"></div>
@@ -308,7 +309,7 @@
   </div>
 
   <div class="foot__bar">
-    <span>© 2026 Cor &amp; Flor — Todos os direitos reservados.</span>
+    <span>© 2026 Cor &amp; Flor. Todos os direitos reservados.</span>
     <span>Feito com ✿ em São Paulo</span>
   </div>
 </footer>
@@ -414,7 +415,7 @@ const CATALOG = [
     image: "assets/p-body-marrom.png",
     colors: [{ name: "Bronze Escuro", hex: "#7A4234" }, { name: "Caramelo", hex: "#C4956A" }],
     sizes: ["P"],
-    description: "Body drapeado em tom bronze com abertura profunda nas costas. Peça exclusiva que exige atitude — para noites que ficam na memória.",
+    description: "Body drapeado em tom bronze com abertura profunda nas costas. Peça exclusiva que exige atitude, para noites que ficam na memória.",
     material: "78% nylon, 22% elastano. Tecido com compressão suave e acabamento fosco premium.",
     care: "Lavar somente à mão com água fria e sabonete neutro. Secar sobre superfície plana.",
     fit: "Modelagem colada ao corpo. Recomendamos medir busto e quadril antes de escolher. Disponível em tamanho P."
@@ -424,7 +425,7 @@ const CATALOG = [
     image: "assets/p-saia-cetim.png",
     colors: [{ name: "Prata Lua", hex: "#C9CACE" }, { name: "Preto", hex: "#1C1414" }],
     sizes: ["36","38","40"],
-    description: "Saia longa de cetim com reflexos suaves que evocam o brilho da lua. Fluida, elegante e atemporal — a peça-chave de um guarda-roupa consciente.",
+    description: "Saia longa de cetim com reflexos suaves que evocam o brilho da lua. Fluida, elegante e atemporal, a peça-chave de um guarda-roupa consciente.",
     material: "100% poliéster cetinado de gramatura alta. Forro interno em chiffon.",
     care: "Lavar na máquina em ciclo delicado. Passar com ferro a vapor pelo avesso em temperatura média.",
     fit: "Cós elástico para conforto máximo. Comprimento midi até o tornozelo (aprox. 90cm)."
@@ -485,7 +486,7 @@ if (product && !Array.isArray(product.colors)) {
 }
 
 /* ========= PAGE META ========= */
-document.title = product.name + ' — COR & FLOR';
+document.title = product.name + ' | COR & FLOR';
 
 /* ========= BREADCRUMB ========= */
 document.getElementById('bc-cat').textContent = product.category;
@@ -516,7 +517,7 @@ const mainImg = document.getElementById('prod-main-img');
 mainImg.src = product.image;
 mainImg.alt = product.name;
 
-/* Thumbnails — repeat main image 3x as demo */
+/* Thumbnails - repeat main image 3x as demo */
 const thumbsEl = document.getElementById('prod-thumbs');
 [product.image, product.image, product.image].forEach(function(src, i) {
   const div = document.createElement('div');
@@ -864,3 +865,6 @@ if (window.matchMedia('(hover:hover) and (pointer:fine)').matches) {
 </script>
 </body>
 </html>
+
+
+
