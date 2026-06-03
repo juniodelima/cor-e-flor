@@ -730,59 +730,60 @@ em{ font-style: italic; }
 ======================================================= */
 .cat-strip {
   display: flex;
-  gap: 20px;
+  gap: 10px;
   overflow-x: auto;
   scrollbar-width: none;
   padding: 0 var(--gutter) 4px;
   max-width: var(--container);
   margin: 0 auto 56px;
   -webkit-overflow-scrolling: touch;
+  flex-wrap: wrap;
 }
 .cat-strip::-webkit-scrollbar { display: none; }
 
 .cat-pill {
   flex: 0 0 auto;
-  display: flex;
-  flex-direction: column;
+  display: inline-flex;
   align-items: center;
-  gap: 12px;
-  text-decoration: none;
-  color: var(--ink);
-  transition: transform .25s var(--ease);
-}
-.cat-pill:hover { transform: translateY(-4px); }
-
-.cat-pill__img {
-  width: 110px;
-  height: 142px;
-  border-radius: 14px;
-  background-size: cover;
-  background-position: center top;
-  border: 2.5px solid transparent;
-  transition: border-color .25s var(--ease), box-shadow .25s var(--ease);
-  box-shadow: 0 4px 16px rgba(28,20,20,.1);
-}
-.cat-pill:hover .cat-pill__img {
-  border-color: var(--rose);
-  box-shadow: 0 8px 24px rgba(212,103,154,.22);
-}
-
-.cat-pill__name {
-  font-family: var(--sans);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 1.6px;
-  text-transform: uppercase;
+  padding: 10px 22px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(212,103,154,.3);
+  background: #fff;
   color: var(--warm-gray);
-  text-align: center;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  text-decoration: none;
   white-space: nowrap;
-  transition: color .2s;
+  transition: background .2s var(--ease), border-color .2s, color .2s, transform .2s;
 }
-.cat-pill:hover .cat-pill__name { color: var(--rose-deep); }
+.cat-pill:hover {
+  background: var(--rose);
+  border-color: var(--rose);
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+/* Botão "Ver todos" nos carrosséis */
+.car-ver-mais {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--sans); font-size: 11px; font-weight: 700;
+  letter-spacing: 1.6px; text-transform: uppercase;
+  color: var(--rose-deep); text-decoration: none;
+  padding: 8px 16px; border-radius: 999px;
+  border: 1.5px solid rgba(212,103,154,.35);
+  background: #fff;
+  transition: all .2s var(--ease);
+  white-space: nowrap;
+}
+.car-ver-mais:hover { background: var(--rose); border-color: var(--rose); color: #fff; }
+.car-ver-mais svg { flex-shrink: 0; }
 
 @media (max-width: 640px) {
-  .cat-pill__img { width: 88px; height: 114px; }
-  .cat-strip { gap: 14px; }
+  .cat-strip { gap: 8px; flex-wrap: nowrap; }
+  .car-ver-mais { font-size: 10px; padding: 6px 12px; }
 }
 
 /* ======================================================

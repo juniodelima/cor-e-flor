@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title id="page-title">Categoria | COR &amp; FLOR</title>
+<link rel="icon" type="image/png" href="assets/logo-nova.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Raleway:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css" />
+<style>
+  .cat-page { padding: clamp(100px,12vw,160px) 0 clamp(80px,10vw,120px); background: var(--cream); }
+  .cat-page__head {
+    max-width: var(--container); margin: 0 auto; padding: 0 var(--gutter);
+    margin-bottom: 52px;
+    display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 20px;
+  }
+  .cat-page__back {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--warm-gray); text-decoration: none;
+    margin-bottom: 20px; display: block;
+  }
+  .cat-page__back:hover { color: var(--rose); }
+  .cat-page__count { font-size: 13px; color: var(--warm-gray); }
+  .cat-page__title { font-family: var(--serif); font-size: clamp(28px,4vw,52px); font-weight: 600; line-height: 1.1; }
+
+  .cat-filter-strip {
+    max-width: var(--container); margin: 0 auto; padding: 0 var(--gutter);
+    display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 48px;
+  }
+  .cat-filter-btn {
+    padding: 8px 20px; border-radius: 999px;
+    border: 1.5px solid rgba(212,103,154,.3);
+    background: #fff; color: var(--warm-gray);
+    font-family: var(--sans); font-size: 12px; font-weight: 600;
+    letter-spacing: 1.2px; text-transform: uppercase; text-decoration: none;
+    cursor: pointer; transition: all .2s;
+  }
+  .cat-filter-btn.active,
+  .cat-filter-btn:hover {
+    background: var(--rose); border-color: var(--rose); color: #fff;
+  }
+
+  .cat-grid {
+    max-width: var(--container); margin: 0 auto; padding: 0 var(--gutter);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: clamp(20px,2.4vw,36px) clamp(16px,2vw,28px);
+  }
+  .cat-empty {
+    grid-column: 1/-1; text-align: center;
+    padding: 80px 0; color: var(--warm-gray); font-size: 16px;
+  }
+
+  @media (max-width: 1024px) { .cat-grid { grid-template-columns: repeat(3,1fr); } }
+  @media (max-width: 768px)  { .cat-grid { grid-template-columns: repeat(2,1fr); gap: 20px 14px; } .card__add { display: none; } .card__fav { opacity:1; transform:translateY(0); } }
+  @media (max-width: 420px)  { .cat-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<!-- SVG symbols (subset) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+    <symbol id="i-heart-fill" viewBox="0 0 24 24"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10Z" fill="currentColor"/></symbol>
+    <symbol id="i-bag" viewBox="0 0 24 24"><path d="M6 8h12l-1 12H7L6 8Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M9 8V6a3 3 0 0 1 6 0v2" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 8h16M4 16h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-5-6 6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+  </defs>
+</svg>
+
+<!-- NAV -->
+<header class="nav is-scrolled" id="nav" role="banner">
+  <div class="nav__inner">
+    <a class="logo" href="index.html" aria-label="COR & FLOR">
+      <img src="assets/logo-nova.png" class="logo__img" alt="COR &amp; FLOR">
+    </a>
+    <nav class="nav__links" aria-label="Principal">
+      <a href="index.html#categorias">Coleções</a>
+      <a href="index.html#novidades">Novidades</a>
+      <a href="index.html#nossa-loja">Nossa Loja</a>
+      <a href="index.html#contato">Contato</a>
+    </nav>
+    <div class="nav__actions">
+      <button class="ic-btn" id="open-cart" aria-label="Abrir carrinho">
+        <svg width="22" height="22"><use href="#i-bag"/></svg>
+        <span class="cart-badge" id="cart-badge">0</span>
+      </button>
+      <button class="ic-btn nav__hamburger" id="hamburger" aria-label="Menu" aria-expanded="false">
+        <svg width="22" height="22"><use href="#i-menu"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+<section class="cat-page">
+  <div class="cat-page__head">
+    <div>
+      <a class="cat-page__back" href="index.html#novidades">
+        ← Voltar para a loja
+      </a>
+      <span class="sec-eyebrow" id="cat-eyebrow">✦ CATEGORIA</span>
+      <h1 class="cat-page__title" id="cat-title">Carregando...</h1>
+    </div>
+    <span class="cat-page__count" id="cat-count"></span>
+  </div>
+
+  <!-- Filtros rápidos de subcategoria -->
+  <div class="cat-filter-strip" id="cat-filters"></div>
+
+  <div class="cat-grid" id="cat-grid">
+    <!-- produtos injetados por JS -->
+  </div>
+</section>
+</main>
+
+<!-- FOOTER -->
+<footer class="foot">
+  <div class="foot__top">
+    <a class="logo logo--foot" href="index.html" aria-label="COR & FLOR">
+      <div class="logo-on-dark">
+        <img src="assets/logo-nova.png" class="logo__img" alt="COR &amp; FLOR">
+      </div>
+    </a>
+    <p class="foot__tag"><em>Cor porque a vida pede. Flor porque você merece.</em></p>
+  </div>
+  <div class="foot__cols">
+    <div class="foot__col">
+      <h5>Categorias</h5>
+      <a href="categoria.html?cat=vestidos">Vestidos &amp; Saias</a>
+      <a href="categoria.html?cat=blusas">Blusas &amp; Tops</a>
+      <a href="categoria.html?cat=conjuntos">Conjuntos</a>
+      <a href="categoria.html?cat=calcas">Calças &amp; Shorts</a>
+      <a href="categoria.html?cat=blazers">Blazers &amp; Coletes</a>
+    </div>
+    <div class="foot__col">
+      <h5>Atendimento</h5>
+      <a href="#">Central de ajuda</a>
+      <a href="#">Trocas &amp; devoluções</a>
+      <a href="#">Formas de pagamento</a>
+      <a href="#">Política de privacidade</a>
+    </div>
+    <div class="foot__col">
+      <h5>Contato</h5>
+      <p style="font-size:13px;color:var(--warm-gray);line-height:1.7">
+        atelier@coreflor.com.br<br>(61) 3967-7873<br>
+        Bloco D LJ 37, Asa Norte<br>Brasília, DF
+      </p>
+    </div>
+  </div>
+  <div class="foot__bar">
+    <span>© 2026 Cor &amp; Flor. Todos os direitos reservados.</span>
+  </div>
+</footer>
+
+<!-- CART -->
+<div class="cart-veil" id="cart-veil" aria-hidden="true"></div>
+<aside class="cart" id="cart" aria-hidden="true" aria-label="Carrinho">
+  <header class="cart__head">
+    <h3 class="cart__title">Meu carrinho <span id="cart-head-count">(0)</span></h3>
+    <button class="ic-btn" id="close-cart" aria-label="Fechar"><svg width="22" height="22"><use href="#i-x"/></svg></button>
+  </header>
+  <div class="cart__banner"><span>✿</span> Falta <strong id="cart-free-val">R$ 0,00</strong> para frete grátis!</div>
+  <ul class="cart__list" id="cart-list"></ul>
+  <div class="cart__totals">
+    <div class="cart__row"><span>Subtotal</span><strong id="cart-subtotal">R$ 0,00</strong></div>
+    <div class="cart__row cart__row--ship"><span>Frete</span><strong id="cart-ship">Grátis</strong></div>
+  </div>
+  <button class="btn btn--primary cart__cta" id="cart-checkout">Finalizar compra</button>
+  <button class="btn btn--link cart__continue" id="close-cart-2">← Continuar comprando</button>
+</aside>
+
+<script src="products-data.js"></script>
+<script>
+/* ---- Config de categorias ---- */
+const CAT_CONFIG = {
+  conjuntos: { label: 'Conjuntos',        eyebrow: 'CONJUNTOS & MACACÕES', test: p => /conjuntos|conjunto/i.test(p.category) },
+  blusas:    { label: 'Blusas & Tops',    eyebrow: 'BLUSAS & TOPS',        test: p => /blusas|blusa|regata|body/i.test(p.category) },
+  vestidos:  { label: 'Vestidos & Saias', eyebrow: 'VESTIDOS & SAIAS',     test: p => /vestidos|vestido|saia/i.test(p.category) },
+  calcas:    { label: 'Calças & Shorts',  eyebrow: 'CALÇAS & SHORTS',      test: p => /calcas|calça/i.test(p.category) },
+  blazers:   { label: 'Blazers & Coletes',eyebrow: 'BLAZERS & COLETES',    test: p => /blazers|blazer/i.test(p.category) },
+};
+
+const BRL = n => 'R$ ' + Number(n).toFixed(2).replace('.', ',');
+const params  = new URLSearchParams(location.search);
+const catKey  = params.get('cat') || '';
+const config  = CAT_CONFIG[catKey] || { label: 'Todos os Produtos', eyebrow: 'COLEÇÃO COMPLETA', test: () => true };
+const filtered = products.filter(config.test);
+
+/* ---- Atualiza cabeçalho ---- */
+document.title = config.label + ' | COR & FLOR';
+document.getElementById('page-title').textContent = config.label + ' | COR & FLOR';
+document.getElementById('cat-eyebrow').textContent = '✦ ' + config.eyebrow;
+document.getElementById('cat-title').textContent = config.label;
+document.getElementById('cat-count').textContent = filtered.length + ' peça' + (filtered.length !== 1 ? 's' : '');
+
+/* ---- Filtros de outras categorias ---- */
+const filterStrip = document.getElementById('cat-filters');
+Object.entries(CAT_CONFIG).forEach(([key, cfg]) => {
+  const a = document.createElement('a');
+  a.className = 'cat-filter-btn' + (key === catKey ? ' active' : '');
+  a.href = 'categoria.html?cat=' + key;
+  a.textContent = cfg.label;
+  filterStrip.appendChild(a);
+});
+
+/* ---- Render grid ---- */
+const grid = document.getElementById('cat-grid');
+if (!filtered.length) {
+  grid.innerHTML = '<p class="cat-empty">Nenhuma peça encontrada nesta categoria.</p>';
+} else {
+  filtered.forEach((p, i) => {
+    const badgeClass = p.badge === 'SALE' ? 'card__badge--sale' : p.badge === 'EXCLUSIVO' ? 'card__badge--exclusive' : '';
+    const badge   = p.badge ? `<span class="card__badge ${badgeClass}">${p.badge}</span>` : '';
+    const was     = p.originalPrice ? `<span class="card__price-was">${BRL(p.originalPrice)}</span>` : '';
+    const swatches = p.colors.map(c => `<span class="card__sw" style="background:${c.hex||c}"></span>`).join('');
+
+    const el = document.createElement('article');
+    el.className = 'card reveal';
+    el.style.transitionDelay = (i % 4) * 80 + 'ms';
+    el.dataset.id = p.id;
+    el.innerHTML = `
+      <div class="card__media">
+        ${badge}
+        <button class="card__fav" aria-label="Favoritar ${p.name}">
+          <svg width="18" height="18"><use href="#i-heart"/></svg>
+        </button>
+        <img src="${p.image}" alt="${p.name}" loading="lazy"/>
+        <button class="card__add" data-add="${p.id}">
+          <svg width="14" height="14"><use href="#i-bag"/></svg> Adicionar
+        </button>
+      </div>
+      <div class="card__body">
+        <span class="card__cat">${p.category}</span>
+        <h3 class="card__name"><a href="produto.html?id=${p.id}" style="color:inherit">${p.name}</a></h3>
+        <div class="card__price">
+          <span class="card__price-now">${BRL(p.price)}</span>
+          ${was}
+        </div>
+        <div class="card__colors">${swatches}</div>
+      </div>`;
+
+    el.querySelector('.card__media').addEventListener('click', e => {
+      if (!e.target.closest('button')) window.location.href = `produto.html?id=${p.id}`;
+    });
+    grid.appendChild(el);
+  });
+}
+
+/* ---- Cart (simplificado) ---- */
+let cartState = JSON.parse(localStorage.getItem('cf_cart') || '[]');
+const updateBadge = () => {
+  const total = cartState.reduce((s, i) => s + i.qty, 0);
+  document.getElementById('cart-badge').textContent = total;
+  document.getElementById('cart-head-count').textContent = '(' + total + ')';
+};
+updateBadge();
+
+const openCart  = () => { document.getElementById('cart').setAttribute('aria-hidden','false'); document.getElementById('cart-veil').setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; };
+const closeCart = () => { document.getElementById('cart').setAttribute('aria-hidden','true');  document.getElementById('cart-veil').setAttribute('aria-hidden','true');  document.body.style.overflow=''; };
+document.getElementById('open-cart').addEventListener('click', openCart);
+document.getElementById('close-cart').addEventListener('click', closeCart);
+document.getElementById('close-cart-2').addEventListener('click', closeCart);
+document.getElementById('cart-veil').addEventListener('click', closeCart);
+
+grid.addEventListener('click', e => {
+  const fav = e.target.closest('.card__fav');
+  if (fav) { fav.classList.toggle('is-on'); fav.querySelector('use').setAttribute('href', fav.classList.contains('is-on') ? '#i-heart-fill' : '#i-heart'); return; }
+  const add = e.target.closest('[data-add]');
+  if (add) {
+    const id = parseInt(add.dataset.add);
+    const p = products.find(x => x.id === id);
+    if (!p) return;
+    const existing = cartState.find(x => x.id === id);
+    if (existing) existing.qty++;
+    else cartState.push({ id, name: p.name, price: p.price, image: p.image, qty: 1 });
+    localStorage.setItem('cf_cart', JSON.stringify(cartState));
+    updateBadge();
+    add.textContent = '✓ Adicionado!';
+    setTimeout(() => { add.innerHTML = '<svg width="14" height="14"><use href="#i-bag"/></svg> Adicionar'; }, 1600);
+  }
+});
+
+/* ---- Nav ---- */
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => nav.classList.toggle('is-scrolled', window.scrollY > 60), { passive: true });
+
+/* ---- Reveal ---- */
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('is-visible'); io.unobserve(e.target); } });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+/* ---- Mobile menu ---- */
+const burger = document.getElementById('hamburger');
+if (burger) burger.addEventListener('click', () => {
+  const expanded = burger.getAttribute('aria-expanded') === 'true';
+  burger.setAttribute('aria-expanded', !expanded);
+});
+</script>
+</body>
+</html>

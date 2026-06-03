@@ -277,7 +277,7 @@
   </header>
 
   <div class="cats__grid">
-    <a class="cat cat--big reveal" href="#cat-vestidos" style="background-image:url('assets/hero-vestido.png')">
+    <a class="cat cat--big reveal" href="categoria.html?cat=vestidos" style="background-image:url('assets/hero-vestido.png')">
       <div class="cat__veil"></div>
       <div class="cat__info">
         <span class="cat__label">Vestidos &amp; Saias</span>
@@ -286,7 +286,7 @@
       </div>
     </a>
 
-    <a class="cat reveal" href="#cat-blusas" style="background-image:url('assets/hero-blusa.png')">
+    <a class="cat reveal" href="categoria.html?cat=blusas" style="background-image:url('assets/hero-blusa.png')">
       <div class="cat__veil"></div>
       <div class="cat__info">
         <span class="cat__label">Blusas &amp; Tops</span>
@@ -295,7 +295,7 @@
       </div>
     </a>
 
-    <a class="cat reveal" href="#cat-conjuntos" style="background-image:url('assets/hero-conjunto.png')">
+    <a class="cat reveal" href="categoria.html?cat=conjuntos" style="background-image:url('assets/hero-conjunto.png')">
       <div class="cat__veil"></div>
       <div class="cat__info">
         <span class="cat__label">Conjuntos</span>
@@ -319,26 +319,11 @@
 
   <!-- Strip de categorias -->
   <nav class="cat-strip" aria-label="Navegar por categoria">
-    <a class="cat-pill" href="#cat-conjuntos">
-      <div class="cat-pill__img" style="background-image:url('assets/lj-macacao-zebra.png')"></div>
-      <span class="cat-pill__name">Conjuntos</span>
-    </a>
-    <a class="cat-pill" href="#cat-blusas">
-      <div class="cat-pill__img" style="background-image:url('assets/lj-tricot-rose.png')"></div>
-      <span class="cat-pill__name">Blusas &amp; Tops</span>
-    </a>
-    <a class="cat-pill" href="#cat-vestidos">
-      <div class="cat-pill__img" style="background-image:url('assets/lj-vestido-verde.png')"></div>
-      <span class="cat-pill__name">Vestidos &amp; Saias</span>
-    </a>
-    <a class="cat-pill" href="#cat-calcas">
-      <div class="cat-pill__img" style="background-image:url('assets/lj-calca-jeans.png')"></div>
-      <span class="cat-pill__name">Calças &amp; Shorts</span>
-    </a>
-    <a class="cat-pill" href="#cat-blazers">
-      <div class="cat-pill__img" style="background-image:url('assets/lj-colete-vermelho.png')"></div>
-      <span class="cat-pill__name">Blazers &amp; Coletes</span>
-    </a>
+    <a class="cat-pill" href="categoria.html?cat=conjuntos">Conjuntos</a>
+    <a class="cat-pill" href="categoria.html?cat=blusas">Blusas &amp; Tops</a>
+    <a class="cat-pill" href="categoria.html?cat=vestidos">Vestidos &amp; Saias</a>
+    <a class="cat-pill" href="categoria.html?cat=calcas">Calças &amp; Shorts</a>
+    <a class="cat-pill" href="categoria.html?cat=blazers">Blazers &amp; Coletes</a>
   </nav>
 
   <div id="categories-root">
@@ -567,9 +552,12 @@
 <!-- ===== TOAST ===== -->
 <div id="toast" class="toast" aria-live="polite"></div>
 
+<script src="products-data.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
+
+
 
 
 
