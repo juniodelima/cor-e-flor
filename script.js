@@ -269,19 +269,28 @@ const products = [
 
 const BRL = n => "R$ " + n.toFixed(2).replace(".", ",");
 
-/* ---------- RENDER PRODUCT GRID ---------- */
-const grid = document.getElementById("news-grid");
-products.forEach((p, i) => {
-  const badgeClass = p.badge === "SALE" ? "card__badge--sale"
-                    : p.badge === "EXCLUSIVO" ? "card__badge--exclusive" : "";
-  const badge = p.badge ? `<span class="card__badge ${badgeClass}">${p.badge}</span>` : "";
-  const was = p.originalPrice ? `<span class="card__price-was">${BRL(p.originalPrice)}</span>` : "";
-  const swatches = p.colors.map(c => `<span class="card__sw" style="background:${c.hex||c}"></span>`).join("");
-  const delay = (i % 4) * 100;
+/* ---------- CATEGORY CAROUSELS ---------- */
+const DISPLAY_CATS = [
+  { key: 'conjuntos', label: 'Conjuntos',       eyebrow: 'CONJUNTOS & MACACÕES',
+    test: p => /conjuntos|conjunto/i.test(p.category) },
+  { key: 'blusas',    label: 'Blusas & Tops',   eyebrow: 'BLUSAS & TOPS',
+    test: p => /blusas|blusa|regata|body/i.test(p.category) },
+  { key: 'vestidos',  label: 'Vestidos & Saias', eyebrow: 'VESTIDOS & SAIAS',
+    test: p => /vestidos|vestido|saia/i.test(p.category) },
+  { key: 'calcas',    label: 'Calças & Shorts',  eyebrow: 'CALÇAS & SHORTS',
+    test: p => /calcas|calça/i.test(p.category) },
+  { key: 'blazers',   label: 'Blazers & Coletes', eyebrow: 'BLAZERS & COLETES',
+    test: p => /blazers|blazer/i.test(p.category) },
+];
 
+function makeCard(p) {
+  const badgeClass = p.badge === "SALE" ? "card__badge--sale"
+                   : p.badge === "EXCLUSIVO" ? "card__badge--exclusive" : "";
+  const badge   = p.badge ? `<span class="card__badge ${badgeClass}">${p.badge}</span>` : "";
+  const was     = p.originalPrice ? `<span class="card__price-was">${BRL(p.originalPrice)}</span>` : "";
+  const swatches = p.colors.map(c => `<span class="card__sw" style="background:${c.hex||c}"></span>`).join("");
   const el = document.createElement("article");
-  el.className = "card reveal";
-  el.style.transitionDelay = `${delay}ms`;
+  el.className = "card";
   el.dataset.id = p.id;
   el.innerHTML = `
     <div class="card__media">
@@ -300,30 +309,86 @@ products.forEach((p, i) => {
         ${was}
       </div>
       <div class="card__colors" aria-label="Cores disponíveis">${swatches}</div>
-    </div>
-  `;
-  el.querySelector('.card__media').addEventListener('click', (e) => {
-    if (!e.target.closest('button')) {
-      window.location.href = `produto.html?id=${p.id}`;
-    }
+    </div>`;
+  el.querySelector('.card__media').addEventListener('click', e => {
+    if (!e.target.closest('button')) window.location.href = `produto.html?id=${p.id}`;
   });
-  grid.appendChild(el);
+  return el;
+}
+
+function initCarousel(block) {
+  const track = block.querySelector('.carousel-track');
+  const prev  = block.querySelector('.car-btn--prev');
+  const next  = block.querySelector('.car-btn--next');
+  const step  = () => (track.querySelector('.card')?.offsetWidth ?? 280) + 20;
+
+  prev.addEventListener('click', () => track.scrollBy({ left: -step(), behavior: 'smooth' }));
+  next.addEventListener('click', () => track.scrollBy({ left:  step(), behavior: 'smooth' }));
+
+  const upd = () => {
+    prev.disabled = track.scrollLeft < 2;
+    next.disabled = track.scrollLeft + track.clientWidth >= track.scrollWidth - 2;
+  };
+  track.addEventListener('scroll', upd, { passive: true });
+  upd();
+
+  // arrastar com mouse (desktop)
+  let dragging = false, sx = 0, ss = 0;
+  track.addEventListener('mousedown',  e => { dragging = true; sx = e.clientX; ss = track.scrollLeft; track.style.cursor = 'grabbing'; e.preventDefault(); });
+  window.addEventListener('mousemove', e => { if (!dragging) return; track.scrollLeft = ss - (e.clientX - sx); });
+  window.addEventListener('mouseup',   () => { dragging = false; track.style.cursor = ''; });
+
+  // swipe touch
+  let tx = 0;
+  track.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+  track.addEventListener('touchend',   e => {
+    const d = tx - e.changedTouches[0].clientX;
+    if (Math.abs(d) > 40) track.scrollBy({ left: d > 0 ? step() : -step(), behavior: 'smooth' });
+  }, { passive: true });
+}
+
+const catRoot = document.getElementById('categories-root');
+DISPLAY_CATS.forEach(cat => {
+  const items = products.filter(cat.test);
+  if (!items.length) return;
+
+  const block = document.createElement('div');
+  block.className = 'cat-block reveal';
+  block.innerHTML = `
+    <div class="cat-block__head">
+      <div>
+        <span class="sec-eyebrow">✦ ${cat.eyebrow}</span>
+        <h2 class="cat-block__title">${cat.label}</h2>
+      </div>
+      <div class="car-nav">
+        <button class="car-btn car-btn--prev" aria-label="Ver anteriores">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <button class="car-btn car-btn--next" aria-label="Ver mais">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="carousel-wrap">
+      <div class="carousel-track" id="track-${cat.key}"></div>
+    </div>`;
+
+  const track = block.querySelector('.carousel-track');
+  items.forEach(p => track.appendChild(makeCard(p)));
+  catRoot.appendChild(block);
+  initCarousel(block);
 });
 
-/* Favoritar */
-grid.addEventListener("click", e => {
-  const fav = e.target.closest(".card__fav");
+/* Favoritar + Carrinho (event delegation no root) */
+catRoot.addEventListener('click', e => {
+  const fav = e.target.closest('.card__fav');
   if (fav) {
-    fav.classList.toggle("is-on");
-    const svg = fav.querySelector("use");
-    svg.setAttribute("href", fav.classList.contains("is-on") ? "#i-heart-fill" : "#i-heart");
+    fav.classList.toggle('is-on');
+    fav.querySelector('use').setAttribute('href', fav.classList.contains('is-on') ? '#i-heart-fill' : '#i-heart');
     return;
   }
-  const add = e.target.closest("[data-add]");
-  if (add) {
-    const id = parseInt(add.dataset.add, 10);
-    addToCart(id);
-  }
+  const add = e.target.closest('[data-add]');
+  if (add) addToCart(parseInt(add.dataset.add, 10));
 });
 
 

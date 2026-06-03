@@ -725,6 +725,69 @@ em{ font-style: italic; }
 }
 .news__all{ flex-shrink: 0; }
 
+/* ======================================================
+   CARROSSÉIS POR CATEGORIA
+======================================================= */
+#categories-root {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+  display: flex;
+  flex-direction: column;
+  gap: 72px;
+}
+.cat-block__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.cat-block__title {
+  font-family: var(--serif);
+  font-size: clamp(22px, 2.8vw, 34px);
+  font-weight: 600;
+  color: var(--ink);
+  margin-top: 6px;
+  line-height: 1.15;
+}
+.car-nav { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+.car-btn {
+  width: 40px; height: 40px; border-radius: 50%;
+  border: 1.5px solid rgba(212,103,154,.35);
+  background: #fff; color: var(--rose-deep);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: background .2s var(--ease), border-color .2s, color .2s;
+}
+.car-btn:hover:not(:disabled) { background: var(--rose); border-color: var(--rose); color: #fff; }
+.car-btn:disabled { opacity: .28; cursor: not-allowed; }
+
+.carousel-wrap { position: relative; overflow: hidden; }
+.carousel-wrap::after {
+  content: ''; position: absolute; top: 0; right: 0;
+  width: 80px; height: 100%;
+  background: linear-gradient(to left, var(--cream), transparent);
+  pointer-events: none; z-index: 1;
+}
+.carousel-track {
+  display: flex; gap: 20px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+  cursor: grab;
+  user-select: none;
+}
+.carousel-track:active { cursor: grabbing; }
+.carousel-track::-webkit-scrollbar { display: none; }
+.carousel-track .card {
+  flex: 0 0 clamp(190px, 25vw, 268px);
+  scroll-snap-align: start;
+}
+
 .news__grid{
   max-width: var(--container);
   margin: 0 auto;
@@ -1554,6 +1617,10 @@ em{ font-style: italic; }
   /* Always-visible add for touch */
   .card__add{ display: none; }
   .card__fav{ opacity: 1; transform: translateY(0); }
+  /* Carousel mobile */
+  .carousel-track .card { flex: 0 0 72vw; }
+  .car-btn { width: 34px; height: 34px; }
+  #categories-root { gap: 56px; }
 
   .manifesto{ grid-template-columns: 1fr; }
   .manifesto__img{ min-height: 420px; }
