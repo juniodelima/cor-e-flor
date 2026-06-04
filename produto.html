@@ -75,12 +75,6 @@
 </svg>
 
 
-<!-- ===== CUSTOM CURSOR ===== -->
-<div id="cursor" aria-hidden="true">
-  <span class="cursor__dot"></span>
-  <span class="cursor__flower">✿</span>
-</div>
-
 
 <!-- ===== NAVBAR ===== -->
 <header id="nav" class="nav is-scrolled">
@@ -1116,23 +1110,6 @@ const io = new IntersectionObserver(function(entries) {
 }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
 document.querySelectorAll('.reveal').forEach(function(el) { io.observe(el); });
 
-/* ========= CUSTOM CURSOR ========= */
-const cursor = document.getElementById('cursor');
-if (window.matchMedia('(hover:hover) and (pointer:fine)').matches) {
-  let x = 0, y = 0, cx = 0, cy = 0;
-  window.addEventListener('mousemove', function(e) { x = e.clientX; y = e.clientY; });
-  const tick = function() {
-    cx += (x - cx) * 0.22;
-    cy += (y - cy) * 0.22;
-    cursor.style.transform = 'translate(' + cx.toFixed(1) + 'px, ' + cy.toFixed(1) + 'px)';
-    requestAnimationFrame(tick);
-  };
-  tick();
-  document.querySelectorAll('a, button, .card, .prod-color, .prod-size, .prod-thumb').forEach(function(el) {
-    el.addEventListener('mouseenter', function() { cursor.classList.add('is-hover'); });
-    el.addEventListener('mouseleave', function() { cursor.classList.remove('is-hover'); });
-  });
-}
 </script>
 </body>
 </html>
