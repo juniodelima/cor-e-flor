@@ -152,6 +152,7 @@
     <div class="prod-detail__media">
       <div class="prod-detail__img-main" id="img-main-wrap">
         <img id="prod-main-img" src="" alt="">
+        <video id="prod-main-video" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:inherit" controls playsinline></video>
       </div>
       <div class="prod-detail__thumbs" id="prod-thumbs"></div>
     </div>
@@ -171,6 +172,9 @@
       <div class="prod-detail__installments" id="prod-installments"></div>
 
       <div class="prod-detail__sep"></div>
+
+      <!-- Opções de peças (conjuntos vendidos separadamente) -->
+      <div id="piece-opt-wrap"></div>
 
       <!-- Cor -->
       <div class="prod-detail__opt" id="color-opt">
@@ -537,7 +541,99 @@ const CATALOG = [
   { id: 29, name: "Body One-Shoulder Nude", category: "blusas", price: 199.00, originalPrice: null, badge: "NOVO",
     image: "assets/lj-body-nude.png", colors: [{ name: "Nude", hex: "#D4A882" }, { name: "Marrom", hex: "#7A4234" }],
     sizes: ["P","M","G"], description: "Body one-shoulder nude com drapeado suave e tecido de segunda pele. Elegante e sensual para qualquer saia ou calça.",
-    material: "92% poliamida, 8% elastano. Segunda pele.", care: "Somente à mão água fria.", fit: "Ajustado, one-shoulder, fecho colchetes na entreperna." }
+    material: "92% poliamida, 8% elastano. Segunda pele.", care: "Somente à mão água fria.", fit: "Ajustado, one-shoulder, fecho colchetes na entreperna." },
+  { id: 30, name: "Blazer Xadrez", category: "blazers", price: 349.00, originalPrice: null, badge: "NOVO",
+    image: "assets/nrl-blazer-xadrez-1.jpg",
+    images: ["assets/nrl-blazer-xadrez-1.jpg","assets/nrl-blazer-xadrez-2.jpg","assets/nrl-blazer-xadrez-3.jpg","assets/nrl-blazer-xadrez-4.jpg"],
+    video: "assets/nrl-blazer-xadrez.mp4",
+    colors: [{ name: "Xadrez Clássico", hex: "#4A4040" }], sizes: ["P","M","G"],
+    description: "Blazer xadrez estruturado com caimento impecável e estampa clássica que nunca sai de moda. Versátil do casual ao formal com atitude e elegância.",
+    material: "Tecido xadrez de alta qualidade com forro interno. Estrutura de ombro levemente marcada.",
+    care: "Limpeza a seco recomendada. Para lavagem doméstica, ciclo delicado em água fria.",
+    fit: "Modelagem slim com ombros estruturados. Comprimento no quadril. Segue tabela padrão." },
+  { id: 31, name: "Blusa Tule Floral", category: "blusas", price: 119.00, originalPrice: null, badge: "NOVO",
+    image: "assets/nrl-blusa-tule.jpg",
+    colors: [{ name: "Natural", hex: "#F5EFE6" }], sizes: ["P","M","G"],
+    description: "Blusa em tule delicado com bordado floral artesanal que traz leveza e romantismo. Uma peça que celebra a feminilidade com suavidade e charme.",
+    material: "100% poliéster em tule de alta gramatura. Bordado artesanal aplicado à mão.",
+    care: "Lavar somente à mão com sabão neutro em água fria. Secar à sombra estendida.",
+    fit: "Modelagem ampla e fluida. Veste folgado, considere um tamanho abaixo se preferir mais ajustado." },
+  { id: 32, name: "Conjunto Crochê", category: "conjuntos", price: 319.00, originalPrice: null, badge: "NOVO",
+    image: "assets/nrl-colete-croche.jpg",
+    images: ["assets/nrl-colete-croche.jpg","assets/nrl-calca-croche.jpg"],
+    colors: [{ name: "Natural", hex: "#D4C5A9" }], sizes: ["P","M","G"],
+    pieceOptions: [
+      { name: "Conjunto Completo", price: 319.00 },
+      { name: "Somente Colete", price: 179.00 },
+      { name: "Somente Calça", price: 189.00 }
+    ],
+    description: "Conjunto em crochê artesanal com colete e calça de cintura alta. Peças que podem ser adquiridas juntas ou separadamente.",
+    material: "Crochê artesanal em fio de algodão 100% natural.",
+    care: "Lavar à mão com sabão neutro em água fria. Secar à sombra deitado. Não torcer.",
+    fit: "Colete modelagem cropped. Calça de cintura alta com caimento fluido." },
+  { id: 33, name: "Conjunto Jeans", category: "conjuntos", price: 259.00, originalPrice: null, badge: "NOVO",
+    image: "assets/nrl-conjunto-jeans-1.jpg",
+    images: ["assets/nrl-conjunto-jeans-1.jpg"],
+    colors: [{ name: "Azul Médio", hex: "#4A6FA5" }], sizes: ["P","M","G"],
+    pieceOptions: [
+      { name: "Conjunto Completo", price: 259.00 },
+      { name: "Somente Top", price: 119.00 },
+      { name: "Somente Calça Jeans", price: 179.00 }
+    ],
+    description: "Conjunto jeans sofisticado com top e calça de cintura alta. Adquira juntos ou separadamente para criar combinações únicas.",
+    material: "98% algodão, 2% elastano. Denim de alta qualidade.",
+    care: "Lavar ao contrário em ciclo delicado, água fria. Secar à sombra.",
+    fit: "Top ajustado com barra reta. Calça reta de cintura alta. Segue tabela padrão." },
+  { id: 34, name: "Conjunto Tweed", category: "conjuntos", price: 329.00, originalPrice: null, badge: "NOVO",
+    image: "assets/nrl-conjunto-tweed-1.jpg",
+    images: ["assets/nrl-conjunto-tweed-1.jpg","assets/nrl-conjunto-tweed-2.jpg"],
+    colors: [{ name: "Tweed Multicolor", hex: "#8C7E6A" }], sizes: ["P","M","G"],
+    pieceOptions: [
+      { name: "Conjunto Completo", price: 329.00 },
+      { name: "Somente Blazer", price: 199.00 },
+      { name: "Somente Saia", price: 169.00 }
+    ],
+    description: "Conjunto tweed elegante com blazer estruturado e saia midi. As peças se complementam mas também brilham separadas.",
+    material: "Tweed misto com fio de lã e poliéster. Forro interno nas duas peças.",
+    care: "Limpeza a seco recomendada. Guardar em cabide para manter a estrutura.",
+    fit: "Blazer modelagem slim com ombros marcados. Saia midi de cintura alta com forro." },
+  { id: 35, name: "Conjunto Corset + Short", category: "conjuntos", price: 229.00, originalPrice: null, badge: "NOVO",
+    image: "assets/nrl-corset-short.jpg",
+    images: ["assets/nrl-corset-short.jpg"],
+    colors: [{ name: "Preto", hex: "#1C1414" }], sizes: ["P","M","G"],
+    pieceOptions: [
+      { name: "Conjunto Completo", price: 229.00 },
+      { name: "Somente Corset", price: 149.00 },
+      { name: "Somente Short", price: 99.00 }
+    ],
+    description: "Conjunto corset estruturado com short de cintura alta. Combinação ousada que define a silhueta com atitude. Cada peça funciona perfeitamente sozinha.",
+    material: "Corset em tecido estruturado com barbatanas e forro. Short em tecido premium com cós largo.",
+    care: "Lavar somente à mão com cuidado. Não torcer o corset para preservar a estrutura.",
+    fit: "Corset estruturado que define a cintura. Short de cintura alta modelagem reta." },
+  { id: 36, name: "Macacão Listrado", category: "conjuntos", price: 279.00, originalPrice: null, badge: "NOVO",
+    image: "assets/nrl-macacao-listrado-1.jpg",
+    images: ["assets/nrl-macacao-listrado-1.jpg","assets/nrl-macacao-listrado-2.jpg","assets/nrl-macacao-listrado-3.jpg"],
+    colors: [{ name: "Listrado P&B", hex: "#2C2C2C" }], sizes: ["P","M","G"],
+    description: "Macacão listrado com caimento elegante e design moderno. As listras verticais alongam a silhueta e garantem sofisticação em cada movimento.",
+    material: "Viscose premium com elastano. Listras tecidas no próprio fio.",
+    care: "Lavar na máquina em ciclo delicado, água fria. Secar à sombra.",
+    fit: "Modelagem fluida e levemente ampla. Cós marcado. Segue tabela padrão." },
+  { id: 37, name: "Vestido Onça", category: "vestidos", price: 259.00, originalPrice: null, badge: "NOVO",
+    image: "assets/nrl-vestido-onca-1.jpg",
+    images: ["assets/nrl-vestido-onca-1.jpg","assets/nrl-vestido-onca-2.jpg"],
+    colors: [{ name: "Animal Print Onça", hex: "#C4956A" }], sizes: ["P","M","G"],
+    description: "Vestido com estampa animal print onça que é sinônimo de poder e ousadia. Caimento impecável para quem não tem medo de ser notada.",
+    material: "Tecido de alta qualidade com estampa digital exclusiva. Leve elastano.",
+    care: "Lavar em ciclo delicado, água fria. Separar de roupas claras. Secar à sombra.",
+    fit: "Modelagem ajustada com caimento que valoriza as curvas. Comprimento midi." },
+  { id: 38, name: "Vestido Vinho", category: "vestidos", price: 229.00, originalPrice: null, badge: "NOVO",
+    image: "assets/nrl-vestido-vinho-1.jpg",
+    images: ["assets/nrl-vestido-vinho-1.jpg","assets/nrl-vestido-vinho-2.jpg"],
+    colors: [{ name: "Vinho", hex: "#722F37" }], sizes: ["P","M","G"],
+    description: "Vestido vinho com design sofisticado que combina elegância e feminilidade. A cor profunda e o caimento impecável fazem desta peça a escolha perfeita para noites especiais.",
+    material: "Tecido premium com leve brilho acetinado.",
+    care: "Lavar à mão com sabão neutro. Secar à sombra. Passar com ferro morno pelo avesso.",
+    fit: "Modelagem ajustada que valoriza a silhueta. Comprimento midi. Segue tabela padrão." }
 ];
 
 /* ========= UTILS ========= */
@@ -600,27 +696,106 @@ if (product.originalPrice) {
 }
 document.getElementById('prod-installments').innerHTML = 'ou <strong>10× de ' + BRL(product.price / 10) + '</strong> sem juros';
 
-/* ========= IMAGE ========= */
-const mainImg = document.getElementById('prod-main-img');
-mainImg.src = product.image;
+/* ========= IMAGE + VÍDEO GALLERY ========= */
+const mainImg   = document.getElementById('prod-main-img');
+const mainVideo = document.getElementById('prod-main-video');
+const thumbsEl  = document.getElementById('prod-thumbs');
+
 mainImg.alt = product.name;
 
-/* Thumbnails - repeat main image 3x as demo */
-const thumbsEl = document.getElementById('prod-thumbs');
-[product.image, product.image, product.image].forEach(function(src, i) {
+/* Monta lista de mídias: imagens + vídeo opcional */
+const rawImages = (product.images && product.images.length > 0) ? product.images : [product.image];
+const mediaList = rawImages.map(function(src) { return { type: 'image', src: src }; });
+if (product.video) {
+  mediaList.push({ type: 'video', src: product.video, poster: rawImages[0] });
+}
+
+function showMedia(media, thumbDiv) {
+  thumbsEl.querySelectorAll('.prod-thumb').forEach(function(t) { t.classList.remove('active'); });
+  if (thumbDiv) thumbDiv.classList.add('active');
+
+  if (media.type === 'video') {
+    mainVideo.src = media.src;
+    mainVideo.poster = media.poster || '';
+    mainImg.style.display = 'none';
+    mainVideo.style.display = 'block';
+    mainVideo.play().catch(function() {});
+  } else {
+    mainVideo.pause();
+    mainVideo.style.display = 'none';
+    mainImg.style.display = '';
+    mainImg.src = media.src;
+  }
+}
+
+/* Exibe primeira mídia */
+showMedia(mediaList[0], null);
+
+/* Thumbnails */
+mediaList.forEach(function(media, i) {
   const div = document.createElement('div');
   div.className = 'prod-thumb' + (i === 0 ? ' active' : '');
-  const img = document.createElement('img');
-  img.src = src;
-  img.alt = product.name;
-  div.appendChild(img);
-  div.addEventListener('click', function() {
-    mainImg.src = src;
-    thumbsEl.querySelectorAll('.prod-thumb').forEach(function(t) { t.classList.remove('active'); });
-    div.classList.add('active');
-  });
+
+  if (media.type === 'video') {
+    div.className += ' prod-thumb--video';
+    const img = document.createElement('img');
+    img.src = media.poster || '';
+    img.alt = 'Vídeo';
+    const icon = document.createElement('span');
+    icon.className = 'prod-thumb-play';
+    icon.innerHTML = '&#9654;';
+    div.appendChild(img);
+    div.appendChild(icon);
+  } else {
+    const img = document.createElement('img');
+    img.src = media.src;
+    img.alt = product.name;
+    div.appendChild(img);
+  }
+
+  div.addEventListener('click', function() { showMedia(media, div); });
   thumbsEl.appendChild(div);
 });
+
+/* ========= OPÇÕES DE PEÇAS (conjuntos vendidos separadamente) ========= */
+let selectedPiece = null;
+const pieceOptWrap = document.getElementById('piece-opt-wrap');
+
+if (product.pieceOptions && product.pieceOptions.length > 0) {
+  selectedPiece = product.pieceOptions[0];
+
+  const optDiv = document.createElement('div');
+  optDiv.className = 'prod-detail__opt';
+  optDiv.innerHTML =
+    '<div class="prod-detail__opt-label">O que deseja adicionar: <strong id="piece-label">' + selectedPiece.name + '</strong></div>' +
+    '<div class="prod-detail__pieces" id="prod-pieces"></div>';
+  pieceOptWrap.appendChild(optDiv);
+
+  const piecesEl = document.getElementById('prod-pieces');
+
+  function updatePiecePrice(opt) {
+    document.getElementById('prod-price-now').textContent = BRL(opt.price);
+    document.getElementById('prod-installments').innerHTML = 'ou <strong>10× de ' + BRL(opt.price / 10) + '</strong> sem juros';
+    document.getElementById('prod-price-was').style.display = 'none';
+    document.getElementById('piece-label').textContent = opt.name;
+  }
+
+  product.pieceOptions.forEach(function(opt, i) {
+    const btn = document.createElement('button');
+    btn.className = 'prod-piece' + (i === 0 ? ' active' : '');
+    btn.innerHTML = '<span class="prod-piece__name">' + opt.name + '</span><span class="prod-piece__price">' + BRL(opt.price) + '</span>';
+    btn.addEventListener('click', function() {
+      piecesEl.querySelectorAll('.prod-piece').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      selectedPiece = opt;
+      updatePiecePrice(opt);
+    });
+    piecesEl.appendChild(btn);
+  });
+
+  /* Inicia com preço da primeira opção */
+  updatePiecePrice(selectedPiece);
+}
 
 /* ========= COLORS ========= */
 const colorsEl = document.getElementById('prod-colors');
@@ -713,15 +888,21 @@ document.getElementById('btn-buy-now').addEventListener('click', function() {
 });
 
 function addToCart(prod, size, color, amount) {
-  const existing = cartState.find(function(x) { return String(x.id) === String(prod.id) && x.size === size; });
+  const isMainProduct = (String(prod.id) === String(product.id));
+  const pieceName  = (isMainProduct && selectedPiece) ? selectedPiece.name : null;
+  const piecePrice = (isMainProduct && selectedPiece) ? selectedPiece.price : null;
+  const cartKey    = String(prod.id) + (pieceName ? '__' + pieceName : '');
+
+  const existing = cartState.find(function(x) { return x.cartKey === cartKey && x.size === size; });
   if (existing) {
     existing.qty += amount;
   } else {
-    cartState.push({ id: prod.id, qty: amount, size: size, color: color });
+    cartState.push({ id: prod.id, cartKey: cartKey, qty: amount, size: size, color: color, pieceName: pieceName, piecePrice: piecePrice });
   }
   localStorage.setItem('cf_cart', JSON.stringify(cartState));
   renderCart();
-  toast('✿ ' + prod.name + ' entrou no seu jardim');
+  const label = pieceName ? pieceName + ' — ' + prod.name : prod.name;
+  toast('✿ ' + label + ' entrou no seu jardim');
   const ic = document.getElementById('open-cart');
   ic.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.2)' }, { transform: 'scale(1)' }], { duration: 400, easing: 'ease' });
 }
@@ -812,7 +993,9 @@ function renderCart() {
   cartState.forEach(function(it, idx) {
     const p = findProduct(it.id);
     if (!p) return;
-    subtotal += p.price * it.qty;
+    const unitPrice = it.piecePrice != null ? it.piecePrice : p.price;
+    const itemName  = it.pieceName ? it.pieceName + ' — ' + p.name : p.name;
+    subtotal += unitPrice * it.qty;
     count += it.qty;
 
     const li = document.createElement('li');
@@ -823,7 +1006,7 @@ function renderCart() {
         '<img src="' + p.image + '" alt="' + p.name + '"/>' +
       '</div>' +
       '<div class="cart__item-body">' +
-        '<h4 class="cart__item-name">' + p.name + '</h4>' +
+        '<h4 class="cart__item-name">' + itemName + '</h4>' +
         '<span class="cart__item-size">Tamanho ' + it.size + '</span>' +
         '<div class="cart__qty">' +
           '<button data-q="-1" data-i="' + idx + '" aria-label="Diminuir"><svg width="14" height="14"><use href="#i-minus"/></svg></button>' +
@@ -831,7 +1014,7 @@ function renderCart() {
           '<button data-q="1" data-i="' + idx + '" aria-label="Aumentar"><svg width="14" height="14"><use href="#i-plus"/></svg></button>' +
         '</div>' +
       '</div>' +
-      '<div class="cart__item-price">' + BRL(p.price * it.qty) + '</div>';
+      '<div class="cart__item-price">' + BRL(unitPrice * it.qty) + '</div>';
     cartList.appendChild(li);
   });
 
