@@ -2,9 +2,16 @@
    COR & FLOR, interactions
 ======================================================== */
 
-/* Sempre inicia no topo ao carregar/recarregar */
-if (history.scrollRestoration) history.scrollRestoration = 'manual';
-window.scrollTo(0, 0);
+/* Se o usuário voltou pelo botão Voltar, remove o veil imediatamente */
+const _isBackNav = (performance.getEntriesByType?.('navigation')?.[0]?.type === 'back_forward') ||
+                   (performance.navigation?.type === 2);
+if (_isBackNav) { const _v = document.getElementById('page-veil'); if (_v) _v.remove(); }
+
+/* Sempre inicia no topo ao carregar/recarregar (não em navegação back/forward) */
+if (!_isBackNav) {
+  if (history.scrollRestoration) history.scrollRestoration = 'manual';
+  window.scrollTo(0, 0);
+}
 
 /* ---------- PRODUCT DATA ---------- */
 
@@ -190,7 +197,7 @@ document.querySelectorAll("video[data-autoplay]").forEach(v => videoObserver.obs
 
 
 /* ---------- PAGE LOAD VEIL + HERO ANIM ---------- */
-let _veilDone = false;
+let _veilDone = _isBackNav;
 function _hideVeil(instant) {
   if (_veilDone) return;
   _veilDone = true;
