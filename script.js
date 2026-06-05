@@ -94,7 +94,7 @@ DISPLAY_CATS.forEach(cat => {
   if (!items.length) return;
 
   const block = document.createElement('div');
-  block.className = 'cat-block reveal';
+  block.className = 'cat-block';
   block.id = 'cat-' + cat.key;
   block.innerHTML = `
     <div class="cat-block__head">
@@ -188,15 +188,19 @@ document.querySelectorAll("video[data-autoplay]").forEach(v => videoObserver.obs
 
 
 /* ---------- PAGE LOAD VEIL + HERO ANIM ---------- */
-window.addEventListener("load", () => {
-  setTimeout(() => {
-    document.getElementById("page-veil").classList.add("is-out");
-    document.querySelector(".hero").classList.add("is-ready");
-  }, 350);
-  setTimeout(() => {
-    document.getElementById("page-veil").remove();
-  }, 1900);
-});
+/* Esconde o veil assim que o DOM está pronto — não espera imagens/vídeos */
+let _veilDone = false;
+function _hideVeil() {
+  if (_veilDone) return;
+  _veilDone = true;
+  const veil = document.getElementById("page-veil");
+  const hero = document.querySelector(".hero");
+  if (veil) veil.classList.add("is-out");
+  if (hero) hero.classList.add("is-ready");
+  setTimeout(() => { const v = document.getElementById("page-veil"); if (v) v.remove(); }, 1600);
+}
+document.addEventListener("DOMContentLoaded", () => setTimeout(_hideVeil, 250));
+window.addEventListener("load", _hideVeil);
 
 
 /* ---------- HERO SLIDER (automático + swipe) ---------- */
