@@ -2,10 +2,13 @@
    COR & FLOR, interactions
 ======================================================== */
 
-/* Se o usuário voltou pelo botão Voltar, remove o veil imediatamente */
+/* Se o usuário voltou pelo botão Voltar, remove o veil e exibe o hero imediatamente */
 const _isBackNav = (performance.getEntriesByType?.('navigation')?.[0]?.type === 'back_forward') ||
                    (performance.navigation?.type === 2);
-if (_isBackNav) { const _v = document.getElementById('page-veil'); if (_v) _v.remove(); }
+if (_isBackNav) {
+  const _v = document.getElementById('page-veil'); if (_v) _v.remove();
+  const _h = document.querySelector('.hero'); if (_h) _h.classList.add('is-ready');
+}
 
 /* Sempre inicia no topo ao carregar/recarregar (não em navegação back/forward) */
 if (!_isBackNav) {
@@ -215,6 +218,8 @@ document.addEventListener("DOMContentLoaded", () => setTimeout(_hideVeil, 250));
 window.addEventListener("load", () => _hideVeil(false));
 /* Volta via botão Voltar: não mostra veil, page já está carregada */
 window.addEventListener("pageshow", (e) => { if (e.persisted) _hideVeil(true); });
+/* Fallback: garante que o hero fica visível mesmo se o veil falhar */
+setTimeout(() => { const h = document.querySelector(".hero"); if (h && !h.classList.contains("is-ready")) h.classList.add("is-ready"); }, 800);
 
 
 /* ---------- HERO SLIDER (automático + swipe) ---------- */
