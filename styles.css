@@ -2230,3 +2230,21 @@ em{ font-style: italic; }
   *, *::before, *::after{ animation-duration: .01ms !important; transition-duration: .01ms !important; }
   .petal{ display:none; }
 }
+
+/* =========================================================
+   PERFORMANCE — content-visibility para seções fora da tela
+========================================================= */
+.categories, .news, .lookbook, .store-section, .quotes, .insta-section, .related{
+  content-visibility: auto;
+  contain-intrinsic-size: 0 600px;
+}
+
+/* Pétalas: desativa no mobile para economizar CPU/bateria */
+@media (max-width: 768px){
+  .petal{ display: none; }
+}
+
+/* GPU hint apenas nos elementos que realmente animam */
+.hs-img, .hero__bg{
+  transform: translateZ(0);
+}
