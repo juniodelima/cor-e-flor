@@ -149,9 +149,11 @@ catRoot.addEventListener('click', e => {
 });
 
 
-/* ---------- NAVBAR SCROLL STATE + PARALLAX (throttled via rAF) ---------- */
+/* ---------- NAVBAR SCROLL STATE + PARALLAX ---------- */
 const nav = document.getElementById("nav");
-const parallaxEls = document.querySelectorAll("[data-parallax], .hs-img");
+/* Parallax só no desktop — no mobile é pesado e causa travamento */
+const isMobile = window.matchMedia("(max-width: 768px) or (hover: none)").matches;
+const parallaxEls = isMobile ? [] : document.querySelectorAll("[data-parallax], .hs-img");
 let rafPending = false;
 
 const onScroll = () => {
@@ -162,7 +164,7 @@ const onScroll = () => {
     parallaxEls.forEach(el => {
       const speed = parseFloat(el.dataset.parallax) || 0.3;
       const rect = el.getBoundingClientRect();
-      if (rect.bottom < -200 || rect.top > window.innerHeight + 200) { rafPending = false; return; }
+      if (rect.bottom < -200 || rect.top > window.innerHeight + 200) return;
       const offset = (rect.top + rect.height / 2 - window.innerHeight / 2) * speed * -1;
       el.style.transform = `translate3d(0, ${offset.toFixed(1)}px, 0)`;
     });
@@ -188,19 +190,24 @@ document.querySelectorAll("video[data-autoplay]").forEach(v => videoObserver.obs
 
 
 /* ---------- PAGE LOAD VEIL + HERO ANIM ---------- */
-/* Esconde o veil assim que o DOM está pronto — não espera imagens/vídeos */
 let _veilDone = false;
-function _hideVeil() {
+function _hideVeil(instant) {
   if (_veilDone) return;
   _veilDone = true;
   const veil = document.getElementById("page-veil");
   const hero = document.querySelector(".hero");
-  if (veil) veil.classList.add("is-out");
   if (hero) hero.classList.add("is-ready");
-  setTimeout(() => { const v = document.getElementById("page-veil"); if (v) v.remove(); }, 1600);
+  if (!veil) return;
+  if (instant) { veil.remove(); return; }
+  veil.classList.add("is-out");
+  setTimeout(() => { const v = document.getElementById("page-veil"); if (v) v.remove(); }, 600);
 }
+/* DOM pronto → sumir em 250ms (não espera imagens) */
 document.addEventListener("DOMContentLoaded", () => setTimeout(_hideVeil, 250));
-window.addEventListener("load", _hideVeil);
+/* Backup: se window.load vier antes (improvável) */
+window.addEventListener("load", () => _hideVeil(false));
+/* Volta via botão Voltar: não mostra veil, page já está carregada */
+window.addEventListener("pageshow", (e) => { if (e.persisted) _hideVeil(true); });
 
 
 /* ---------- HERO SLIDER (automático + swipe) ---------- */

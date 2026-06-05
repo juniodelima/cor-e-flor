@@ -15,7 +15,13 @@
     {
       "source": "/(styles|script|products-data)\\.(?:css|js)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=86400, must-revalidate" }
+        { "key": "Cache-Control", "value": "no-cache, must-revalidate" }
+      ]
+    },
+    {
+      "source": "/(.*)\\.html",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, must-revalidate" }
       ]
     }
   ]

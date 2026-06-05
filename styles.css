@@ -49,16 +49,15 @@ em{ font-style: italic; }
   background: var(--cream);
   z-index: 1000;
   display:grid; place-items:center;
-  clip-path: circle(150% at 50% 50%);
+  opacity: 1;
   pointer-events: none;
+  transition: opacity 0.45s ease;
+  will-change: opacity;
 }
-#page-veil.is-out{
-  clip-path: circle(0% at 50% 50%);
-  transition: clip-path 1.4s var(--ease);
-}
-.veil__inner{ transform: scale(.96); opacity:0; animation: veilIn .9s var(--ease) .15s forwards; }
+#page-veil.is-out{ opacity: 0; }
+.veil__inner{ opacity:0; animation: veilIn 0.5s ease 0.1s forwards; }
 .veil__logo{ width: 220px; height: auto; }
-@keyframes veilIn { to { transform: scale(1); opacity:1; } }
+@keyframes veilIn { to { opacity:1; } }
 
 /* =========================================================
    LOGO
@@ -770,6 +769,7 @@ em{ font-style: italic; }
 .car-ver-mais {
   display: inline-flex; align-items: center; gap: 6px;
   font-family: var(--sans); font-size: 11px; font-weight: 700;
+  touch-action: manipulation;
   letter-spacing: 1.6px; text-transform: uppercase;
   color: var(--rose-deep); text-decoration: none;
   padding: 8px 16px; border-radius: 999px;
@@ -2225,13 +2225,8 @@ em{ font-style: italic; }
   .petal{ display:none; }
 }
 
-/* =========================================================
-   PERFORMANCE — content-visibility para seções fora da tela
-========================================================= */
-.categories, .news, .lookbook, .store-section, .quotes, .insta-section, .related{
-  content-visibility: auto;
-  contain-intrinsic-size: 0 600px;
-}
+/* touch-action global em links e botões — elimina delay de 300ms no iOS */
+a, button { touch-action: manipulation; }
 
 /* Pétalas: desativa no mobile para economizar CPU/bateria */
 @media (max-width: 768px){
