@@ -1516,9 +1516,9 @@ em{ font-style: italic; }
 }
 
 @media (max-width: 640px) {
-  .stories-row { gap: 14px; }
-  .story-phone { width: 148px; height: 270px; border-radius: 22px; }
-  .story-phone--center { width: 168px; height: 306px; }
+  .stories-row { gap: 14px; justify-content: center; }
+  .story-phone:not(.story-phone--center) { display: none; }
+  .story-phone--center { width: clamp(230px, 72vw, 300px); height: clamp(408px, 128vw, 540px); border-radius: 28px; }
 }
 .foot__bar{
   border-top: 1px solid rgba(255,255,255,.08);
