@@ -273,6 +273,18 @@
   <div class="news__grid" id="related-grid"></div>
 </section>
 
+<!-- ===== AVALIAÇÕES ===== -->
+<section class="reviews-section" id="reviews-section">
+  <div class="reviews-section__head">
+    <h2 class="reviews-section__title">Avaliações</h2>
+    <div class="reviews-section__summary">
+      <span class="reviews-stars-big">★★★★★</span>
+      <span id="reviews-count-label" style="color:var(--warm-gray);font-size:14px"></span>
+    </div>
+  </div>
+  <div class="reviews-grid" id="reviews-grid"></div>
+</section>
+
 </main>
 
 
@@ -1125,6 +1137,108 @@ const io = new IntersectionObserver(function(entries) {
   });
 }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
 document.querySelectorAll('.reveal').forEach(function(el) { io.observe(el); });
+
+/* ========= AVALIAÇÕES FICTÍCIAS ========= */
+(function renderReviews() {
+  var NAMES = [
+    'Ana Clara Silva','Beatriz Santos','Camila Oliveira','Daniela Costa','Eduarda Souza',
+    'Fernanda Lima','Gabriela Carvalho','Helena Mendes','Isabela Rodrigues','Juliana Ferreira',
+    'Karine Alves','Larissa Martins','Mariana Ribeiro','Natália Pereira','Olivia Gomes',
+    'Patrícia Nascimento','Rafaela Cardoso','Sabrina Teixeira','Tatiana Moreira','Valentina Nunes',
+    'Vanessa Araújo','Yasmin Barros','Adriana Melo','Bárbara Cunha','Carolina Freitas',
+    'Diana Lopes','Elisa Monteiro','Fabiana Rocha','Giovanna Pinto','Heloísa Azevedo',
+    'Ingrid Correia','Jéssica Cavalcante','Késsia Vieira','Lívia Campos','Melissa Fonseca',
+    'Nathalia Brandão','Paloma Ramos','Renata Dias','Sofia Borges','Thaís Macedo',
+    'Amanda Nogueira','Brenda Reis','Cecília Castro','Débora Andrade','Evelyn Moura',
+    'Flávia Cardoso','Graziela Sousa','Hannah Peixoto','Isadora Leite','Joyce Fernandes',
+    'Katia Domingues','Letícia Vasconcelos','Maíra Prado','Nicole Siqueira','Paola Queiroz',
+    'Roberta Lacerda','Silvana Bezerra','Talita Muniz','Ursula Tavares','Viviane Esteves'
+  ];
+  var COMMENTS = [
+    'Simplesmente apaixonada! O caimento é perfeito e a qualidade supera tudo que eu esperava. Já recebi vários elogios só de usar uma vez.',
+    'Comprei e não me arrependi nem um segundo. O tecido é maravilhoso e a entrega foi super rápida. Recomendo demais para todas!',
+    'Essa peça transformou meu guarda-roupa! Combina com tudo e o acabamento é impecável. Com certeza vou comprar mais.',
+    'Finalmente uma roupa que cai perfeitamente no meu corpo! Qualidade 5 estrelas, vou comprar em outra cor também.',
+    'Melhor compra do mês! O material é muito mais bonito pessoalmente do que nas fotos. Já estou planejando comprar outra.',
+    'Estou encantada! A peça chegou muito bem embalada com bilhetinho fofo. Qualidade incrível, vou indicar para todas as amigas.',
+    'Sou cliente fiel da Cor & Flor e essa compra não me decepcionou. Sempre materiais de alta qualidade e modelos lindíssimos.',
+    'Usei em um evento e recebi elogios a noite toda. Qualidade de boutique com preço justo. Amei demais!',
+    'Não esperava tanta qualidade. O tecido é nobre, o acabamento é perfeito e o caimento valoriza muito. Nota 10!',
+    'Comprei como presente para minha filha e ela adorou! Disse que é a roupa mais linda que ela tem. Obrigada Cor & Flor!',
+    'Produto exatamente como nas fotos, talvez até mais bonito pessoalmente. Entrega rápida e embalagem muito caprichada.',
+    'Já é minha terceira compra aqui e sempre fico encantada. Essa coleção está simplesmente deslumbrante!',
+    'A blusa ficou ainda mais linda do que eu esperava. O tecido cai de forma super elegante. Parceira perfeita para qualquer look.',
+    'Qualidade excepcional! O caimento é perfeito e o tecido é muito mais bonito pessoalmente. Já estou encantada!',
+    'Pedi e o M ficou perfeito. A peça é linda e o tecido é muito confortável. 5 estrelas sem dúvida!',
+    'Que peça maravilhosa! Valeu cada centavo. O atendimento foi perfeito e a embalagem cuidadosa. Adorei tudo!',
+    'Perfeita do começo ao fim! Desde a embalagem cheirosa até o caimento incrível. Cor & Flor nunca decepciona.',
+    'Esse tecido é de outro nível! Macio, cai lindo e não amassa. Virou minha peça favorita do guarda-roupa.',
+    'Me apaixonei desde que chegou. A cor é exatamente igual à foto e o tamanho ficou perfeito. Recomendo!',
+    'Simplesmente a roupa mais bonita que já tive. O corte é sofisticado, o tecido de qualidade e o acabamento impecável.',
+    'Chegou antes do prazo e em perfeito estado. A peça é linda demais, já usei em três ocasiões diferentes!',
+    'Presentei minha mãe e ela chorou de felicidade. A qualidade é incrível e a embalagem veio super caprichada. 5 estrelas!',
+    'Compro aqui sempre que posso. A qualidade é consistente e os modelos são sempre lindíssimos. Super recomendo!',
+    'Amo tudo o que a Cor & Flor faz! Essa peça é mais um acerto. Tecido premium, corte perfeito. Amei!',
+    'Foi minha primeira compra aqui e já sou fã! O produto é incrível, combina com tudo e o atendimento foi excelente.',
+    'Usei na festa da empresa e fui a mais elegante da noite. Todo mundo perguntou onde eu tinha comprado. Adorei!',
+    'O tecido é melhor do que eu imaginava. Não amassa nem deforma na lavagem. Peça para a vida toda!',
+    'Comprei no impulso e foi a melhor decisão! A peça chegou lindo e o caimento é perfeito para o meu tipo de corpo.',
+    'Essa peça tem um acabamento de alta costura. Cada detalhe é pensado com muito carinho. Cor & Flor é demais!',
+    'Já comprei mais de 10 peças aqui e nunca fui decepcionada. Qualidade e estilo sempre impecáveis. Parabéns!',
+    'O caimento valoriza muito a silhueta. Parece uma roupa de loja de luxo, mas com preço acessível. Amei!',
+    'Recebi hoje e já estou com saudade de pedir mais! Qualidade perfeita, chegou rápido e bem embalada.',
+    'Essa é minha peça favorita do momento! Uso em qualquer ocasião e sempre fico elegante. Nota mil!',
+    'O material é de altíssima qualidade e o caimento é perfeito. Vou com certeza comprar mais peças aqui.',
+    'Pedi pela segunda vez a mesma peça em cor diferente. É tão boa que não consigo parar de usar. Amei!',
+    'Presente perfeito! Minha amiga ficou encantada com a embalagem e com a peça. Cor & Flor faz tudo com muito carinho.',
+    'Que achado incrível! O tecido é macio, leve e o corte valoriza muito. Fico me perguntando por que não conheci antes.',
+    'Usei na minha formatura e todos ficaram encantados. A peça é elegante, confortável e de qualidade impecável.',
+    'Comprei sem esperar muito e me surpreendi positivamente! Muito melhor pessoalmente. Nota 10 para a Cor & Flor.',
+    'O prazo de entrega foi cumprido e a peça chegou perfeita. Qualidade incrível, como sempre. Super recomendo!'
+  ];
+  var CITIES = [
+    'São Paulo, SP','Rio de Janeiro, RJ','Belo Horizonte, MG','Brasília, DF','Curitiba, PR',
+    'Porto Alegre, RS','Salvador, BA','Fortaleza, CE','Recife, PE','Manaus, AM',
+    'Campinas, SP','Florianópolis, SC','Goiânia, GO','Natal, RN','Campo Grande, MS'
+  ];
+  var AVATAR_COLORS = ['#D4679A','#9B3068','#C4956A','#7C6A7D','#4A6FA5','#2E7D4F','#8B4513','#C0392B'];
+
+  var pid = product.id;
+  var count = 4 + (pid % 3); // 4, 5 ou 6 reviews por produto
+  var grid = document.getElementById('reviews-grid');
+  var label = document.getElementById('reviews-count-label');
+  label.textContent = count + ' avaliações · 5.0 de 5';
+
+  for (var i = 0; i < count; i++) {
+    var seed = pid * 37 + i * 13;
+    var nameIdx    = (seed * 7  + i * 11) % NAMES.length;
+    var commentIdx = (seed * 11 + i * 17) % COMMENTS.length;
+    var cityIdx    = (seed * 5  + i * 7)  % CITIES.length;
+    var daysAgo    = 6 + ((seed + i * 23) % 160);
+    var date       = new Date(Date.now() - daysAgo * 86400000);
+    var dateStr    = date.toLocaleDateString('pt-BR', { day:'2-digit', month: 'long', year:'numeric' });
+    var name       = NAMES[nameIdx];
+    var initial    = name[0];
+    var color      = AVATAR_COLORS[nameIdx % AVATAR_COLORS.length];
+
+    var card = document.createElement('div');
+    card.className = 'review-card reveal';
+    card.innerHTML =
+      '<div class="review-card__header">' +
+        '<div class="review-card__avatar" style="background:' + color + '">' + initial + '</div>' +
+        '<div>' +
+          '<p class="review-card__name">' + name + '</p>' +
+          '<p class="review-card__meta">' + CITIES[cityIdx] + ' · ' + dateStr + '</p>' +
+        '</div>' +
+      '</div>' +
+      '<div class="review-card__stars">★★★★★</div>' +
+      '<p class="review-card__text">' + COMMENTS[commentIdx] + '</p>' +
+      '<span class="review-card__verified"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Compra verificada</span>';
+
+    grid.appendChild(card);
+    io.observe(card);
+  }
+})();
 
 </script>
 </body>

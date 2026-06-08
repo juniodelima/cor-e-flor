@@ -1,0 +1,586 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Minha Conta | COR &amp; FLOR</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="assets/logo-nova.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Raleway:wght@300;400;500;600&display=swap" onload="this.rel='stylesheet'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet"></noscript>
+<link rel="preload" as="image" href="assets/logo-nova.png">
+<link rel="stylesheet" href="styles.css?v=5"/>
+<link rel="preload" as="style" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"></noscript>
+</head>
+<body>
+
+<!-- SVG symbols reutilizáveis -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="cf-flor" viewBox="-50 -50 100 100"><g class="flor"><g fill="currentColor"><path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(0)"/><path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(45)"/><path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(90)"/><path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(135)"/><path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(180)"/><path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(225)"/><path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(270)"/><path d="M 0,-4 C -10,-6 -20,-18 -16,-32 C -10,-44 4,-44 6,-32 C 8,-22 6,-12 0,-4 Z" transform="rotate(315)"/></g><circle cx="0" cy="0" r="4.5" fill="#FDF8F5"/><circle cx="0" cy="0" r="2.2" fill="currentColor"/></g></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+    <symbol id="i-heart-fill" viewBox="0 0 24 24"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10Z" fill="currentColor"/></symbol>
+    <symbol id="i-bag" viewBox="0 0 24 24"><path d="M6 8h12l-1 12H7L6 8Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M9 8V6a3 3 0 0 1 6 0v2" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 8h16M4 16h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    <symbol id="s-ig" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3.5" y="3.5" width="17" height="17" rx="4.5"/><circle cx="12" cy="12" r="4"/><circle cx="17" cy="7" r="1" fill="currentColor" stroke="none"/></g></symbol>
+    <symbol id="s-pin" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="12" cy="12" r="9"/><path d="M11 7a3.5 3.5 0 0 1 4 3.5c0 2-1.5 3.5-3 3.5-1 0-1.5-.5-1.5-1.5L9 21"/></g></symbol>
+    <symbol id="s-tt" viewBox="0 0 24 24"><path d="M15 3v9.5a3.5 3.5 0 1 1-3.5-3.5h.5V12h-.5a1.5 1.5 0 1 0 1.5 1.5V3h2c.2 2 1.8 3.5 4 3.7v2C17.5 8.6 16 7.9 15 6.7Z" fill="currentColor"/></symbol>
+    <symbol id="s-wa" viewBox="0 0 24 24"><path d="M3.5 20.5 5 16a8 8 0 1 1 3 3l-4.5 1.5Zm6.3-5.8c.3.6 1.1 1.4 2 1.7s1.5.2 2-.2c.4-.3.6-.7.6-1l-.3-.4-1.7-.8c-.2 0-.4 0-.5.2l-.4.5c-.2.2-.4.2-.6.1-.7-.3-1.4-.9-1.9-1.7-.1-.2 0-.4.1-.5l.4-.4c.2-.2.2-.3.1-.5L8.9 9.5c-.1-.3-.3-.3-.5-.3-.6 0-1.2.3-1.4.7-.4.6-.4 1.4 0 2.4.4.8 1 1.7 1.8 2.4Z" fill="currentColor"/></symbol>
+  </defs>
+</svg>
+
+<!-- NAVBAR -->
+<header id="nav" class="nav is-scrolled">
+  <div class="nav__inner">
+    <button class="nav__burger" id="burger" aria-label="Abrir menu"><svg width="24" height="24"><use href="#i-menu"/></svg></button>
+    <a class="logo" href="index.html" aria-label="COR & FLOR"><img src="assets/logo-nova.png" class="logo__img" alt="COR &amp; FLOR"></a>
+    <nav class="nav__links" aria-label="Principal">
+      <a href="index.html#categorias">Coleções</a>
+      <a href="index.html#novidades">Novidades</a>
+      <a href="index.html#lookbook">Lookbook</a>
+      <a href="index.html#contato">Contato</a>
+    </nav>
+    <div class="nav__actions">
+      <button class="ic-btn" aria-label="Buscar"><svg width="20" height="20"><use href="#i-search"/></svg></button>
+      <button class="ic-btn" id="open-auth" aria-label="Minha conta">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        <span class="ic-btn__user-name" id="nav-user-name" style="display:none"></span>
+      </button>
+      <button class="ic-btn" id="open-favs" aria-label="Favoritos"><svg width="20" height="20"><use href="#i-heart"/></svg></button>
+      <button class="ic-btn ic-btn--cart" id="open-cart" aria-label="Carrinho">
+        <svg width="20" height="20"><use href="#i-bag"/></svg>
+        <span class="ic-btn__count" id="cart-count">0</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- MOBILE MENU -->
+<div class="mmenu" id="mmenu" aria-hidden="true">
+  <button class="mmenu__close" id="mmenu-close" aria-label="Fechar"><svg width="22" height="22"><use href="#i-x"/></svg></button>
+  <div class="mmenu__logo"><img src="assets/logo-nova.png" class="mmenu__logo-img" alt="COR &amp; FLOR"></div>
+  <nav class="mmenu__links">
+    <a href="index.html#categorias">Coleções</a>
+    <a href="index.html#novidades">Novidades</a>
+    <a href="index.html#lookbook">Lookbook</a>
+    <a href="index.html#contato">Contato</a>
+  </nav>
+</div>
+
+<main>
+<div class="conta-page" id="conta-root">
+  <div class="conta-loading" id="conta-loading">
+    <i class="bi bi-arrow-repeat" style="font-size:32px;display:block;margin-bottom:12px;animation:spin .8s linear infinite;color:var(--rose)"></i>
+    Carregando sua conta...
+  </div>
+
+  <div id="conta-content" style="display:none">
+    <!-- Cabeçalho do usuário -->
+    <div class="conta-hero">
+      <div class="conta-avatar" id="conta-avatar">?</div>
+      <div class="conta-hero__info">
+        <h2 id="conta-name">Bem-vinda!</h2>
+        <p id="conta-email"></p>
+      </div>
+      <div class="conta-hero__badge">✦ Cliente Cor &amp; Flor</div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="conta-tabs" role="tablist">
+      <button class="conta-tab is-active" data-panel="pedidos" role="tab">
+        <i class="bi bi-bag-heart"></i> Meus Pedidos
+        <span class="conta-tab__count" id="badge-pedidos" style="display:none">0</span>
+      </button>
+      <button class="conta-tab" data-panel="favoritos" role="tab">
+        <i class="bi bi-heart"></i> Favoritos
+        <span class="conta-tab__count" id="badge-favs" style="display:none">0</span>
+      </button>
+      <button class="conta-tab" data-panel="cupons" role="tab">
+        <i class="bi bi-ticket-perforated"></i> Cupons
+        <span class="conta-tab__count" id="badge-cupons" style="display:none">0</span>
+      </button>
+      <button class="conta-tab" data-panel="avaliacoes" role="tab">
+        <i class="bi bi-star"></i> Avaliações
+        <span class="conta-tab__count" id="badge-aval" style="display:none">0</span>
+      </button>
+    </div>
+
+    <!-- PAINEL: PEDIDOS -->
+    <div class="conta-panel is-active" id="panel-pedidos">
+      <div class="conta-loading" id="pedidos-loading">Carregando pedidos...</div>
+      <div id="pedidos-list" style="display:none"></div>
+    </div>
+
+    <!-- PAINEL: FAVORITOS -->
+    <div class="conta-panel" id="panel-favoritos">
+      <div class="conta-loading" id="favs-loading">Carregando favoritos...</div>
+      <div id="favs-grid" style="display:none"></div>
+    </div>
+
+    <!-- PAINEL: CUPONS -->
+    <div class="conta-panel" id="panel-cupons">
+      <div class="conta-loading" id="cupons-loading">Carregando cupons...</div>
+      <div id="cupons-grid" style="display:none"></div>
+    </div>
+
+    <!-- PAINEL: AVALIAÇÕES -->
+    <div class="conta-panel" id="panel-avaliacoes">
+      <div class="conta-loading" id="aval-loading">Carregando...</div>
+      <div id="aval-list" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- Não logado -->
+  <div id="conta-noauth" style="display:none" class="conta-empty">
+    <div class="conta-empty__icon"><i class="bi bi-lock"></i></div>
+    <h3>Faça login para ver sua conta</h3>
+    <p>Entre ou crie uma conta para acompanhar pedidos, favoritos e muito mais.</p>
+    <a href="index.html" class="btn btn--primary" style="display:inline-flex;margin-top:20px;padding:13px 28px">Ir para a loja</a>
+  </div>
+</div>
+</main>
+
+<!-- FOOTER -->
+<footer class="foot">
+  <div class="foot__top">
+    <a class="logo logo--foot" href="index.html" aria-label="COR & FLOR">
+      <div class="logo-on-dark"><img src="assets/logo-nova.png" class="logo__img" alt="COR &amp; FLOR"></div>
+    </a>
+    <p class="foot__tag"><em>Cor porque a vida pede. Flor porque você merece.</em></p>
+  </div>
+  <div class="foot__cols">
+    <div class="foot__col">
+      <h5>Institucional</h5>
+      <a href="#">Nossa história</a>
+      <a href="#">Sustentabilidade</a>
+      <a href="#">Trabalhe conosco</a>
+    </div>
+    <div class="foot__col">
+      <h5>Atendimento</h5>
+      <a href="#">Central de ajuda</a>
+      <a href="#">Trocas &amp; devoluções</a>
+      <a href="#">Formas de pagamento</a>
+    </div>
+    <div class="foot__col">
+      <h5>Categorias</h5>
+      <a href="index.html#categorias">Vestidos &amp; Saias</a>
+      <a href="index.html#categorias">Blusas &amp; Tops</a>
+      <a href="index.html#categorias">Conjuntos</a>
+    </div>
+    <div class="foot__col">
+      <h5>Encontre-nos</h5>
+      <div class="foot__social">
+        <a href="#" aria-label="Instagram"><svg width="20" height="20"><use href="#s-ig"/></svg></a>
+        <a href="#" aria-label="Pinterest"><svg width="20" height="20"><use href="#s-pin"/></svg></a>
+        <a href="#" aria-label="TikTok"><svg width="20" height="20"><use href="#s-tt"/></svg></a>
+        <a href="#" aria-label="WhatsApp"><svg width="20" height="20"><use href="#s-wa"/></svg></a>
+      </div>
+    </div>
+  </div>
+  <div class="foot__bar">
+    <span>© 2026 Cor &amp; Flor. Todos os direitos reservados.</span>
+    <span>Feito com ✿ em São Paulo</span>
+  </div>
+</footer>
+
+<!-- MODAL AVALIAÇÃO -->
+<div id="review-veil" style="display:none;position:fixed;inset:0;background:rgba(28,20,20,.5);z-index:900;backdrop-filter:blur(4px)" onclick="closeReviewModal()"></div>
+<div id="review-modal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:901;background:#fff;border-radius:20px;padding:32px 28px;width:min(480px,94vw);box-shadow:0 40px 80px rgba(28,20,20,.3)">
+  <button onclick="closeReviewModal()" style="position:absolute;top:14px;right:16px;background:none;border:none;font-size:20px;cursor:pointer;color:var(--warm-gray)">×</button>
+  <h3 style="font-family:var(--serif);font-size:22px;margin:0 0 4px;color:var(--ink)">Avaliar produto</h3>
+  <p id="review-product-name" style="color:var(--warm-gray);font-size:13px;margin:0 0 16px"></p>
+  <div class="review-stars-select" id="review-stars">
+    <button onclick="setReviewStar(1)">★</button>
+    <button onclick="setReviewStar(2)">★</button>
+    <button onclick="setReviewStar(3)">★</button>
+    <button onclick="setReviewStar(4)">★</button>
+    <button onclick="setReviewStar(5)">★</button>
+  </div>
+  <textarea id="review-text" placeholder="Conte o que achou da peça (opcional)" style="width:100%;border:1.5px solid rgba(212,103,154,.22);border-radius:10px;padding:12px 14px;font-family:var(--sans);font-size:13px;resize:none;height:100px;outline:none;color:var(--ink)"></textarea>
+  <button onclick="submitReview()" id="review-submit-btn" style="width:100%;margin-top:14px;padding:14px;background:var(--rose);color:#fff;border:none;border-radius:10px;font-family:var(--sans);font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:600;cursor:pointer">Enviar Avaliação</button>
+  <p id="review-msg" style="text-align:center;font-size:13px;margin:10px 0 0;min-height:18px"></p>
+</div>
+
+<!-- TOAST -->
+<div id="toast" class="toast" aria-live="polite"></div>
+
+<!-- CART SLIDE-OVER (mínimo, para o ícone funcionar) -->
+<div class="cart-veil" id="cart-veil" aria-hidden="true"></div>
+<aside class="cart" id="cart" aria-hidden="true" aria-label="Carrinho">
+  <header class="cart__head">
+    <h3 class="cart__title">Meu carrinho <span id="cart-head-count">(0)</span></h3>
+    <button class="ic-btn" id="close-cart" aria-label="Fechar carrinho"><svg width="22" height="22"><use href="#i-x"/></svg></button>
+  </header>
+  <ul class="cart__list" id="cart-list"></ul>
+  <dl class="cart__totals">
+    <div><dt>Subtotal</dt><dd id="cart-subtotal">R$ 0,00</dd></div>
+    <div class="cart__totals-final"><dt>Total</dt><dd id="cart-total">R$ 0,00</dd></div>
+  </dl>
+  <button class="btn btn--primary cart__cta">Finalizar compra</button>
+  <button class="btn btn--link cart__continue" id="cart-continue">Continuar comprando</button>
+</aside>
+
+<style>
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="supabase-client.js?v=1"></script>
+<script src="products-data.js?v=4"></script>
+<script>
+/* ── helpers ── */
+const BRL = n => 'R$ ' + Number(n).toLocaleString('pt-BR', {minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtDate = s => new Date(s).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'});
+
+const STATUS_LABEL = {
+  novo:'Em processamento', confirmado:'Confirmado', em_preparo:'Em preparo',
+  enviado:'Enviado ✈', entregue:'Entregue ✓', cancelado:'Cancelado'
+};
+const STATUS_CLASS = {
+  novo:'novo', confirmado:'confirmado', em_preparo:'em_preparo',
+  enviado:'enviado', entregue:'entregue', cancelado:'cancelado'
+};
+const AVATAR_COLORS = ['#D4679A','#9B3068','#C4956A','#7C6A7D','#4A6FA5','#2E7D4F'];
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('is-visible');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('is-visible'), 3200);
+}
+
+/* ── tabs ── */
+document.querySelectorAll('.conta-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.conta-tab').forEach(b => b.classList.remove('is-active'));
+    document.querySelectorAll('.conta-panel').forEach(p => p.classList.remove('is-active'));
+    btn.classList.add('is-active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('is-active');
+  });
+});
+
+/* Abrir na aba certa via hash */
+const _hash = location.hash.replace('#','');
+if (_hash) {
+  const tab = document.querySelector(`.conta-tab[data-panel="${_hash}"]`);
+  if (tab) tab.click();
+}
+
+/* ── navbar básico ── */
+const navEl = document.getElementById('nav');
+window.addEventListener('scroll', () => navEl.classList.toggle('is-scrolled', window.scrollY > 80), {passive:true});
+navEl.classList.toggle('is-scrolled', window.scrollY > 80);
+document.getElementById('burger').addEventListener('click', () => { const m = document.getElementById('mmenu'); m.classList.add('is-open'); m.setAttribute('aria-hidden','false'); });
+document.getElementById('mmenu-close').addEventListener('click', () => { const m = document.getElementById('mmenu'); m.classList.remove('is-open'); m.setAttribute('aria-hidden','true'); });
+const cart = document.getElementById('cart');
+const cartVeil = document.getElementById('cart-veil');
+document.getElementById('open-cart').addEventListener('click', () => { cart.classList.add('is-open'); cartVeil.classList.add('is-open'); cart.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; });
+document.getElementById('close-cart').addEventListener('click', () => { cart.classList.remove('is-open'); cartVeil.classList.remove('is-open'); cart.setAttribute('aria-hidden','true'); document.body.style.overflow=''; });
+cartVeil.addEventListener('click', () => document.getElementById('close-cart').click());
+
+/* ── auth check + carregar dados ── */
+let _user = null;
+let _reviewProductId = null;
+let _reviewStar = 5;
+
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  document.getElementById('conta-loading').style.display = 'none';
+
+  if (!session) {
+    document.getElementById('conta-noauth').style.display = 'block';
+    return;
+  }
+
+  _user = session.user;
+  const name = _user.user_metadata?.name || _user.email.split('@')[0];
+  const initial = name[0].toUpperCase();
+  const color = AVATAR_COLORS[name.charCodeAt(0) % AVATAR_COLORS.length];
+
+  document.getElementById('conta-avatar').textContent = initial;
+  document.getElementById('conta-avatar').style.background = color;
+  document.getElementById('conta-name').textContent = name;
+  document.getElementById('conta-email').textContent = _user.email;
+
+  /* atualizar nav */
+  const nameEl = document.getElementById('nav-user-name');
+  if (nameEl) { nameEl.textContent = name.split(' ')[0]; nameEl.style.display = 'block'; }
+
+  document.getElementById('conta-content').style.display = 'block';
+
+  await Promise.all([loadPedidos(), loadFavoritos(), loadCupons()]);
+  loadAvaliacoes();
+})();
+
+/* ── PEDIDOS ── */
+async function loadPedidos() {
+  const { data: orders, error } = await Orders.mine(_user.id);
+  document.getElementById('pedidos-loading').style.display = 'none';
+  document.getElementById('pedidos-list').style.display = 'block';
+
+  if (error || !orders?.length) {
+    document.getElementById('pedidos-list').innerHTML = `
+      <div class="conta-empty">
+        <div class="conta-empty__icon"><i class="bi bi-bag-x"></i></div>
+        <h3>Nenhum pedido ainda</h3>
+        <p>Quando você fizer um pedido, ele aparecerá aqui.</p>
+        <a href="index.html" class="btn btn--primary" style="display:inline-flex;margin-top:20px;padding:12px 28px">Explorar coleções</a>
+      </div>`;
+    return;
+  }
+
+  const badge = document.getElementById('badge-pedidos');
+  badge.textContent = orders.length;
+  badge.style.display = 'inline-flex';
+
+  const list = document.createElement('div');
+  list.className = 'orders-list';
+
+  orders.forEach(order => {
+    const items = Array.isArray(order.items) ? order.items : [];
+    const statusKey = order.status || 'novo';
+    const card = document.createElement('div');
+    card.className = 'order-card';
+    card.innerHTML = `
+      <div class="order-card__head">
+        <div>
+          <div class="order-card__id">Pedido #${order.id.slice(0,8).toUpperCase()}</div>
+          <div class="order-card__date">${fmtDate(order.created_at)}</div>
+        </div>
+        <span class="order-status order-status--${STATUS_CLASS[statusKey]}">${STATUS_LABEL[statusKey] || statusKey}</span>
+        <div class="order-card__total">${BRL(order.total || 0)}</div>
+      </div>
+      <div class="order-card__body">
+        ${items.slice(0,3).map(it => {
+          const p = products.find(x => x.id == it.id || x.name === it.name);
+          return `<div class="order-item">
+            <img src="${p ? p.image : 'assets/logo-nova.png'}" alt="${it.name || ''}"/>
+            <div>
+              <div class="order-item__name">${it.name || (p ? p.name : 'Produto')}</div>
+              <div class="order-item__sub">Tam. ${it.size || '-'} · Qtd ${it.qty || 1}</div>
+            </div>
+          </div>`;
+        }).join('')}
+        ${items.length > 3 ? `<p style="font-size:12px;color:var(--warm-gray);margin:0">+ ${items.length - 3} mais ite${items.length-3>1?'ns':'m'}...</p>` : ''}
+      </div>
+      ${statusKey === 'enviado' ? `<div class="order-tracking"><i class="bi bi-truck"></i> Pedido a caminho! Acompanhe pelo código enviado por e-mail.</div>` : ''}
+      ${statusKey === 'entregue' ? `<div class="order-tracking" style="color:#15803d"><i class="bi bi-check-circle"></i> Pedido entregue em ${fmtDate(order.updated_at || order.created_at)}.</div>` : ''}`;
+    list.appendChild(card);
+  });
+
+  document.getElementById('pedidos-list').appendChild(list);
+}
+
+/* ── FAVORITOS ── */
+async function loadFavoritos() {
+  const favIds = await Favorites.getAll(_user.id);
+  document.getElementById('favs-loading').style.display = 'none';
+  document.getElementById('favs-grid').style.display = 'block';
+
+  if (!favIds.length) {
+    document.getElementById('favs-grid').innerHTML = `
+      <div class="conta-empty">
+        <div class="conta-empty__icon"><i class="bi bi-heart"></i></div>
+        <h3>Nenhum favorito ainda</h3>
+        <p>Toque no coração nos produtos que você ama e eles aparecerão aqui.</p>
+        <a href="index.html" class="btn btn--primary" style="display:inline-flex;margin-top:20px;padding:12px 28px">Descobrir peças</a>
+      </div>`;
+    return;
+  }
+
+  const badge = document.getElementById('badge-favs');
+  badge.textContent = favIds.length;
+  badge.style.display = 'inline-flex';
+
+  const grid = document.createElement('div');
+  grid.className = 'favs-grid';
+
+  favIds.forEach(pid => {
+    const p = products.find(x => x.id == pid);
+    if (!p) return;
+    const card = document.createElement('div');
+    card.className = 'fav-card';
+    card.innerHTML = `
+      <div class="fav-card__img">
+        <img src="${p.image}" alt="${p.name}" loading="lazy"/>
+        <button class="fav-card__remove" onclick="removeFav(${p.id}, this)" aria-label="Remover favorito" title="Remover">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="fav-card__body">
+        <p class="fav-card__name">${p.name}</p>
+        <p class="fav-card__price">${BRL(p.price)}</p>
+        <button class="fav-card__btn" onclick="location.href='produto.html?id=${p.id}'">Ver produto</button>
+      </div>`;
+    grid.appendChild(card);
+  });
+
+  document.getElementById('favs-grid').appendChild(grid);
+}
+
+async function removeFav(productId, btn) {
+  await Favorites.remove(_user.id, productId);
+  btn.closest('.fav-card').remove();
+  toast('Removido dos favoritos ✿');
+  const remaining = document.querySelectorAll('.fav-card').length;
+  if (!remaining) loadFavoritos();
+}
+
+/* ── CUPONS ── */
+async function loadCupons() {
+  const { data: coupons } = await sb.from('coupons').select('*').eq('active', true).order('created_at', { ascending: false });
+  document.getElementById('cupons-loading').style.display = 'none';
+  document.getElementById('cupons-grid').style.display = 'block';
+
+  const valid = (coupons || []).filter(c => !c.expires_at || new Date(c.expires_at) > new Date());
+
+  if (!valid.length) {
+    document.getElementById('cupons-grid').innerHTML = `
+      <div class="conta-empty">
+        <div class="conta-empty__icon"><i class="bi bi-ticket-perforated"></i></div>
+        <h3>Nenhum cupom disponível</h3>
+        <p>Fique de olho! Novos cupons exclusivos chegam sempre por e-mail.</p>
+      </div>`;
+    return;
+  }
+
+  const badge = document.getElementById('badge-cupons');
+  badge.textContent = valid.length;
+  badge.style.display = 'inline-flex';
+
+  const grid = document.createElement('div');
+  grid.className = 'coupons-grid';
+
+  valid.forEach(c => {
+    const desc = c.discount_type === 'percent'
+      ? `${c.discount_value}% de desconto`
+      : `R$ ${Number(c.discount_value).toFixed(2).replace('.',',')} de desconto`;
+    const min  = c.min_order > 0 ? `Mínimo ${BRL(c.min_order)}` : 'Sem pedido mínimo';
+    const exp  = c.expires_at ? `Válido até ${fmtDate(c.expires_at)}` : 'Sem data de expiração';
+
+    const card = document.createElement('div');
+    card.className = 'coupon-card';
+    card.innerHTML = `
+      <div class="coupon-code">
+        ${c.code}
+        <button class="coupon-copy" onclick="copyCoupon('${c.code}', this)">Copiar</button>
+      </div>
+      <p class="coupon-desc">${desc}</p>
+      <p class="coupon-meta">${min}</p>
+      <p class="coupon-expiry"><i class="bi bi-clock"></i> ${exp}</p>`;
+    grid.appendChild(card);
+  });
+
+  document.getElementById('cupons-grid').appendChild(grid);
+}
+
+function copyCoupon(code, btn) {
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = 'Copiado!';
+    setTimeout(() => { btn.textContent = 'Copiar'; }, 2000);
+    toast(`Cupom ${code} copiado! ✿`);
+  });
+}
+
+/* ── AVALIAÇÕES PENDENTES ── */
+async function loadAvaliacoes() {
+  document.getElementById('aval-loading').style.display = 'none';
+  document.getElementById('aval-list').style.display = 'block';
+
+  const { data: orders } = await Orders.mine(_user.id);
+  const delivered = (orders || []).filter(o => o.status === 'entregue');
+  const toReview  = delivered.flatMap(o => Array.isArray(o.items) ? o.items : []);
+
+  if (!toReview.length) {
+    document.getElementById('aval-list').innerHTML = `
+      <div class="conta-empty">
+        <div class="conta-empty__icon"><i class="bi bi-star"></i></div>
+        <h3>Sem avaliações pendentes</h3>
+        <p>Após seus pedidos serem entregues, você poderá avaliar os produtos aqui.</p>
+      </div>`;
+    return;
+  }
+
+  const badge = document.getElementById('badge-aval');
+  badge.textContent = toReview.length;
+  badge.style.display = 'inline-flex';
+
+  const list = document.createElement('div');
+  list.className = 'review-pending-list';
+
+  toReview.forEach(it => {
+    const p = products.find(x => x.id == it.id || x.name === it.name);
+    const card = document.createElement('div');
+    card.className = 'review-pending-card';
+    card.innerHTML = `
+      <img src="${p ? p.image : 'assets/logo-nova.png'}" alt="${it.name || ''}"/>
+      <div class="review-pending-card__info">
+        <p class="review-pending-card__name">${it.name || (p ? p.name : 'Produto')}</p>
+        <p class="review-pending-card__sub">Tamanho ${it.size || '-'}</p>
+      </div>
+      <button class="btn-review" onclick="openReviewModal(${p ? p.id : 0}, '${(it.name || (p ? p.name : 'Produto')).replace(/'/g,'\\\'')}')" data-pid="${p ? p.id : 0}">
+        <i class="bi bi-star"></i> Avaliar
+      </button>`;
+    list.appendChild(card);
+  });
+
+  document.getElementById('aval-list').appendChild(list);
+}
+
+/* ── MODAL DE AVALIAÇÃO ── */
+function openReviewModal(productId, productName) {
+  _reviewProductId = productId;
+  _reviewStar = 5;
+  document.getElementById('review-product-name').textContent = productName;
+  document.getElementById('review-text').value = '';
+  document.getElementById('review-msg').textContent = '';
+  _updateStars(5);
+  document.getElementById('review-veil').style.display = 'block';
+  document.getElementById('review-modal').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+}
+function closeReviewModal() {
+  document.getElementById('review-veil').style.display = 'none';
+  document.getElementById('review-modal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+function setReviewStar(n) { _reviewStar = n; _updateStars(n); }
+function _updateStars(n) {
+  document.querySelectorAll('#review-stars button').forEach((btn, i) => {
+    btn.classList.toggle('on', i < n);
+  });
+}
+async function submitReview() {
+  if (!_reviewProductId || !_user) return;
+  const body = document.getElementById('review-text').value.trim();
+  const btn  = document.getElementById('review-submit-btn');
+  const msg  = document.getElementById('review-msg');
+  const name = _user.user_metadata?.name || _user.email.split('@')[0];
+
+  btn.disabled = true; btn.textContent = 'Enviando...';
+
+  const { error } = await Reviews.submit(_reviewProductId, name, _reviewStar, body, _user.id);
+
+  btn.disabled = false; btn.textContent = 'Enviar Avaliação';
+
+  if (error) {
+    msg.style.color = '#dc2626';
+    msg.textContent = 'Erro ao enviar. Tente novamente.';
+    return;
+  }
+
+  msg.style.color = '#15803d';
+  msg.textContent = 'Avaliação enviada! Obrigada ✿';
+  setTimeout(closeReviewModal, 1800);
+  toast('Avaliação enviada com sucesso ✿');
+}
+</script>
+</body>
+</html>

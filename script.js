@@ -418,6 +418,16 @@ function toast(msg){
    SUPABASE — Auth, Newsletter, Checkout, Favoritos
 ================================================================ */
 
+/* --- Botão favoritos na navbar → conta.html#favoritos --- */
+document.getElementById('open-favs')?.addEventListener('click', () => {
+  if (_currentUser) {
+    window.location.href = 'conta.html#favoritos';
+  } else {
+    openAuthModal();
+    toast('Entre na sua conta para ver seus favoritos ✿');
+  }
+});
+
 /* --- Estado global do usuário --- */
 let _currentUser = null;
 let _sbFavs = [];
