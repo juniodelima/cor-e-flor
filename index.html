@@ -148,10 +148,14 @@
 
     <div class="nav__actions">
       <button class="ic-btn" aria-label="Buscar"><svg width="20" height="20"><use href="#i-search"/></svg></button>
-      <button class="ic-btn" aria-label="Favoritos"><svg width="20" height="20"><use href="#i-heart"/></svg></button>
+      <button class="ic-btn" id="open-auth" aria-label="Minha conta">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        <span class="ic-btn__user-name" id="nav-user-name" style="display:none"></span>
+      </button>
+      <button class="ic-btn" id="open-favs" aria-label="Favoritos"><svg width="20" height="20"><use href="#i-heart"/></svg></button>
       <button class="ic-btn ic-btn--cart" id="open-cart" aria-label="Carrinho">
         <svg width="20" height="20"><use href="#i-bag"/></svg>
-        <span class="ic-btn__count" id="cart-count">3</span>
+        <span class="ic-btn__count" id="cart-count">0</span>
       </button>
     </div>
   </div>
@@ -505,9 +509,9 @@
     <span class="sec-eyebrow news-letter__eyebrow">✦ NOSSO JARDIM</span>
     <h2 class="news-letter__title"><em>Entre para o nosso jardim.</em></h2>
     <p class="news-letter__sub">Receba novidades, lançamentos exclusivos e ofertas especiais antes de todo mundo.</p>
-    <form class="news-letter__form" onsubmit="event.preventDefault(); this.querySelector('button').textContent='Bem-vinda ✿'; this.querySelector('input').value='';">
-      <input type="email" required placeholder="seu@email.com" aria-label="Seu e-mail"/>
-      <button type="submit">Quero entrar</button>
+    <form class="news-letter__form" id="newsletter-form">
+      <input type="email" required placeholder="seu@email.com" aria-label="Seu e-mail" id="newsletter-email"/>
+      <button type="submit" id="newsletter-btn">Quero entrar</button>
     </form>
     <p class="news-letter__fine">Prometemos apenas flores na sua caixa. Sem spam.</p>
   </div>
@@ -610,6 +614,178 @@
 <!-- ===== TOAST ===== -->
 <div id="toast" class="toast" aria-live="polite"></div>
 
+
+<!-- ===== AUTH MODAL ===== -->
+<div class="modal-veil" id="auth-veil"></div>
+<div class="modal auth-modal" id="auth-modal" role="dialog" aria-modal="true" aria-label="Entrar / Cadastrar">
+  <button class="modal__close" id="auth-close" aria-label="Fechar">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+  <div class="auth-modal__logo">
+    <svg width="28" height="28" style="color:var(--rose)"><use href="#cf-flor"/></svg>
+  </div>
+  <div class="auth-modal__tabs">
+    <button class="auth-tab is-active" data-tab="login">Entrar</button>
+    <button class="auth-tab" data-tab="signup">Cadastrar</button>
+  </div>
+
+  <!-- LOGIN -->
+  <form class="auth-form" id="auth-form-login">
+    <div class="form-field">
+      <label>E-mail</label>
+      <input type="email" id="a-email" placeholder="seu@email.com" required autocomplete="email"/>
+    </div>
+    <div class="form-field">
+      <label>Senha</label>
+      <input type="password" id="a-pw" placeholder="••••••••" required autocomplete="current-password"/>
+    </div>
+    <p class="auth-forgot"><button type="button" id="auth-forgot-btn">Esqueci minha senha</button></p>
+    <div class="auth-err" id="auth-err-login"></div>
+    <button type="submit" class="btn btn--primary btn--full" id="auth-login-btn">Entrar</button>
+  </form>
+
+  <!-- CADASTRO -->
+  <form class="auth-form" id="auth-form-signup" style="display:none">
+    <div class="form-field">
+      <label>Nome completo</label>
+      <input type="text" id="a-name" placeholder="Maria Silva" required autocomplete="name"/>
+    </div>
+    <div class="form-field">
+      <label>E-mail</label>
+      <input type="email" id="a-email2" placeholder="seu@email.com" required autocomplete="email"/>
+    </div>
+    <div class="form-field">
+      <label>Senha</label>
+      <input type="password" id="a-pw2" placeholder="Mín. 6 caracteres" required minlength="6" autocomplete="new-password"/>
+    </div>
+    <div class="auth-err" id="auth-err-signup"></div>
+    <button type="submit" class="btn btn--primary btn--full" id="auth-signup-btn">Criar minha conta</button>
+  </form>
+
+  <!-- USUÁRIO LOGADO -->
+  <div id="auth-logged" style="display:none">
+    <p class="auth-welcome">Olá, <strong id="auth-user-name"></strong> ✿</p>
+    <a class="btn btn--outline btn--full" href="conta.html">Minha conta e pedidos</a>
+    <button class="btn btn--link btn--full" id="auth-logout-btn">Sair</button>
+  </div>
+</div>
+
+
+<!-- ===== CHECKOUT MODAL ===== -->
+<div class="modal-veil" id="checkout-veil"></div>
+<div class="modal checkout-modal" id="checkout-modal" role="dialog" aria-modal="true" aria-label="Finalizar pedido">
+  <button class="modal__close" id="checkout-close" aria-label="Fechar">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+
+  <!-- Step 1: Formulário -->
+  <div id="checkout-step-form">
+    <h2 class="modal__title">Finalizar pedido</h2>
+    <div class="checkout-grid">
+
+      <!-- Coluna form -->
+      <div class="checkout-form-col">
+        <form id="checkout-form">
+          <h3 class="checkout-section-title">Seus dados</h3>
+          <div class="form-row-2">
+            <div class="form-field">
+              <label>Nome completo *</label>
+              <input type="text" id="co-name" required autocomplete="name"/>
+            </div>
+            <div class="form-field">
+              <label>Telefone *</label>
+              <input type="tel" id="co-phone" required placeholder="(61) 9 9999-9999" autocomplete="tel"/>
+            </div>
+          </div>
+          <div class="form-field">
+            <label>E-mail *</label>
+            <input type="email" id="co-email" required autocomplete="email"/>
+          </div>
+
+          <h3 class="checkout-section-title">Endereço de entrega</h3>
+          <div class="form-row-2">
+            <div class="form-field">
+              <label>CEP *</label>
+              <input type="text" id="co-cep" required placeholder="00000-000" maxlength="9"/>
+            </div>
+            <div class="form-field">
+              <label>Número *</label>
+              <input type="text" id="co-num" required/>
+            </div>
+          </div>
+          <div class="form-field">
+            <label>Rua</label>
+            <input type="text" id="co-rua" readonly/>
+          </div>
+          <div class="form-row-2">
+            <div class="form-field">
+              <label>Bairro</label>
+              <input type="text" id="co-bairro" readonly/>
+            </div>
+            <div class="form-field">
+              <label>Complemento</label>
+              <input type="text" id="co-comp" placeholder="Apto, bloco…"/>
+            </div>
+          </div>
+          <div class="form-row-2">
+            <div class="form-field">
+              <label>Cidade</label>
+              <input type="text" id="co-cidade" readonly/>
+            </div>
+            <div class="form-field">
+              <label>Estado</label>
+              <input type="text" id="co-estado" readonly/>
+            </div>
+          </div>
+
+          <h3 class="checkout-section-title">Cupom de desconto</h3>
+          <div class="coupon-row">
+            <input type="text" id="co-coupon" placeholder="CÓDIGO DO CUPOM" style="text-transform:uppercase"/>
+            <button type="button" id="co-coupon-btn" class="btn btn--outline">Aplicar</button>
+          </div>
+          <p class="coupon-msg" id="co-coupon-msg"></p>
+
+          <div class="form-field" style="margin-top:16px">
+            <label>Observações (opcional)</label>
+            <textarea id="co-notes" rows="2" placeholder="Informações adicionais…"></textarea>
+          </div>
+        </form>
+      </div>
+
+      <!-- Coluna resumo -->
+      <div class="checkout-summary-col">
+        <h3 class="checkout-section-title">Resumo do pedido</h3>
+        <ul class="checkout-items" id="checkout-items"></ul>
+        <dl class="checkout-totals">
+          <div><dt>Subtotal</dt><dd id="co-subtotal">R$ 0,00</dd></div>
+          <div id="co-discount-row" style="display:none; color:var(--rose-deep)">
+            <dt>Desconto <span id="co-coupon-label"></span></dt>
+            <dd id="co-discount-val"></dd>
+          </div>
+          <div><dt>Frete</dt><dd>Grátis ✿</dd></div>
+          <div class="checkout-totals__final"><dt>Total</dt><dd id="co-total">R$ 0,00</dd></div>
+        </dl>
+        <button class="btn btn--primary btn--full" id="checkout-confirm-btn" form="checkout-form" type="submit">
+          Confirmar pedido
+        </button>
+        <p class="checkout-note">Você receberá a confirmação por e-mail. Entraremos em contato para confirmar o pagamento.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2: Sucesso -->
+  <div id="checkout-step-ok" style="display:none" class="checkout-success">
+    <svg width="56" height="56" viewBox="0 0 56 56" fill="none"><circle cx="28" cy="28" r="28" fill="rgba(212,103,154,.12)"/><path d="M18 28l7 7 13-13" stroke="var(--rose)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <h2>Pedido realizado! ✿</h2>
+    <p>Número do pedido: <strong id="checkout-order-id"></strong></p>
+    <p>Enviamos os detalhes para o seu e-mail. Em breve entraremos em contato para confirmar o pagamento e envio.</p>
+    <button class="btn btn--primary" id="checkout-ok-btn">Continuar comprando</button>
+  </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="supabase-client.js?v=1"></script>
 <script src="products-data.js?v=4"></script>
 <script src="script.js?v=4"></script>
 </body>

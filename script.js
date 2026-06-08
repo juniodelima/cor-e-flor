@@ -414,3 +414,316 @@ function toast(msg){
 /* Cursor padrão do sistema */
 
 
+/* ================================================================
+   SUPABASE — Auth, Newsletter, Checkout, Favoritos
+================================================================ */
+
+/* --- Estado global do usuário --- */
+let _currentUser = null;
+let _sbFavs = [];
+
+/* Inicializa auth: ouuve mudanças de sessão */
+if (typeof Auth !== 'undefined') {
+  Auth.onChange(async (_event, session) => {
+    _currentUser = session?.user || null;
+    _updateNavUser();
+    if (_currentUser) await _syncFavorites();
+  });
+
+  /* Carrega sessão atual */
+  Auth.user().then(u => {
+    _currentUser = u;
+    _updateNavUser();
+    if (u) _syncFavorites();
+  });
+}
+
+function _updateNavUser() {
+  const nameEl  = document.getElementById('nav-user-name');
+  const loggedDiv  = document.getElementById('auth-logged');
+  const loginForm  = document.getElementById('auth-form-login');
+  const signupForm = document.getElementById('auth-form-signup');
+  const tabsEl     = document.querySelector('.auth-modal__tabs');
+
+  if (_currentUser) {
+    const name = _currentUser.user_metadata?.name || _currentUser.email.split('@')[0];
+    if (nameEl) { nameEl.textContent = name.split(' ')[0]; nameEl.style.display = 'block'; }
+    document.getElementById('auth-user-name').textContent = name.split(' ')[0];
+    if (loggedDiv)  loggedDiv.style.display  = 'block';
+    if (loginForm)  loginForm.style.display  = 'none';
+    if (signupForm) signupForm.style.display = 'none';
+    if (tabsEl)     tabsEl.style.display     = 'none';
+  } else {
+    if (nameEl) nameEl.style.display = 'none';
+    if (loggedDiv)  loggedDiv.style.display  = 'none';
+    if (loginForm)  loginForm.style.display  = 'block';
+    if (signupForm) signupForm.style.display = 'none';
+    if (tabsEl)     tabsEl.style.display     = 'flex';
+  }
+}
+
+
+/* ---- Auth Modal ---- */
+function openAuthModal()  { document.getElementById('auth-modal').classList.add('is-open');     document.getElementById('auth-veil').classList.add('is-open');     document.body.style.overflow = 'hidden'; }
+function closeAuthModal() { document.getElementById('auth-modal').classList.remove('is-open');  document.getElementById('auth-veil').classList.remove('is-open');  document.body.style.overflow = ''; }
+
+document.getElementById('open-auth')?.addEventListener('click', openAuthModal);
+document.getElementById('auth-close')?.addEventListener('click', closeAuthModal);
+document.getElementById('auth-veil')?.addEventListener('click', closeAuthModal);
+
+/* Tabs login / signup */
+document.querySelectorAll('.auth-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.auth-tab').forEach(b => b.classList.remove('is-active'));
+    btn.classList.add('is-active');
+    const tab = btn.dataset.tab;
+    document.getElementById('auth-form-login').style.display  = tab === 'login'  ? 'block' : 'none';
+    document.getElementById('auth-form-signup').style.display = tab === 'signup' ? 'block' : 'none';
+  });
+});
+
+/* Login */
+document.getElementById('auth-form-login')?.addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = document.getElementById('auth-login-btn');
+  const errEl = document.getElementById('auth-err-login');
+  btn.textContent = 'Entrando…'; btn.disabled = true;
+  const { error } = await Auth.login(document.getElementById('a-email').value, document.getElementById('a-pw').value);
+  btn.textContent = 'Entrar'; btn.disabled = false;
+  if (error) { errEl.textContent = 'E-mail ou senha incorretos.'; errEl.classList.add('show'); }
+  else { errEl.classList.remove('show'); closeAuthModal(); toast('Bem-vinda de volta! ✿'); }
+});
+
+/* Cadastro */
+document.getElementById('auth-form-signup')?.addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = document.getElementById('auth-signup-btn');
+  const errEl = document.getElementById('auth-err-signup');
+  btn.textContent = 'Criando…'; btn.disabled = true;
+  const { error } = await Auth.signup(
+    document.getElementById('a-email2').value,
+    document.getElementById('a-pw2').value,
+    document.getElementById('a-name').value
+  );
+  btn.textContent = 'Criar minha conta'; btn.disabled = false;
+  if (error) { errEl.textContent = error.message; errEl.classList.add('show'); }
+  else { errEl.classList.remove('show'); closeAuthModal(); toast('Conta criada! Confirme seu e-mail ✿'); }
+});
+
+/* Logout */
+document.getElementById('auth-logout-btn')?.addEventListener('click', async () => {
+  await Auth.logout(); closeAuthModal(); toast('Até logo! ✿');
+});
+
+/* Esqueci senha */
+document.getElementById('auth-forgot-btn')?.addEventListener('click', async () => {
+  const email = document.getElementById('a-email').value;
+  if (!email) { document.getElementById('auth-err-login').textContent = 'Digite seu e-mail primeiro.'; document.getElementById('auth-err-login').classList.add('show'); return; }
+  await Auth.resetPw(email);
+  toast('E-mail de recuperação enviado ✿');
+  closeAuthModal();
+});
+
+
+/* ---- Favoritos sincronizados com Supabase ---- */
+async function _syncFavorites() {
+  if (!_currentUser || typeof Favorites === 'undefined') return;
+  const remote = await Favorites.getAll(_currentUser.id);
+  remote.forEach(pid => {
+    document.querySelectorAll(`.card__fav[data-id="${pid}"], .card[data-id="${pid}"] .card__fav`).forEach(btn => {
+      btn.classList.add('is-on');
+      btn.querySelector('use')?.setAttribute('href', '#i-heart-fill');
+    });
+  });
+  _sbFavs = remote;
+}
+
+/* Intercepta clique nos favoritos para sincronizar */
+document.getElementById('categories-root')?.addEventListener('click', async e => {
+  const btn = e.target.closest('.card__fav');
+  if (!btn || !_currentUser || typeof Favorites === 'undefined') return;
+  const card = btn.closest('.card');
+  if (!card) return;
+  const pid = parseInt(card.dataset.id, 10);
+  const isOn = btn.classList.contains('is-on');
+  if (isOn) { await Favorites.remove(_currentUser.id, pid); _sbFavs = _sbFavs.filter(x => x !== pid); }
+  else       { await Favorites.add(_currentUser.id, pid);    _sbFavs.push(pid); }
+}, true);
+
+
+/* ---- Newsletter → Supabase ---- */
+document.getElementById('newsletter-form')?.addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn   = document.getElementById('newsletter-btn');
+  const email = document.getElementById('newsletter-email').value;
+  btn.textContent = 'Salvando…'; btn.disabled = true;
+  const { error } = await Newsletter.subscribe(email);
+  btn.disabled = false;
+  if (error && error.code === '23505') { btn.textContent = 'Já cadastrada ✿'; }
+  else if (error) { btn.textContent = 'Erro, tente novamente'; }
+  else { btn.textContent = 'Bem-vinda ao jardim ✿'; document.getElementById('newsletter-email').value = ''; }
+});
+
+
+/* ---- Checkout Modal ---- */
+let _couponData = null;
+
+function openCheckout() {
+  _renderCheckoutItems();
+  document.getElementById('checkout-step-form').style.display = 'block';
+  document.getElementById('checkout-step-ok').style.display   = 'none';
+  document.getElementById('checkout-modal').classList.add('is-open');
+  document.getElementById('checkout-veil').classList.add('is-open');
+  document.body.style.overflow = 'hidden';
+
+  /* Pré-preenche com dados do usuário logado */
+  if (_currentUser) {
+    const n = _currentUser.user_metadata?.name || '';
+    const emailInput = document.getElementById('co-email');
+    if (emailInput && !emailInput.value) emailInput.value = _currentUser.email;
+    const nameInput = document.getElementById('co-name');
+    if (nameInput && !nameInput.value) nameInput.value = n;
+  }
+}
+
+function closeCheckout() {
+  document.getElementById('checkout-modal').classList.remove('is-open');
+  document.getElementById('checkout-veil').classList.remove('is-open');
+  document.body.style.overflow = '';
+}
+
+document.querySelector('.cart__cta')?.addEventListener('click', () => {
+  if (!cartState.length) { toast('Seu carrinho está vazio ✿'); return; }
+  closeCart(); setTimeout(openCheckout, 200);
+});
+document.getElementById('checkout-close')?.addEventListener('click', closeCheckout);
+document.getElementById('checkout-veil')?.addEventListener('click', closeCheckout);
+document.getElementById('checkout-ok-btn')?.addEventListener('click', () => { closeCheckout(); });
+
+function _renderCheckoutItems() {
+  const list = document.getElementById('checkout-items');
+  if (!list) return;
+  list.innerHTML = '';
+  let subtotal = 0;
+  cartState.forEach(it => {
+    const p = products.find(x => x.id === it.id);
+    if (!p) return;
+    const price = it.piecePrice ?? p.price;
+    subtotal += price * it.qty;
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <img src="${p.image}" alt="${p.name}" loading="lazy"/>
+      <div class="checkout-item-info">
+        <strong>${p.name}</strong>
+        <span>${it.size}${it.pieceName ? ' · ' + it.pieceName : ''} × ${it.qty}</span>
+      </div>
+      <span class="checkout-item-price">${BRL(price * it.qty)}</span>`;
+    list.appendChild(li);
+  });
+  _updateCheckoutTotals(subtotal);
+}
+
+function _updateCheckoutTotals(subtotal) {
+  const discount = _couponData ? _couponData.discount : 0;
+  const total    = subtotal - discount;
+  document.getElementById('co-subtotal').textContent = BRL(subtotal);
+  document.getElementById('co-total').textContent    = BRL(total);
+  const dRow = document.getElementById('co-discount-row');
+  if (discount > 0 && dRow) {
+    dRow.style.display = 'flex';
+    document.getElementById('co-coupon-label').textContent = `(${_couponData.coupon.code})`;
+    document.getElementById('co-discount-val').textContent = `- ${BRL(discount)}`;
+  } else if (dRow) { dRow.style.display = 'none'; }
+}
+
+/* CEP auto-fill via ViaCEP */
+document.getElementById('co-cep')?.addEventListener('blur', async () => {
+  const cep = document.getElementById('co-cep').value.replace(/\D/g, '');
+  if (cep.length !== 8) return;
+  try {
+    const r = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+    const d = await r.json();
+    if (d.erro) return;
+    document.getElementById('co-rua').value    = d.logradouro;
+    document.getElementById('co-bairro').value = d.bairro;
+    document.getElementById('co-cidade').value = d.localidade;
+    document.getElementById('co-estado').value = d.uf;
+    document.getElementById('co-num').focus();
+  } catch {}
+});
+
+/* Máscara CEP */
+document.getElementById('co-cep')?.addEventListener('input', e => {
+  let v = e.target.value.replace(/\D/g,'');
+  if (v.length > 5) v = v.slice(0,5) + '-' + v.slice(5,8);
+  e.target.value = v;
+});
+
+/* Cupom */
+document.getElementById('co-coupon-btn')?.addEventListener('click', async () => {
+  const code = document.getElementById('co-coupon').value;
+  const msgEl = document.getElementById('co-coupon-msg');
+  if (!code) return;
+  let subtotal = cartState.reduce((s, it) => s + (it.piecePrice ?? (products.find(x => x.id === it.id)?.price ?? 0)) * it.qty, 0);
+  if (typeof Coupons === 'undefined') return;
+  const result = await Coupons.validate(code, subtotal);
+  if (result.ok) {
+    _couponData = result;
+    msgEl.textContent = `Cupom aplicado! Desconto de ${BRL(result.discount)} ✿`;
+    msgEl.className = 'coupon-msg ok';
+  } else {
+    _couponData = null;
+    msgEl.textContent = result.msg;
+    msgEl.className = 'coupon-msg err';
+  }
+  _updateCheckoutTotals(subtotal);
+});
+
+/* Confirmar pedido */
+document.getElementById('checkout-form')?.addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = document.getElementById('checkout-confirm-btn');
+  btn.textContent = 'Enviando pedido…'; btn.disabled = true;
+
+  const subtotal = cartState.reduce((s, it) => {
+    const p = products.find(x => x.id === it.id);
+    return s + (it.piecePrice ?? p?.price ?? 0) * it.qty;
+  }, 0);
+  const discount = _couponData?.discount || 0;
+
+  const order = {
+    customer_id:    _currentUser?.id || null,
+    customer_name:  document.getElementById('co-name').value,
+    customer_email: document.getElementById('co-email').value,
+    customer_phone: document.getElementById('co-phone').value,
+    items: cartState.map(it => {
+      const p = products.find(x => x.id === it.id);
+      return { id: it.id, name: p?.name, image: p?.image, size: it.size, piece: it.pieceName || null, qty: it.qty, price: it.piecePrice ?? p?.price };
+    }),
+    subtotal, discount, total: subtotal - discount,
+    coupon_code: _couponData?.coupon?.code || null,
+    address: {
+      cep:    document.getElementById('co-cep').value,
+      rua:    document.getElementById('co-rua').value,
+      num:    document.getElementById('co-num').value,
+      comp:   document.getElementById('co-comp').value,
+      bairro: document.getElementById('co-bairro').value,
+      cidade: document.getElementById('co-cidade').value,
+      estado: document.getElementById('co-estado').value,
+    },
+    notes: document.getElementById('co-notes').value || null,
+  };
+
+  const { data, error } = await Orders.create(order);
+  btn.textContent = 'Confirmar pedido'; btn.disabled = false;
+
+  if (error) { toast('Erro ao salvar pedido. Tente novamente.'); console.error(error); return; }
+
+  /* Sucesso */
+  cartState = [];
+  renderCart();
+  _couponData = null;
+  document.getElementById('checkout-step-form').style.display = 'none';
+  document.getElementById('checkout-step-ok').style.display   = 'block';
+  document.getElementById('checkout-order-id').textContent = data.id.slice(0,8).toUpperCase();
+});
