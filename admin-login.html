@@ -152,22 +152,22 @@
 
   <form id="login-form" novalidate>
     <div class="form-group">
-      <label class="form-label" for="username">Usuário</label>
-      <input type="text" id="username" class="form-input" placeholder="Informe o usuário" autocomplete="username">
+      <label class="form-label" for="email">E-mail</label>
+      <input type="email" id="email" class="form-input" placeholder="seu@email.com" autocomplete="email">
     </div>
     <div class="form-group">
       <label class="form-label" for="password">Senha</label>
-      <input type="password" id="password" class="form-input" placeholder="Informe a senha" autocomplete="current-password">
+      <input type="password" id="password" class="form-input" placeholder="Sua senha" autocomplete="current-password">
     </div>
-    <button type="submit" class="login-btn">
+    <button type="submit" class="login-btn" id="login-btn">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v18h-6M10 17l5-5-5-5M15 12H3"/></svg>
       Entrar no Painel
     </button>
-    <div class="login-error" id="login-error">Preencha usuário e senha para continuar.</div>
+    <div class="login-error" id="login-error"></div>
   </form>
 
   <div class="login-note">
-    ✦ Acesso temporário aberto — qualquer usuário e senha são aceitos.<br>Configure após conectar o banco de dados.
+    ✦ Acesso restrito — apenas administradores autorizados.
   </div>
 
   <div class="login-foot">
@@ -175,35 +175,78 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="supabase-client.js?v=1"></script>
 <script>
-  // Redireciona se já logado
-  if (sessionStorage.getItem('cf_admin_logged') === 'true') {
-    window.location.href = 'admin.html';
-  }
+  const errEl  = document.getElementById('login-error');
+  const btnEl  = document.getElementById('login-btn');
+  const ICON_ENTER = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v18h-6M10 17l5-5-5-5M15 12H3"/></svg>`;
+  const ICON_SPIN  = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin .8s linear infinite"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>`;
+  const ICON_OK    = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>`;
 
-  document.getElementById('login-form').addEventListener('submit', function(e) {
+  // Redirect if already have a valid Supabase session
+  (async () => {
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      if (session) {
+        const profile = await Auth.profile(session.user.id);
+        if (profile && profile.is_admin) {
+          sessionStorage.setItem('cf_admin_logged', 'true');
+          sessionStorage.setItem('cf_admin_user', profile.name || session.user.email);
+          window.location.href = 'admin.html';
+        }
+      }
+    } catch(e) {}
+  })();
+
+  document.getElementById('login-form').addEventListener('submit', async function(e) {
     e.preventDefault();
-    const user = document.getElementById('username').value.trim();
-    const pass = document.getElementById('password').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const pass  = document.getElementById('password').value.trim();
+    errEl.classList.remove('show');
 
-    if (user && pass) {
-      sessionStorage.setItem('cf_admin_logged', 'true');
-      sessionStorage.setItem('cf_admin_user', user);
-      const btn = this.querySelector('button');
-      btn.textContent = 'Entrando...';
-      btn.disabled = true;
-      setTimeout(() => { window.location.href = 'admin.html'; }, 600);
-    } else {
-      document.getElementById('login-error').classList.add('show');
+    if (!email || !pass) {
+      errEl.textContent = 'Preencha e-mail e senha para continuar.';
+      errEl.classList.add('show');
+      return;
     }
+
+    btnEl.disabled = true;
+    btnEl.innerHTML = ICON_SPIN + ' Verificando...';
+
+    const { data, error } = await Auth.login(email, pass);
+
+    if (error || !data?.user) {
+      errEl.textContent = (error?.message || '').includes('Invalid login credentials')
+        ? 'E-mail ou senha incorretos.'
+        : (error?.message || 'Erro ao entrar. Tente novamente.');
+      errEl.classList.add('show');
+      btnEl.disabled = false;
+      btnEl.innerHTML = ICON_ENTER + ' Entrar no Painel';
+      return;
+    }
+
+    const profile = await Auth.profile(data.user.id);
+    if (!profile || !profile.is_admin) {
+      await Auth.logout();
+      errEl.textContent = 'Acesso negado. Esta conta não tem permissão de administrador.';
+      errEl.classList.add('show');
+      btnEl.disabled = false;
+      btnEl.innerHTML = ICON_ENTER + ' Entrar no Painel';
+      return;
+    }
+
+    sessionStorage.setItem('cf_admin_logged', 'true');
+    sessionStorage.setItem('cf_admin_user', profile.name || data.user.email);
+    btnEl.innerHTML = ICON_OK + ' Bem-vinda!';
+    setTimeout(() => { window.location.href = 'admin.html'; }, 600);
   });
 
   document.querySelectorAll('.form-input').forEach(el =>
-    el.addEventListener('input', () =>
-      document.getElementById('login-error').classList.remove('show')
-    )
+    el.addEventListener('input', () => errEl.classList.remove('show'))
   );
 </script>
+<style>@keyframes spin { to { transform: rotate(360deg); } }</style>
 </body>
 </html>
 

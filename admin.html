@@ -567,6 +567,16 @@
           </div>
         </div>
 
+        <!-- Admin Invites -->
+        <div class="card">
+          <div class="card__head"><h3 class="card__title"><i class="bi bi-envelope-paper"></i> Convites de Acesso Admin</h3></div>
+          <div class="card__body">
+            <p class="cfg-note" style="margin-bottom:16px"><i class="bi bi-info-circle"></i> Gere um código de convite e envie o link para quem você deseja adicionar como administrador. Cada código pode ser usado uma única vez e expira em 7 dias.</p>
+            <button class="btn-primary" onclick="generateInvite()"><i class="bi bi-plus-lg"></i> Gerar novo convite</button>
+            <div id="invites-list" style="margin-top:20px"></div>
+          </div>
+        </div>
+
         <!-- Notifications -->
         <div class="card">
           <div class="card__head"><h3 class="card__title"><i class="bi bi-bell"></i> Notificações</h3></div>
@@ -650,6 +660,8 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="supabase-client.js?v=1"></script>
 <script src="admin-script.js"></script>
 </body>
 </html>

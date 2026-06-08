@@ -10,7 +10,25 @@
 if (sessionStorage.getItem('cf_admin_logged') !== 'true') {
   window.location.href = 'admin-login.html';
 }
-const adminUser = sessionStorage.getItem('cf_admin_user') || 'Admin';
+let adminUser = sessionStorage.getItem('cf_admin_user') || 'Admin';
+
+// Async Supabase session verification
+(async () => {
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { sessionStorage.clear(); window.location.href = 'admin-login.html'; return; }
+    const profile = await Auth.profile(session.user.id);
+    if (!profile || !profile.is_admin) {
+      await sb.auth.signOut(); sessionStorage.clear();
+      window.location.href = 'admin-login.html'; return;
+    }
+    adminUser = profile.name || session.user.email;
+    sessionStorage.setItem('cf_admin_user', adminUser);
+    document.getElementById('header-name').textContent   = adminUser;
+    document.getElementById('dash-name').textContent     = adminUser;
+    document.getElementById('header-avatar').textContent = adminUser[0].toUpperCase();
+  } catch(e) { /* session check failed silently */ }
+})();
 
 // ── Storage helper ────────────────────────────────────────────
 const DB = {
@@ -178,8 +196,10 @@ function closeSidebar() {
 }
 
 // Logout
-document.getElementById('btn-logout').addEventListener('click', () => {
-  sessionStorage.clear(); window.location.href = 'admin-login.html';
+document.getElementById('btn-logout').addEventListener('click', async () => {
+  await sb.auth.signOut();
+  sessionStorage.clear();
+  window.location.href = 'admin-login.html';
 });
 
 // Notification panel
@@ -1643,6 +1663,7 @@ function loadSettings() {
   if (cfg.openaiKey)  document.getElementById('cfg-openai-key').value = cfg.openaiKey;
   if (cfg.aiQuality)  document.getElementById('cfg-ai-quality').value = cfg.aiQuality;
   renderCoupons();
+  loadInvites();
 }
 
 function saveSettings(e, group) {
@@ -1729,6 +1750,80 @@ function removeCoupon(i) {
   coupons.splice(i,1);
   cfg.coupons = coupons; DB.set('settings', cfg);
   renderCoupons();
+}
+
+
+// ── ADMIN INVITES ─────────────────────────────────────────────
+async function loadInvites() {
+  const list = document.getElementById('invites-list');
+  if (!list) return;
+  list.innerHTML = '<p style="color:var(--warm-gray);font-size:13px;opacity:.7">Carregando...</p>';
+  const { data, error } = await sb.from('admin_invites')
+    .select('*').order('created_at', { ascending: false });
+  if (error) {
+    list.innerHTML = '<p style="color:#dc2626;font-size:13px">Erro ao carregar convites.</p>';
+    return;
+  }
+  if (!data || !data.length) {
+    list.innerHTML = '<p style="color:var(--warm-gray);font-size:13px;opacity:.6">Nenhum convite gerado ainda.</p>';
+    return;
+  }
+  const base = window.location.origin + '/admin-register.html';
+  list.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:13px">
+    <thead><tr style="border-bottom:1px solid rgba(212,103,154,.2)">
+      <th style="text-align:left;padding:8px 0;color:var(--warm-gray);font-weight:500">Código</th>
+      <th style="text-align:left;padding:8px 0;color:var(--warm-gray);font-weight:500">Status</th>
+      <th style="text-align:left;padding:8px 0;color:var(--warm-gray);font-weight:500">Expira</th>
+      <th style="padding:8px 0"></th>
+    </tr></thead>
+    <tbody>${data.map(inv => `
+      <tr style="border-bottom:1px solid rgba(212,103,154,.06)">
+        <td style="padding:10px 0"><code style="background:rgba(212,103,154,.1);padding:3px 8px;border-radius:6px;font-size:12px;letter-spacing:1px">${inv.code}</code></td>
+        <td style="padding:10px 0">${inv.used
+          ? '<span style="color:#16a34a;font-size:12px">✓ Usado</span>'
+          : '<span style="color:var(--rose);font-size:12px">● Disponível</span>'
+        }</td>
+        <td style="padding:10px 0;color:var(--warm-gray);font-size:12px">${fmtDate(inv.expires_at)}</td>
+        <td style="padding:10px 0">
+          <div style="display:flex;gap:6px;justify-content:flex-end">
+            ${!inv.used ? `<button onclick="copyInviteLink('${inv.code}')" style="background:rgba(212,103,154,.12);border:none;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:12px;color:var(--rose)"><i class='bi bi-link-45deg'></i> Copiar link</button>` : ''}
+            <button onclick="deleteInvite('${inv.id}')" style="background:rgba(239,68,68,.08);border:none;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:12px;color:#dc2626"><i class='bi bi-trash'></i></button>
+          </div>
+        </td>
+      </tr>`).join('')}
+    </tbody></table>`;
+}
+
+function _mkInviteCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let c = '';
+  for (let i = 0; i < 8; i++) c += chars[Math.floor(Math.random() * chars.length)];
+  return c;
+}
+
+async function generateInvite() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) return;
+  const code = _mkInviteCode();
+  const expires_at = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+  const { error } = await sb.from('admin_invites').insert({ code, created_by: session.user.id, expires_at });
+  if (error) { toast('Erro ao gerar convite: ' + error.message, 'error'); return; }
+  toast('Convite gerado: ' + code, 'success');
+  loadInvites();
+}
+
+function copyInviteLink(code) {
+  const url = window.location.origin + '/admin-register.html?code=' + code;
+  navigator.clipboard.writeText(url)
+    .then(() => toast('Link copiado para a área de transferência!', 'success'))
+    .catch(() => toast('Link: ' + url, 'info'));
+}
+
+async function deleteInvite(id) {
+  if (!confirm2('Remover este convite? A ação não pode ser desfeita.')) return;
+  const { error } = await sb.from('admin_invites').delete().eq('id', id);
+  if (error) { toast('Erro ao remover convite.', 'error'); return; }
+  loadInvites();
 }
 
 

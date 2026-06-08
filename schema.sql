@@ -152,3 +152,62 @@ CREATE POLICY "coupons_admin" ON coupons FOR ALL USING (
 INSERT INTO coupons (code, discount_type, discount_value, min_order, active)
 VALUES ('BEMVINDA10', 'percent', 10, 150, true)
 ON CONFLICT (code) DO NOTHING;
+
+-- ================================================================
+--  9. CONVITES ADMIN
+-- ================================================================
+CREATE TABLE IF NOT EXISTS admin_invites (
+  id         UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  code       TEXT UNIQUE NOT NULL,
+  created_by UUID REFERENCES profiles(id),
+  used       BOOLEAN DEFAULT FALSE,
+  used_by    UUID REFERENCES profiles(id),
+  used_at    TIMESTAMPTZ,
+  expires_at TIMESTAMPTZ DEFAULT (NOW() + INTERVAL '7 days'),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+ALTER TABLE admin_invites ENABLE ROW LEVEL SECURITY;
+
+-- Anyone can SELECT unused invites (needed to validate on registration page)
+CREATE POLICY "invites_check" ON admin_invites FOR SELECT USING (used = false);
+
+-- Only admins can create/manage invites
+CREATE POLICY "invites_admin" ON admin_invites FOR ALL USING (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true)
+) WITH CHECK (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true)
+);
+
+-- Function: validate invite code + set user as admin (SECURITY DEFINER bypasses RLS)
+CREATE OR REPLACE FUNCTION use_admin_invite(p_code TEXT, p_user_id UUID)
+RETURNS BOOLEAN LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+DECLARE
+  v_invite_id UUID;
+BEGIN
+  SELECT id INTO v_invite_id
+  FROM admin_invites
+  WHERE code = p_code
+    AND used = false
+    AND (expires_at IS NULL OR expires_at > NOW());
+
+  IF v_invite_id IS NULL THEN
+    RETURN FALSE;
+  END IF;
+
+  UPDATE admin_invites
+  SET used = true, used_by = p_user_id, used_at = NOW()
+  WHERE id = v_invite_id;
+
+  UPDATE profiles SET is_admin = true WHERE id = p_user_id;
+
+  RETURN TRUE;
+END;
+$$;
+
+-- ================================================================
+--  PRIMEIRO ADMIN — execute manualmente após criar a conta
+--  Substitua pelo e-mail cadastrado no Supabase Auth
+-- ================================================================
+-- UPDATE profiles SET is_admin = true
+-- WHERE id = (SELECT id FROM auth.users WHERE email = 'juniodelima7@gmail.com');
+
