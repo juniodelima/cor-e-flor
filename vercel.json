@@ -1,4 +1,9 @@
 {
+  "functions": {
+    "api/webhook.js":       { "maxDuration": 30 },
+    "api/send-message.js":  { "maxDuration": 15 },
+    "api/conversations.js": { "maxDuration": 15 }
+  },
   "headers": [
     {
       "source": "/assets/(.*)",
