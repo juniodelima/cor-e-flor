@@ -218,7 +218,7 @@ async function callClaude(messages) {
 
 async function sendWhatsApp(phoneNumberId, to, text) {
   if (!phoneNumberId) { console.error('[whatsapp] phoneNumberId ausente'); return; }
-  await fetch(`https://graph.facebook.com/v19.0/${phoneNumberId}/messages`, {
+  const resp = await fetch(`https://graph.facebook.com/v19.0/${phoneNumberId}/messages`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${process.env.META_ACCESS_TOKEN}`,
@@ -231,10 +231,16 @@ async function sendWhatsApp(phoneNumberId, to, text) {
       text: { body: text }
     })
   });
+  if (!resp.ok) {
+    const err = await resp.text();
+    console.error(`[whatsapp] erro ao enviar (${resp.status}):`, err);
+  } else {
+    console.log('[whatsapp] mensagem enviada para', to);
+  }
 }
 
 async function sendInstagram(recipientId, text) {
-  await fetch('https://graph.facebook.com/v19.0/me/messages', {
+  const resp = await fetch('https://graph.facebook.com/v19.0/me/messages', {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${process.env.META_ACCESS_TOKEN}`,
@@ -245,4 +251,8 @@ async function sendInstagram(recipientId, text) {
       message:   { text }
     })
   });
+  if (!resp.ok) {
+    const err = await resp.text();
+    console.error(`[instagram] erro ao enviar (${resp.status}):`, err);
+  }
 }
