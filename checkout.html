@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Finalizar Compra | COR & FLOR</title>
+<link rel="icon" type="image/png" href="assets/logo-nova.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Raleway:wght@300;400;500;600&display=swap" onload="this.rel='stylesheet'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet"></noscript>
+<link rel="stylesheet" href="styles.css?v=4" />
+<style>
+  .co-page { min-height: 100vh; background: #fdf8f6; padding: 0 0 60px; }
+  .co-header { background: #fff; border-bottom: 1px solid rgba(212,103,154,.12); padding: 16px 24px; display: flex; align-items: center; gap: 20px; }
+  .co-header__logo { height: 38px; }
+  .co-header__back { font-family: var(--sans); font-size: 13px; color: var(--warm-gray); text-decoration: none; display: flex; align-items: center; gap: 6px; transition: color .2s; }
+  .co-header__back:hover { color: var(--rose-deep); }
+  .co-breadcrumb { font-family: var(--sans); font-size: 13px; color: var(--warm-gray); display: flex; gap: 8px; align-items: center; margin-left: auto; }
+  .co-breadcrumb span { color: var(--ink); font-weight: 600; }
+
+  .co-steps { display: flex; justify-content: center; gap: 0; padding: 28px 24px 0; }
+  .co-step { display: flex; align-items: center; gap: 10px; font-family: var(--sans); font-size: 13px; color: var(--warm-gray); }
+  .co-step__num { width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid currentColor; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 12px; flex-shrink: 0; }
+  .co-step.active { color: var(--rose); }
+  .co-step.done { color: var(--rose-deep); }
+  .co-step.done .co-step__num { background: var(--rose-deep); border-color: var(--rose-deep); color: #fff; }
+  .co-step__sep { width: 40px; height: 1px; background: rgba(212,103,154,.25); margin: 0 8px; }
+
+  .co-layout { max-width: 1040px; margin: 32px auto 0; padding: 0 24px; display: grid; grid-template-columns: 1fr 380px; gap: 32px; align-items: start; }
+  .co-form-card { background: #fff; border-radius: 16px; padding: 36px 32px; box-shadow: 0 2px 16px rgba(28,20,20,.06); }
+  .co-form-card h2 { font-family: var(--serif); font-size: 22px; font-weight: 400; color: var(--ink); margin: 0 0 24px; padding-bottom: 16px; border-bottom: 1px solid rgba(212,103,154,.12); }
+  .co-summary-card { background: #fff; border-radius: 16px; padding: 28px 24px; box-shadow: 0 2px 16px rgba(28,20,20,.06); position: sticky; top: 24px; }
+  .co-summary-card h2 { font-family: var(--serif); font-size: 18px; font-weight: 400; color: var(--ink); margin: 0 0 20px; }
+
+  .co-items-list { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 14px; }
+  .co-item { display: flex; gap: 12px; align-items: center; }
+  .co-item img { width: 56px; height: 56px; object-fit: cover; border-radius: 8px; background: #f5ede8; }
+  .co-item__info { flex: 1; }
+  .co-item__name { font-family: var(--sans); font-size: 13px; font-weight: 600; color: var(--ink); line-height: 1.3; }
+  .co-item__sub { font-size: 12px; color: var(--warm-gray); margin-top: 2px; }
+  .co-item__price { font-family: var(--serif); font-size: 14px; color: var(--ink); white-space: nowrap; }
+
+  .co-divider { height: 1px; background: rgba(212,103,154,.1); margin: 16px 0; }
+  .co-totals { display: flex; flex-direction: column; gap: 8px; }
+  .co-totals__row { display: flex; justify-content: space-between; font-family: var(--sans); font-size: 14px; color: var(--warm-gray); }
+  .co-totals__row.total { font-family: var(--serif); font-size: 20px; color: var(--ink); font-weight: 600; margin-top: 6px; padding-top: 12px; border-top: 1px solid rgba(212,103,154,.15); }
+
+  .co-coupon { margin-top: 18px; }
+  .co-coupon-row { display: flex; gap: 8px; }
+  .co-coupon-row input { flex: 1; padding: 10px 14px; border-radius: 8px; border: 1.5px solid rgba(212,103,154,.25); background: #fff; font-family: var(--sans); font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; outline: none; color: var(--ink); }
+  .co-coupon-row input:focus { border-color: var(--rose); }
+  .co-coupon-msg { font-size: 12px; margin-top: 6px; }
+  .co-coupon-msg.ok { color: #2e7d4f; }
+  .co-coupon-msg.err { color: #c0392b; }
+
+  .co-section-title { font-family: var(--sans); font-size: 12px; font-weight: 600; color: var(--rose-deep); text-transform: uppercase; letter-spacing: 1px; margin: 28px 0 14px; }
+  .co-section-title:first-child { margin-top: 0; }
+
+  .co-note { font-size: 12px; color: var(--warm-gray); text-align: center; margin-top: 14px; line-height: 1.5; }
+  .co-back-btn { background: none; border: none; cursor: pointer; color: var(--warm-gray); font-size: 13px; padding: 0 0 20px; font-family: var(--sans); display: flex; align-items: center; gap: 6px; }
+  .co-back-btn:hover { color: var(--rose-deep); }
+
+  #step-sucesso { text-align: center; padding: 20px 0; }
+  #step-sucesso svg { margin-bottom: 20px; }
+  #step-sucesso h2 { font-family: var(--serif); font-weight: 400; font-size: 28px; color: var(--ink); margin-bottom: 16px; }
+  #step-sucesso p { color: var(--warm-gray); font-size: 15px; line-height: 1.65; margin-bottom: 10px; }
+  #step-sucesso strong { color: var(--rose-deep); }
+
+  @media (max-width: 800px) {
+    .co-layout { grid-template-columns: 1fr; }
+    .co-summary-card { position: static; order: -1; }
+    .co-form-card { padding: 24px 20px; }
+    .co-step__sep { width: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Header simples -->
+<div class="co-page">
+  <header class="co-header">
+    <a href="index.html"><img src="assets/logo-nova.png" class="co-header__logo" alt="COR &amp; FLOR"></a>
+    <a href="index.html" class="co-header__back">← Continuar comprando</a>
+    <nav class="co-breadcrumb" id="co-breadcrumb">
+      <span id="bc-dados" class="active">Dados</span> ›
+      <span id="bc-pagamento">Pagamento</span> ›
+      <span id="bc-confirmacao">Confirmação</span>
+    </nav>
+  </header>
+
+  <!-- Steps -->
+  <div class="co-steps">
+    <div class="co-step active" id="step-ind-1">
+      <div class="co-step__num">1</div>
+      <span>Seus dados</span>
+    </div>
+    <div class="co-step__sep"></div>
+    <div class="co-step" id="step-ind-2">
+      <div class="co-step__num">2</div>
+      <span>Pagamento</span>
+    </div>
+    <div class="co-step__sep"></div>
+    <div class="co-step" id="step-ind-3">
+      <div class="co-step__num">3</div>
+      <span>Confirmação</span>
+    </div>
+  </div>
+
+  <div class="co-layout">
+
+    <!-- Coluna esquerda: steps -->
+    <div>
+
+      <!-- STEP 1: Dados -->
+      <div class="co-form-card" id="step-dados">
+        <h2>Dados pessoais e entrega</h2>
+
+        <form id="checkout-form" novalidate>
+          <p class="co-section-title">Contato</p>
+          <div class="form-row-2">
+            <div class="form-field">
+              <label class="form-label">Nome completo *</label>
+              <input class="form-input" id="co-name" type="text" placeholder="Seu nome" required />
+            </div>
+            <div class="form-field">
+              <label class="form-label">E-mail *</label>
+              <input class="form-input" id="co-email" type="email" placeholder="seu@email.com" required />
+            </div>
+          </div>
+          <div class="form-row-2">
+            <div class="form-field">
+              <label class="form-label">Telefone / WhatsApp *</label>
+              <input class="form-input" id="co-phone" type="tel" placeholder="(61) 9 0000-0000" required />
+            </div>
+            <div class="form-field">
+              <label class="form-label">CPF</label>
+              <input class="form-input" id="co-cpf" type="text" placeholder="000.000.000-00" />
+            </div>
+          </div>
+
+          <p class="co-section-title">Endereço de entrega</p>
+          <div class="form-row-2">
+            <div class="form-field">
+              <label class="form-label">CEP *</label>
+              <input class="form-input" id="co-cep" type="text" placeholder="00000-000" maxlength="9" required />
+            </div>
+            <div class="form-field">
+              <label class="form-label">Número *</label>
+              <input class="form-input" id="co-num" type="text" placeholder="Nº" required />
+            </div>
+          </div>
+          <div class="form-field">
+            <label class="form-label">Rua *</label>
+            <input class="form-input" id="co-rua" type="text" placeholder="Rua, Avenida…" required />
+          </div>
+          <div class="form-row-2">
+            <div class="form-field">
+              <label class="form-label">Complemento</label>
+              <input class="form-input" id="co-comp" type="text" placeholder="Apto, bloco…" />
+            </div>
+            <div class="form-field">
+              <label class="form-label">Bairro *</label>
+              <input class="form-input" id="co-bairro" type="text" placeholder="Bairro" required />
+            </div>
+          </div>
+          <div class="form-row-2">
+            <div class="form-field">
+              <label class="form-label">Cidade *</label>
+              <input class="form-input" id="co-cidade" type="text" placeholder="Cidade" required />
+            </div>
+            <div class="form-field">
+              <label class="form-label">Estado *</label>
+              <input class="form-input" id="co-estado" type="text" placeholder="UF" maxlength="2" required />
+            </div>
+          </div>
+          <div class="form-field" style="margin-top:4px">
+            <label class="form-label">Observações</label>
+            <textarea class="form-input" id="co-notes" rows="2" placeholder="Ponto de referência, instruções de entrega…" style="resize:vertical"></textarea>
+          </div>
+
+          <div style="margin-top:28px">
+            <button class="btn btn--primary btn--full" type="submit" id="co-continue-btn">
+              Continuar para pagamento →
+            </button>
+          </div>
+          <p class="co-note">Pagamento 100% seguro via Mercado Pago 🔒</p>
+        </form>
+      </div>
+
+      <!-- STEP 2: Pagamento -->
+      <div class="co-form-card" id="step-pagamento" style="display:none">
+        <button class="co-back-btn" id="co-back-btn">← Voltar para dados</button>
+        <h2>Pagamento</h2>
+        <div id="mp-brick-container"></div>
+        <p class="co-note" style="margin-top:16px">Seus dados de pagamento são criptografados pelo Mercado Pago</p>
+      </div>
+
+      <!-- STEP 3: Sucesso -->
+      <div class="co-form-card" id="step-sucesso" style="display:none">
+        <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+          <circle cx="28" cy="28" r="28" fill="rgba(212,103,154,.12)"/>
+          <path d="M18 28l7 7 13-13" stroke="var(--rose)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <h2>Pedido confirmado! ✿</h2>
+        <p>Número do pedido: <strong id="co-order-id"></strong></p>
+        <p id="co-payment-msg">Pagamento aprovado! Você receberá a confirmação por e-mail em breve.</p>
+        <div style="margin-top:28px">
+          <a href="index.html" class="btn btn--primary">Continuar comprando</a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Coluna direita: resumo do pedido -->
+    <aside class="co-summary-card">
+      <h2>Seu pedido</h2>
+      <ul class="co-items-list" id="co-items-list">
+        <li style="text-align:center;color:var(--warm-gray);font-size:13px;padding:20px 0">Carregando…</li>
+      </ul>
+
+      <div class="co-coupon">
+        <div class="co-coupon-row">
+          <input type="text" id="co-coupon" placeholder="CUPOM DE DESCONTO" />
+          <button class="btn btn--outline" id="co-coupon-btn" type="button">Aplicar</button>
+        </div>
+        <p class="co-coupon-msg" id="co-coupon-msg"></p>
+      </div>
+
+      <div class="co-divider"></div>
+      <div class="co-totals">
+        <div class="co-totals__row"><span>Subtotal</span><span id="co-subtotal">—</span></div>
+        <div class="co-totals__row" id="co-discount-row" style="display:none;color:var(--rose-deep)">
+          <span>Desconto <span id="co-coupon-label"></span></span>
+          <span id="co-discount-val"></span>
+        </div>
+        <div class="co-totals__row"><span>Frete</span><span>Grátis ✿</span></div>
+        <div class="co-totals__row total"><span>Total</span><span id="co-total">—</span></div>
+      </div>
+    </aside>
+
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast" aria-live="polite"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="supabase-client.js?v=1"></script>
+<script src="products-data.js?v=4"></script>
+<script src="checkout.js?v=1"></script>
+</body>
+</html>
