@@ -1,6 +1,6 @@
 /* checkout.js — Página de finalização de compra */
 
-const MP_PUBLIC_KEY = 'TEST-1b7b738d-ab21-4446-87eb-90e8fc3af43d';
+const MP_PUBLIC_KEY = 'APP_USR-51ce84d0-ae1e-4a0a-b010-0fe696012fc6';
 const BRL = n => 'R$ ' + Number(n).toFixed(2).replace('.', ',');
 
 let _cart       = [];

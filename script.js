@@ -580,7 +580,7 @@ let _couponData    = null;
 let _checkoutOrder = null; // dados do pedido coletados no step 1
 let _mpBrick       = null; // instância do Brick MP
 
-const MP_PUBLIC_KEY = 'TEST-1b7b738d-ab21-4446-87eb-90e8fc3af43d'; // troque pela chave de produção no go-live
+const MP_PUBLIC_KEY = 'APP_USR-51ce84d0-ae1e-4a0a-b010-0fe696012fc6';
 
 function openCheckout() {
   _renderCheckoutItems();
