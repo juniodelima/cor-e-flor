@@ -766,28 +766,38 @@
           <div class="checkout-totals__final"><dt>Total</dt><dd id="co-total">R$ 0,00</dd></div>
         </dl>
         <button class="btn btn--primary btn--full" id="checkout-confirm-btn" form="checkout-form" type="submit">
-          Confirmar pedido
+          Continuar para pagamento
         </button>
-        <p class="checkout-note">Você receberá a confirmação por e-mail. Entraremos em contato para confirmar o pagamento.</p>
+        <p class="checkout-note">Pagamento 100% seguro via Mercado Pago ✿</p>
       </div>
     </div>
   </div>
 
-  <!-- Step 2: Sucesso -->
+  <!-- Step 2: Pagamento -->
+  <div id="checkout-step-payment" style="display:none">
+    <button class="checkout-back-btn" id="checkout-back-btn">← Voltar</button>
+    <h2 class="modal__title">Pagamento</h2>
+    <div class="checkout-payment-summary" id="checkout-payment-summary"></div>
+    <div id="mp-brick-container"></div>
+    <p class="checkout-note" style="margin-top:12px">Ambiente de teste — use um cartão fictício do MP para simular</p>
+  </div>
+
+  <!-- Step 3: Sucesso -->
   <div id="checkout-step-ok" style="display:none" class="checkout-success">
     <svg width="56" height="56" viewBox="0 0 56 56" fill="none"><circle cx="28" cy="28" r="28" fill="rgba(212,103,154,.12)"/><path d="M18 28l7 7 13-13" stroke="var(--rose)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
     <h2>Pedido realizado! ✿</h2>
     <p>Número do pedido: <strong id="checkout-order-id"></strong></p>
-    <p>Enviamos os detalhes para o seu e-mail. Em breve entraremos em contato para confirmar o pagamento e envio.</p>
+    <p id="checkout-ok-msg">Pagamento aprovado! Você receberá a confirmação por e-mail.</p>
     <button class="btn btn--primary" id="checkout-ok-btn">Continuar comprando</button>
   </div>
 </div>
 
 
+<script src="https://sdk.mercadopago.com/js/v2"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="supabase-client.js?v=1"></script>
 <script src="products-data.js?v=4"></script>
-<script src="script.js?v=4"></script>
+<script src="script.js?v=5"></script>
 </body>
 </html>
 

@@ -2391,6 +2391,19 @@ a, button { touch-action: manipulation; }
 .checkout-note { font-size: 12px; color: var(--warm-gray); text-align: center; margin: 12px 0 0; line-height: 1.5; }
 .checkout-summary-col { position: sticky; top: 16px; background: #fff; border-radius: 14px; padding: 24px; border: 1px solid rgba(212,103,154,.12); }
 
+/* Checkout — step pagamento */
+.checkout-back-btn {
+  background: none; border: none; cursor: pointer; color: var(--warm-gray);
+  font-size: 13px; padding: 0 0 16px; display: flex; align-items: center; gap: 6px;
+  font-family: var(--sans);
+}
+.checkout-back-btn:hover { color: var(--rose-deep); }
+.checkout-payment-summary {
+  background: rgba(212,103,154,.06); border-radius: 10px;
+  padding: 12px 16px; margin-bottom: 20px; font-size: 14px; color: var(--ink);
+}
+#checkout-step-payment { padding: 4px 0; }
+
 /* Checkout success */
 .checkout-success { text-align: center; padding: 20px 0; }
 .checkout-success svg { margin-bottom: 20px; }

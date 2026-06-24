@@ -576,17 +576,21 @@ document.getElementById('newsletter-form')?.addEventListener('submit', async e =
 
 
 /* ---- Checkout Modal ---- */
-let _couponData = null;
+let _couponData    = null;
+let _checkoutOrder = null; // dados do pedido coletados no step 1
+let _mpBrick       = null; // instância do Brick MP
+
+const MP_PUBLIC_KEY = 'TEST-1b7b738d-ab21-4446-87eb-90e8fc3af43d'; // troque pela chave de produção no go-live
 
 function openCheckout() {
   _renderCheckoutItems();
-  document.getElementById('checkout-step-form').style.display = 'block';
-  document.getElementById('checkout-step-ok').style.display   = 'none';
+  document.getElementById('checkout-step-form').style.display    = 'block';
+  document.getElementById('checkout-step-payment').style.display = 'none';
+  document.getElementById('checkout-step-ok').style.display      = 'none';
   document.getElementById('checkout-modal').classList.add('is-open');
   document.getElementById('checkout-veil').classList.add('is-open');
   document.body.style.overflow = 'hidden';
 
-  /* Pré-preenche com dados do usuário logado */
   if (_currentUser) {
     const n = _currentUser.user_metadata?.name || '';
     const emailInput = document.getElementById('co-email');
@@ -600,6 +604,7 @@ function closeCheckout() {
   document.getElementById('checkout-modal').classList.remove('is-open');
   document.getElementById('checkout-veil').classList.remove('is-open');
   document.body.style.overflow = '';
+  if (_mpBrick) { _mpBrick.unmount(); _mpBrick = null; }
 }
 
 document.querySelector('.cart__cta')?.addEventListener('click', () => {
@@ -689,19 +694,20 @@ document.getElementById('co-coupon-btn')?.addEventListener('click', async () => 
   _updateCheckoutTotals(subtotal);
 });
 
-/* Confirmar pedido */
+/* Step 1 → coleta dados e avança para pagamento */
 document.getElementById('checkout-form')?.addEventListener('submit', async e => {
   e.preventDefault();
   const btn = document.getElementById('checkout-confirm-btn');
-  btn.textContent = 'Enviando pedido…'; btn.disabled = true;
+  btn.textContent = 'Aguarde…'; btn.disabled = true;
 
   const subtotal = cartState.reduce((s, it) => {
     const p = products.find(x => x.id === it.id);
     return s + (it.piecePrice ?? p?.price ?? 0) * it.qty;
   }, 0);
   const discount = _couponData?.discount || 0;
+  const total    = subtotal - discount;
 
-  const order = {
+  _checkoutOrder = {
     customer_id:    _currentUser?.id || null,
     customer_name:  document.getElementById('co-name').value,
     customer_email: document.getElementById('co-email').value,
@@ -710,7 +716,7 @@ document.getElementById('checkout-form')?.addEventListener('submit', async e => 
       const p = products.find(x => x.id === it.id);
       return { id: it.id, name: p?.name, image: p?.image, size: it.size, piece: it.pieceName || null, qty: it.qty, price: it.piecePrice ?? p?.price };
     }),
-    subtotal, discount, total: subtotal - discount,
+    subtotal, discount, total,
     coupon_code: _couponData?.coupon?.code || null,
     address: {
       cep:    document.getElementById('co-cep').value,
@@ -724,16 +730,103 @@ document.getElementById('checkout-form')?.addEventListener('submit', async e => 
     notes: document.getElementById('co-notes').value || null,
   };
 
+  btn.textContent = 'Continuar para pagamento'; btn.disabled = false;
+
+  // Avança para step de pagamento
+  document.getElementById('checkout-step-form').style.display    = 'none';
+  document.getElementById('checkout-step-payment').style.display = 'block';
+
+  // Resumo no topo do step de pagamento
+  const summary = document.getElementById('checkout-payment-summary');
+  if (summary) summary.innerHTML = `<p>${_checkoutOrder.items.length} item(s) · Total: <strong>${BRL(total)}</strong></p>`;
+
+  // Inicializa o Brick do MP
+  await _initMPBrick(total, _checkoutOrder.customer_email);
+});
+
+/* Voltar para step 1 */
+document.getElementById('checkout-back-btn')?.addEventListener('click', () => {
+  if (_mpBrick) { _mpBrick.unmount(); _mpBrick = null; }
+  document.getElementById('checkout-step-payment').style.display = 'none';
+  document.getElementById('checkout-step-form').style.display    = 'block';
+});
+
+async function _initMPBrick(amount, email) {
+  const container = document.getElementById('mp-brick-container');
+  if (!container) return;
+  container.innerHTML = '<p style="text-align:center;padding:20px;color:var(--warm-gray)">Carregando pagamento…</p>';
+
+  try {
+    const mp = new MercadoPago(MP_PUBLIC_KEY, { locale: 'pt-BR' });
+    const builder = mp.bricks();
+    _mpBrick = await builder.create('cardPayment', 'mp-brick-container', {
+      initialization: {
+        amount,
+        payer: { email }
+      },
+      customization: {
+        paymentMethods: { minInstallments: 1, maxInstallments: 12 },
+        visual: { hideFormTitle: true, hidePaymentButton: false }
+      },
+      callbacks: {
+        onReady: () => {},
+        onError: (err) => {
+          console.error('[MP Brick]', err);
+          toast('Erro ao carregar formulário de pagamento. Recarregue a página.');
+        },
+        onSubmit: async (formData) => {
+          try {
+            const resp = await fetch('/api/payment', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                token:              formData.token,
+                payment_method_id:  formData.payment_method_id,
+                issuer_id:          formData.issuer_id,
+                installments:       formData.installments,
+                payer:              formData.payer,
+                amount,
+                description:        'Compra Cor & Flor',
+                idempotency_key:    `order-${Date.now()}`
+              })
+            });
+            const payment = await resp.json();
+
+            if (payment.status === 'approved') {
+              await _finalizarPedido(payment.id, 'aprovado');
+            } else if (payment.status === 'in_process' || payment.status === 'pending') {
+              await _finalizarPedido(payment.id, 'pendente');
+              document.getElementById('checkout-ok-msg').textContent = 'Pagamento em análise. Você receberá a confirmação por e-mail.';
+            } else {
+              toast('Pagamento recusado. Verifique os dados do cartão e tente novamente.');
+              throw new Error(payment.status_detail);
+            }
+          } catch (err) {
+            console.error('[payment submit]', err);
+            throw err; // devolve o erro para o Brick mostrar mensagem
+          }
+        }
+      }
+    });
+  } catch (err) {
+    console.error('[MP init]', err);
+    container.innerHTML = '<p style="color:red;text-align:center;padding:20px">Erro ao carregar pagamento. Tente novamente.</p>';
+  }
+}
+
+async function _finalizarPedido(paymentId, paymentStatus) {
+  const order = { ..._checkoutOrder, payment_id: paymentId, payment_status: paymentStatus };
   const { data, error } = await Orders.create(order);
-  btn.textContent = 'Confirmar pedido'; btn.disabled = false;
 
-  if (error) { toast('Erro ao salvar pedido. Tente novamente.'); console.error(error); return; }
+  if (error) { toast('Pagamento aprovado, mas erro ao salvar pedido. Entre em contato.'); console.error(error); return; }
 
-  /* Sucesso */
+  if (_mpBrick) { _mpBrick.unmount(); _mpBrick = null; }
   cartState = [];
   renderCart();
-  _couponData = null;
-  document.getElementById('checkout-step-form').style.display = 'none';
-  document.getElementById('checkout-step-ok').style.display   = 'block';
+  _couponData    = null;
+  _checkoutOrder = null;
+
+  document.getElementById('checkout-step-payment').style.display = 'none';
+  document.getElementById('checkout-step-ok').style.display      = 'block';
   document.getElementById('checkout-order-id').textContent = data.id.slice(0,8).toUpperCase();
-});
+}
