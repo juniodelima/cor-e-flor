@@ -752,12 +752,24 @@ document.getElementById('checkout-back-btn')?.addEventListener('click', () => {
   document.getElementById('checkout-step-form').style.display    = 'block';
 });
 
+function _loadMPSdk() {
+  if (window.MercadoPago) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://sdk.mercadopago.com/js/v2';
+    s.onload = resolve;
+    s.onerror = () => reject(new Error('Falha ao carregar SDK do Mercado Pago'));
+    document.head.appendChild(s);
+  });
+}
+
 async function _initMPBrick(amount, email) {
   const container = document.getElementById('mp-brick-container');
   if (!container) return;
   container.innerHTML = '<p style="text-align:center;padding:20px;color:var(--warm-gray)">Carregando pagamento…</p>';
 
   try {
+    await _loadMPSdk();
     const mp = new MercadoPago(MP_PUBLIC_KEY, { locale: 'pt-BR' });
     const builder = mp.bricks();
     _mpBrick = await builder.create('cardPayment', 'mp-brick-container', {
