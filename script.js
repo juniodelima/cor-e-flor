@@ -610,7 +610,15 @@ function closeCheckout() {
 
 document.querySelector('.cart__cta')?.addEventListener('click', () => {
   if (!cartState.length) { toast('Seu carrinho está vazio ✿'); return; }
-  closeCart(); setTimeout(openCheckout, 200);
+  closeCart();
+  setTimeout(() => {
+    try {
+      openCheckout();
+    } catch(err) {
+      console.error('openCheckout error:', err);
+      toast('Erro ao abrir checkout: ' + err.message);
+    }
+  }, 200);
 });
 document.getElementById('checkout-close')?.addEventListener('click', closeCheckout);
 document.getElementById('checkout-veil')?.addEventListener('click', closeCheckout);
