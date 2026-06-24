@@ -74,6 +74,8 @@ CREATE TABLE IF NOT EXISTS orders (
   status         TEXT DEFAULT 'novo'
                    CHECK (status IN ('novo','confirmado','em_preparo','enviado','entregue','cancelado')),
   notes          TEXT,
+  payment_id     TEXT,
+  payment_status TEXT DEFAULT 'pendente',
   created_at     TIMESTAMPTZ DEFAULT NOW()
 );
 ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
