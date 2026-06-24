@@ -585,7 +585,8 @@ const MP_PUBLIC_KEY = 'TEST-1b7b738d-ab21-4446-87eb-90e8fc3af43d'; // troque pel
 function openCheckout() {
   _renderCheckoutItems();
   document.getElementById('checkout-step-form').style.display    = 'block';
-  document.getElementById('checkout-step-payment').style.display = 'none';
+  const payStep = document.getElementById('checkout-step-payment');
+  if (payStep) payStep.style.display = 'none';
   document.getElementById('checkout-step-ok').style.display      = 'none';
   document.getElementById('checkout-modal').classList.add('is-open');
   document.getElementById('checkout-veil').classList.add('is-open');
