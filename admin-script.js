@@ -143,29 +143,43 @@ function _normCat(cat) {
   return 'blusas'; // blusa, body, regata, cropped, top, tule, corset, tricot
 }
 
+function _normProduct(p, existing) {
+  return {
+    id:            String(p.id),
+    name:          existing?.name          ?? p.name          ?? '',
+    category:      existing?.category      ?? _normCat(p.category),
+    price:         existing?.price         ?? Number(p.price)         ?? 0,
+    originalPrice: existing?.originalPrice ?? Number(p.originalPrice) ?? 0,
+    image:         existing?.image         ?? p.image  ?? '',
+    images:        existing?.images        ?? p.images ?? (p.image ? [p.image] : []),
+    description:   existing?.description   ?? p.description ?? '',
+    colors: existing?.colors ?? (Array.isArray(p.colors)
+      ? p.colors.map(c => (typeof c === 'string' ? c : c.name))
+      : []),
+    sizes:     existing?.sizes  ?? p.sizes  ?? [],
+    stock:     existing?.stock  ?? p.stock  ?? { P:0, M:0, G:0, GG:0 },
+    status:    existing?.status ?? p.status ?? 'active',
+    createdAt: existing?.createdAt ?? p.createdAt ?? now(),
+  };
+}
+
 // ── Init ──────────────────────────────────────────────────────
 function initData() {
-  const stored = DB.get('products');
-  if (!stored || stored.length === 0) {
-    // Usa os produtos reais do catálogo da loja como fonte inicial
-    const source = (typeof products !== 'undefined' && products.length > 0) ? products : SAMPLE_PRODUCTS;
-    DB.set('products', source.map(p => ({
-      id:            String(p.id),
-      name:          p.name || '',
-      category:      _normCat(p.category),
-      price:         Number(p.price)         || 0,
-      originalPrice: Number(p.originalPrice) || 0,
-      image:         p.image  || '',
-      images:        p.images || (p.image ? [p.image] : []),
-      description:   p.description || '',
-      colors: Array.isArray(p.colors)
-        ? p.colors.map(c => (typeof c === 'string' ? c : c.name))
-        : [],
-      sizes:         p.sizes  || [],
-      stock:         p.stock  || { P:0, M:0, G:0, GG:0 },
-      status:        p.status || 'active',
-      createdAt:     p.createdAt || now(),
-    })));
+  // Sempre sincroniza com products-data.js preservando edições do admin (status, estoque, etc.)
+  if (typeof products !== 'undefined' && products.length > 0) {
+    const stored    = DB.get('products') || [];
+    const storedMap = Object.fromEntries(stored.map(p => [String(p.id), p]));
+    const catalogIds = new Set(products.map(p => String(p.id)));
+
+    // Produtos do catálogo (com edições do admin preservadas)
+    const merged = products.map(p => _normProduct(p, storedMap[String(p.id)]));
+
+    // Produtos adicionados manualmente no admin (não estão em products-data.js)
+    const adminAdded = stored.filter(p => !catalogIds.has(String(p.id)));
+
+    DB.set('products', [...merged, ...adminAdded]);
+  } else if (!DB.get('products')) {
+    DB.set('products', SAMPLE_PRODUCTS);
   }
   if (!DB.get('notifications')) DB.set('notifications', []);
 }
@@ -1157,27 +1171,10 @@ function saveProduct(e, id) {
 }
 
 function restoreProductCatalog() {
-  if (!confirm2(`Isso vai substituir os produtos atuais do painel pelos ${products.length} produtos do catálogo da loja. Continuar?`)) return;
-  const source = (typeof products !== 'undefined' && products.length > 0) ? products : SAMPLE_PRODUCTS;
-  DB.set('products', source.map(p => ({
-    id:            String(p.id),
-    name:          p.name || '',
-    category:      _normCat(p.category),
-    price:         Number(p.price)         || 0,
-    originalPrice: Number(p.originalPrice) || 0,
-    image:         p.image  || '',
-    images:        p.images || (p.image ? [p.image] : []),
-    description:   p.description || '',
-    colors: Array.isArray(p.colors)
-      ? p.colors.map(c => (typeof c === 'string' ? c : c.name))
-      : [],
-    sizes:         p.sizes  || [],
-    stock:         p.stock  || { P:0, M:0, G:0, GG:0 },
-    status:        p.status || 'active',
-    createdAt:     p.createdAt || now(),
-  })));
+  if (!confirm2(`Recarregar os ${products.length} produtos do catálogo? Edições de estoque e status feitas no painel serão mantidas.`)) return;
+  initData();
   renderProducts();
-  toast(`${source.length} produtos do catálogo restaurados com sucesso!`, 'success');
+  toast(`${products.length} produtos sincronizados com o catálogo!`, 'success');
 }
 
 function deleteProduct(id) {
