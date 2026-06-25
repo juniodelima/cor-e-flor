@@ -131,9 +131,42 @@ const _SAMPLE_ORDERS_REMOVED = [
 
 // vendas físicas fictícias removidas — agora vêm do Supabase (physical_sales)
 
+// Mapeia categorias do catálogo da loja para os slugs do admin
+function _normCat(cat) {
+  if (!cat) return 'outros';
+  const c = cat.toLowerCase();
+  if (['vestidos','blusas','conjuntos','calcas','blazers','acessorios'].includes(c)) return c;
+  if (c.includes('vest') || c.includes('saia')) return 'vestidos';
+  if (c.includes('blazer') || c.includes('colete')) return 'blazers';
+  if (c.includes('calç') || c.includes('calc') || c.includes('short') || c.includes('jeans')) return 'calcas';
+  if (c.includes('conj') || c.includes('macac') || c.includes('look')) return 'conjuntos';
+  return 'blusas'; // blusa, body, regata, cropped, top, tule, corset, tricot
+}
+
 // ── Init ──────────────────────────────────────────────────────
 function initData() {
-  if (!DB.get('products'))  DB.set('products',  SAMPLE_PRODUCTS);
+  const stored = DB.get('products');
+  if (!stored || stored.length === 0) {
+    // Usa os produtos reais do catálogo da loja como fonte inicial
+    const source = (typeof products !== 'undefined' && products.length > 0) ? products : SAMPLE_PRODUCTS;
+    DB.set('products', source.map(p => ({
+      id:            String(p.id),
+      name:          p.name || '',
+      category:      _normCat(p.category),
+      price:         Number(p.price)         || 0,
+      originalPrice: Number(p.originalPrice) || 0,
+      image:         p.image  || '',
+      images:        p.images || (p.image ? [p.image] : []),
+      description:   p.description || '',
+      colors: Array.isArray(p.colors)
+        ? p.colors.map(c => (typeof c === 'string' ? c : c.name))
+        : [],
+      sizes:         p.sizes  || [],
+      stock:         p.stock  || { P:0, M:0, G:0, GG:0 },
+      status:        p.status || 'active',
+      createdAt:     p.createdAt || now(),
+    })));
+  }
   if (!DB.get('notifications')) DB.set('notifications', []);
 }
 initData();
@@ -1121,6 +1154,30 @@ function saveProduct(e, id) {
   DB.set('products', products);
   closeModal();
   renderProducts();
+}
+
+function restoreProductCatalog() {
+  if (!confirm2(`Isso vai substituir os produtos atuais do painel pelos ${products.length} produtos do catálogo da loja. Continuar?`)) return;
+  const source = (typeof products !== 'undefined' && products.length > 0) ? products : SAMPLE_PRODUCTS;
+  DB.set('products', source.map(p => ({
+    id:            String(p.id),
+    name:          p.name || '',
+    category:      _normCat(p.category),
+    price:         Number(p.price)         || 0,
+    originalPrice: Number(p.originalPrice) || 0,
+    image:         p.image  || '',
+    images:        p.images || (p.image ? [p.image] : []),
+    description:   p.description || '',
+    colors: Array.isArray(p.colors)
+      ? p.colors.map(c => (typeof c === 'string' ? c : c.name))
+      : [],
+    sizes:         p.sizes  || [],
+    stock:         p.stock  || { P:0, M:0, G:0, GG:0 },
+    status:        p.status || 'active',
+    createdAt:     p.createdAt || now(),
+  })));
+  renderProducts();
+  toast(`${source.length} produtos do catálogo restaurados com sucesso!`, 'success');
 }
 
 function deleteProduct(id) {
