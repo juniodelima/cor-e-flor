@@ -271,8 +271,8 @@ async function initMPBrick(amount, email) {
                 issuer_id:         formData.issuer_id,
                 installments:      formData.installments,
                 payer:             formData.payer,
-                amount,
-                description:       'Compra Cor & Flor',
+                items:             _cart.map(it => ({ id: it.id, qty: it.qty, piecePrice: it.piecePrice ?? null })),
+                coupon_code:       _couponData?.coupon?.code || null,
                 idempotency_key:   `checkout-${Date.now()}`
               })
             });
@@ -280,8 +280,10 @@ async function initMPBrick(amount, email) {
             const payment = await resp.json();
 
             if (payment.status === 'approved') {
+              if (payment.amount) _orderData.total = payment.amount;
               await finalizeOrder(payment.id, 'aprovado');
             } else if (payment.status === 'in_process' || payment.status === 'pending') {
+              if (payment.amount) _orderData.total = payment.amount;
               await finalizeOrder(payment.id, 'pendente');
               const msgEl = document.getElementById('co-payment-msg');
               if (msgEl) msgEl.textContent = 'Pagamento em análise. Você receberá a confirmação por e-mail em breve.';
