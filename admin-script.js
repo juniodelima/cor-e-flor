@@ -214,7 +214,7 @@ function goTo(sec) {
   // lazy render — dados reais do Supabase
   if (sec === 'dashboard') Promise.all([loadOrders(), loadPhysical()]).then(renderDashboard);
   if (sec === 'orders')    loadOrders().then(renderOrders);
-  if (sec === 'products')  setTimeout(renderProducts, 0);
+  if (sec === 'products')  { renderProducts(); setTimeout(renderProducts, 100); }
   if (sec === 'physical')  loadPhysical().then(() => { populateCatalogSelect(); renderPhysicalSales(); updateSalePreview(); });
   if (sec === 'metrics')   Promise.all([loadOrders(), loadPhysical()]).then(() => setTimeout(renderMetrics, 50));
   if (sec === 'customers') loadOrders().then(renderCustomers);
@@ -1207,14 +1207,24 @@ let _bulkRowCount = 0;
 
 function openBulkModal() {
   _bulkRowCount = 0;
-  document.getElementById('bulk-rows-container').innerHTML = '';
+  const overlay = document.getElementById('bulk-overlay');
+  const cont    = document.getElementById('bulk-rows-container');
+  if (!overlay || !cont) { toast('Erro ao abrir modal. Recarregue a página.', 'error'); return; }
+  cont.innerHTML = '';
   addBulkRow();
-  document.getElementById('bulk-overlay').classList.add('open');
+  overlay.style.display       = 'flex';
+  overlay.style.opacity       = '1';
+  overlay.style.pointerEvents = 'all';
+  overlay.classList.add('open');
 }
 
 function closeBulkModal(e) {
   if (e && e.target !== document.getElementById('bulk-overlay')) return;
-  document.getElementById('bulk-overlay').classList.remove('open');
+  const overlay = document.getElementById('bulk-overlay');
+  overlay.style.display       = 'none';
+  overlay.style.opacity       = '0';
+  overlay.style.pointerEvents = 'none';
+  overlay.classList.remove('open');
 }
 
 function addBulkRow() {
