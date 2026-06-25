@@ -72,16 +72,51 @@ const SAMPLE_PRODUCTS = [
   { id:'P008', name:'Saia Cetim Midi',         category:'vestidos',  price:259.90, originalPrice:319.90, stock:{P:6,M:7,G:3},   colors:['Champagne','Nude'],  sizes:['P','M','G'], image:'assets/p-saia-cetim.png',       status:'active',  description:'Saia midi em cetim com brilho sutil.' },
 ];
 
-const STATUSES = ['pending','processing','shipped','delivered','cancelled'];
-const STATUS_LABELS = { pending:'Aguardando', processing:'Em preparo', shipped:'Enviado', delivered:'Entregue', cancelled:'Cancelado' };
+const STATUSES = ['novo','em_preparo','enviado','entregue','cancelado'];
+const STATUS_LABELS = { novo:'Aguardando', confirmado:'Confirmado', em_preparo:'Em preparo', enviado:'Enviado', entregue:'Entregue', cancelado:'Cancelado' };
+const STATUS_CSS    = { novo:'pending', confirmado:'processing', em_preparo:'processing', enviado:'shipped', entregue:'delivered', cancelado:'cancelled' };
 const PAYMENT_LABELS = { credit_card:'Cartão Crédito', debit_card:'Cartão Débito', pix:'Pix', boleto:'Boleto', dinheiro:'Dinheiro', credito:'Cartão Crédito', debito:'Cartão Débito' };
 
-function mkDate(daysAgo, hour='10:00') {
-  const d = new Date(); d.setDate(d.getDate() - daysAgo);
-  return d.toISOString().slice(0,10) + 'T' + hour + ':00';
+// ── Cache Supabase ────────────────────────────────────────────
+const _cache = { orders: [], physical: [] };
+
+function _normOrder(o) {
+  return {
+    id: 'CF-' + o.id.slice(0,8).toUpperCase(), _id: o.id,
+    customer: {
+      name: o.customer_name||'', email: o.customer_email||'', phone: o.customer_phone||'',
+      address: {
+        street: [o.address?.rua, o.address?.num].filter(Boolean).join(', '),
+        neighborhood: o.address?.bairro||'', city: o.address?.cidade||'',
+        state: o.address?.estado||'', zip: o.address?.cep||'',
+      },
+    },
+    items: (o.items||[]).map(i=>({name:i.name||'—',qty:i.qty||1,price:i.price||0,size:i.size||''})),
+    total: Number(o.total)||0, payment: 'credit_card',
+    status: o.status||'novo', notes: o.notes||'', createdAt: o.created_at,
+  };
+}
+function _normPhysical(s) {
+  return {
+    id: 'FS-'+s.id.slice(0,8).toUpperCase(), _id: s.id,
+    product: s.product||'', category: s.category||'outros',
+    quantity: s.quantity||1, unitPrice: Number(s.unit_price)||0,
+    discount: Number(s.discount)||0, total: Number(s.total)||0,
+    payment: s.payment||'dinheiro', seller: s.seller||'', customer: s.customer||'',
+    details: s.details||'', notes: s.notes||'', createdAt: s.created_at,
+  };
+}
+async function loadOrders() {
+  const { data } = await sb.from('orders').select('*').order('created_at',{ascending:false});
+  _cache.orders = (data||[]).map(_normOrder);
+}
+async function loadPhysical() {
+  const { data } = await sb.from('physical_sales').select('*').order('created_at',{ascending:false});
+  _cache.physical = (data||[]).map(_normPhysical);
 }
 
-const SAMPLE_ORDERS = [
+// --- dados fictícios removidos, agora usa Supabase ---
+const _SAMPLE_ORDERS_REMOVED = [
   { id:'CF-1042', customer:{name:'Camila Rodrigues',email:'camila.r@email.com',phone:'(11) 9 9812-3344',address:{street:'Rua das Flores, 248',neighborhood:'Vila Madalena',city:'São Paulo',state:'SP',zip:'05435-010'}}, items:[{name:'Vestido Laranja Floral',qty:1,price:299.90,size:'M'},{name:'Regata Branca Classic',qty:2,price:99.90,size:'P'}], total:499.70, payment:'pix',         status:'delivered',   createdAt:mkDate(28,'14:32') },
   { id:'CF-1043', customer:{name:'Juliana Mendes',  email:'ju.mendes@gmail.com',phone:'(31) 9 8744-0022',address:{street:'Av. Contorno, 1500',neighborhood:'Funcionários',city:'Belo Horizonte',state:'MG',zip:'30110-920'}}, items:[{name:'Conjunto Rosa Verão',qty:1,price:349.90,size:'M'}], total:349.90, payment:'credit_card', status:'delivered',   createdAt:mkDate(25,'09:18') },
   { id:'CF-1044', customer:{name:'Patricia Santos', email:'patricia.s@icloud.com',phone:'(61) 9 9001-7788',address:{street:'SQN 305 Bloco C, 201',neighborhood:'Asa Norte',city:'Brasília',state:'DF',zip:'70736-030'}}, items:[{name:'Blazer Caqui Premium',qty:1,price:459.90,size:'G'}], total:459.90, payment:'credit_card', status:'shipped',     createdAt:mkDate(20,'16:45') },
@@ -94,50 +129,12 @@ const SAMPLE_ORDERS = [
   { id:'CF-1051', customer:{name:'Renata Pinto',    email:'renata.p@gmail.com',phone:'(11) 9 8822-7766',address:{street:'Rua Oscar Freire, 200',neighborhood:'Cerqueira César',city:'São Paulo',state:'SP',zip:'01426-001'}}, items:[{name:'Blazer Caqui Premium',qty:1,price:459.90,size:'P'},{name:'Body Marrom Decote',qty:1,price:149.90,size:'P'}], total:609.80, payment:'pix', status:'cancelled', createdAt:mkDate(15,'13:10') },
 ];
 
-function randDate(month, day) {
-  return `2026-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}T${String(9+Math.floor(Math.random()*10)).padStart(2,'0')}:${String(Math.floor(Math.random()*60)).padStart(2,'0')}:00`;
-}
-const SAMPLE_PHYSICAL = [];
-const pSellers = ['Ana Paula','Bianca','Carla','Diana'];
-const pProds = [
-  {name:'Vestido Laranja Floral',cat:'vestidos',price:299.90},
-  {name:'Blazer Caqui Premium',cat:'blazers',price:459.90},
-  {name:'Blusa Azul Seda',cat:'blusas',price:189.90},
-  {name:'Saia Cetim Midi',cat:'vestidos',price:259.90},
-  {name:'Conjunto Rosa Verão',cat:'conjuntos',price:349.90},
-  {name:'Body Marrom Decote',cat:'blusas',price:149.90},
-  {name:'Regata Branca Classic',cat:'blusas',price:99.90},
-  {name:'Look Azul Celeste',cat:'conjuntos',price:389.90},
-];
-const pPays = ['dinheiro','pix','credito','debito'];
-for (let i=0; i<22; i++) {
-  const prod = pProds[i % pProds.length];
-  const qty  = Math.random() > .75 ? 2 : 1;
-  const disc = Math.random() > .8 ? 20 : 0;
-  const m = (i < 8) ? 4 : (i < 15) ? 5 : 5;
-  const day = 1 + (i * 3) % 28;
-  SAMPLE_PHYSICAL.push({
-    id:'FS'+String(100+i),
-    product: prod.name, category: prod.cat,
-    quantity: qty, unitPrice: prod.price,
-    discount: disc, total: prod.price * qty - disc,
-    payment: pPays[i % pPays.length],
-    seller: pSellers[i % pSellers.length],
-    customer: '', details:'', notes:'',
-    createdAt: randDate(m, day),
-  });
-}
+// vendas físicas fictícias removidas — agora vêm do Supabase (physical_sales)
 
 // ── Init ──────────────────────────────────────────────────────
 function initData() {
   if (!DB.get('products'))  DB.set('products',  SAMPLE_PRODUCTS);
-  if (!DB.get('orders'))    DB.set('orders',     SAMPLE_ORDERS);
-  if (!DB.get('physical'))  DB.set('physical',   SAMPLE_PHYSICAL);
-  if (!DB.get('notifications')) DB.set('notifications', [
-    { id:'n1', text:'Novo pedido CF-1051 — R$ 609,80', time: mkDate(0,'08:30'), icon:'bi-bag-heart', unread:true },
-    { id:'n2', text:'Pedido CF-1050 aguardando aprovação', time: mkDate(1,'17:22'), icon:'bi-clock', unread:true },
-    { id:'n3', text:'Estoque baixo: Look Azul Celeste (G=1)', time: mkDate(2,'09:00'), icon:'bi-exclamation-triangle', unread:false },
-  ]);
+  if (!DB.get('notifications')) DB.set('notifications', []);
 }
 initData();
 
@@ -167,13 +164,13 @@ function goTo(sec) {
   currentSection = sec;
   closeSidebar();
 
-  // lazy render
-  if (sec === 'dashboard') renderDashboard();
-  if (sec === 'orders')    renderOrders();
+  // lazy render — dados reais do Supabase
+  if (sec === 'dashboard') Promise.all([loadOrders(), loadPhysical()]).then(renderDashboard);
+  if (sec === 'orders')    loadOrders().then(renderOrders);
   if (sec === 'products')  renderProducts();
-  if (sec === 'physical')  { populateCatalogSelect(); renderPhysicalSales(); updateSalePreview(); }
-  if (sec === 'metrics')   setTimeout(renderMetrics, 50);
-  if (sec === 'customers') renderCustomers();
+  if (sec === 'physical')  loadPhysical().then(() => { populateCatalogSelect(); renderPhysicalSales(); updateSalePreview(); });
+  if (sec === 'metrics')   Promise.all([loadOrders(), loadPhysical()]).then(() => setTimeout(renderMetrics, 50));
+  if (sec === 'customers') loadOrders().then(renderCustomers);
   if (sec === 'inventory') renderInventory();
   if (sec === 'settings')  loadSettings();
 }
@@ -217,14 +214,14 @@ document.addEventListener('click', (e) => {
 
 // ── DASHBOARD ─────────────────────────────────────────────────
 function renderDashboard() {
-  const orders   = DB.get('orders')   || [];
-  const physical = DB.get('physical') || [];
+  const orders   = _cache.orders;
+  const physical = _cache.physical;
   const products = DB.get('products') || [];
 
-  const onlineTotal  = orders.filter(o=>o.status!=='cancelled').reduce((s,o)=>s+o.total, 0);
+  const onlineTotal  = orders.filter(o=>o.status!=='cancelado').reduce((s,o)=>s+o.total, 0);
   const physicalTotal= physical.reduce((s,p)=>s+p.total, 0);
   const totalRevenue = onlineTotal + physicalTotal;
-  const pendingOrders= orders.filter(o=>o.status==='pending').length;
+  const pendingOrders= orders.filter(o=>o.status==='novo').length;
   const totalClients = new Set(orders.map(o=>o.customer.email)).size;
   const lowStock = products.filter(p=>{
     const t = Object.values(p.stock).reduce((a,b)=>a+b,0);
@@ -243,7 +240,7 @@ function renderDashboard() {
       <div class="kpi-card__icon"><i class="bi bi-bag-heart"></i></div>
       <p class="kpi-card__label">Receita Online</p>
       <div class="kpi-card__value">${fmtBRL(onlineTotal)}</div>
-      <span class="kpi-card__delta kpi-card__delta--flat">${orders.filter(o=>o.status!=='cancelled').length} pedidos confirmados</span>
+      <span class="kpi-card__delta kpi-card__delta--flat">${orders.filter(o=>o.status!=='cancelado').length} pedidos confirmados</span>
     </div>
     <div class="kpi-card kpi-card--gold">
       <div class="kpi-card__icon"><i class="bi bi-shop"></i></div>
@@ -285,14 +282,14 @@ function renderDashboard() {
       </div>
       <div class="recent-order-row__right">
         <span class="recent-order-row__price">${fmtBRL(o.total)}</span>
-        <span class="badge badge--${o.status}">${STATUS_LABELS[o.status]}</span>
+        <span class="badge badge--${STATUS_CSS[o.status]||o.status}">${STATUS_LABELS[o.status]||o.status}</span>
       </div>
     </div>
   `).join('') || '<p style="color:var(--warm-gray);font-size:13px;padding:12px 0">Nenhum pedido ainda.</p>';
 
   // Top products
   const soldMap = {};
-  orders.filter(o=>o.status!=='cancelled').forEach(o => {
+  orders.filter(o=>o.status!=='cancelado').forEach(o => {
     o.items.forEach(i => {
       soldMap[i.name] = (soldMap[i.name]||0) + (i.price*i.qty||i.price);
     });
@@ -317,8 +314,8 @@ function renderDashboard() {
 }
 
 function updateOrderBadge() {
-  const orders = DB.get('orders') || [];
-  const pending = orders.filter(o=>o.status==='pending').length;
+  const orders = _cache.orders;
+  const pending = orders.filter(o=>o.status==='novo').length;
   const badge = document.getElementById('badge-orders');
   badge.textContent = pending;
   badge.classList.toggle('show', pending > 0);
@@ -331,7 +328,7 @@ function updateOrderBadge() {
 
 // ── ORDERS ─────────────────────────────────────────────────────
 function renderOrders() {
-  const orders  = DB.get('orders') || [];
+  const orders  = _cache.orders;
   const filter  = document.getElementById('order-status-filter')?.value || '';
   const filtered= filter ? orders.filter(o=>o.status===filter) : orders;
   const sorted  = [...filtered].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
@@ -351,12 +348,12 @@ function renderOrders() {
         <div style="font-size:12px">${o.items.map(i=>`${i.name} (${i.size||''}) x${i.qty||1}`).join('<br>')}</div>
       </td>
       <td><strong style="color:var(--rose-deep)">${fmtBRL(o.total)}</strong></td>
-      <td><span class="badge badge--${o.status}"><span class="status-dot status-dot--${o.status}"></span> ${STATUS_LABELS[o.status]}</span></td>
+      <td><span class="badge badge--${STATUS_CSS[o.status]||o.status}"><span class="status-dot status-dot--${STATUS_CSS[o.status]||o.status}"></span> ${STATUS_LABELS[o.status]||o.status}</span></td>
       <td style="white-space:nowrap;font-size:12px">${fmtDateTime(o.createdAt)}</td>
       <td>
         <div class="td-actions">
-          <button class="btn-icon" title="Ver detalhes" onclick="openOrderDetail('${o.id}')"><i class="bi bi-eye"></i></button>
-          <select class="status-select" onchange="updateOrderStatus('${o.id}',this.value)" title="Alterar status">
+          <button class="btn-icon" title="Ver detalhes" onclick="openOrderDetail('${o._id}')"><i class="bi bi-eye"></i></button>
+          <select class="status-select" onchange="updateOrderStatus('${o._id}',this.value)" title="Alterar status">
             ${STATUSES.map(s=>`<option value="${s}"${o.status===s?' selected':''}>${STATUS_LABELS[s]}</option>`).join('')}
           </select>
         </div>
@@ -365,30 +362,13 @@ function renderOrders() {
   `).join('') : `<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--warm-gray)">Nenhum pedido encontrado.</td></tr>`;
 }
 
-function updateOrderStatus(id, status) {
-  const orders = DB.get('orders') || [];
-  const idx = orders.findIndex(o=>o.id===id);
-  if (idx < 0) return;
-  const prev = orders[idx].status;
-  orders[idx].status = status;
-
-  // Deduz estoque ao confirmar preparo (pending → processing)
-  if (status === 'processing' && !orders[idx].stockDeducted && prev === 'pending') {
-    deductStockForOrder(orders[idx]);
-    orders[idx].stockDeducted = true;
-    toast(`Pedido ${id} em preparo — estoque atualizado ✓`, 'success');
-  }
-  // Restaura estoque se cancelado após já ter deduzido
-  else if (status === 'cancelled' && orders[idx].stockDeducted) {
-    restoreStockForOrder(orders[idx]);
-    orders[idx].stockDeducted = false;
-    toast(`Pedido ${id} cancelado — estoque restaurado`, 'info');
-  }
-  else {
-    toast(`Pedido ${id} → ${STATUS_LABELS[status]}`, 'success');
-  }
-
-  DB.set('orders', orders);
+async function updateOrderStatus(supabaseId, status) {
+  const { error } = await sb.from('orders').update({ status }).eq('id', supabaseId);
+  if (error) { toast('Erro ao atualizar status: ' + error.message, 'error'); return; }
+  const o = _cache.orders.find(x => x._id === supabaseId);
+  const shortId = o ? o.id : 'CF-' + supabaseId.slice(0,8).toUpperCase();
+  if (o) o.status = status;
+  toast(`${shortId} → ${STATUS_LABELS[status]}`, 'success');
   updateOrderBadge();
   renderOrders();
 }
@@ -431,9 +411,8 @@ function restoreStockForOrder(order) {
   }
 }
 
-function openOrderDetail(id) {
-  const orders = DB.get('orders') || [];
-  const o = orders.find(o=>o.id===id);
+function openOrderDetail(supabaseId) {
+  const o = _cache.orders.find(o=>o._id===supabaseId);
   if (!o) return;
   const body = document.getElementById('modal-body');
   body.innerHTML = `
@@ -475,7 +454,7 @@ function openOrderDetail(id) {
         <h5>⚙️ Atualizar Status</h5>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           ${STATUSES.map(s=>`
-            <button onclick="updateOrderStatus('${o.id}','${s}');closeModal();" class="${o.status===s?'btn-primary':'btn-outline'}" style="padding:8px 14px;font-size:11px">
+            <button onclick="updateOrderStatus('${o._id}','${s}');closeModal();" class="${o.status===s?'btn-primary':'btn-outline'}" style="padding:8px 14px;font-size:11px">
               ${STATUS_LABELS[s]}
             </button>
           `).join('')}
@@ -1154,78 +1133,71 @@ function deleteProduct(id) {
 
 
 // ── PHYSICAL SALES ────────────────────────────────────────────
-function submitPhysicalSale(e) {
+async function submitPhysicalSale(e) {
   e.preventDefault();
+  const btn = e.submitter || e.target.querySelector('button[type=submit]');
+  if (btn) { btn.disabled = true; btn.textContent = 'Salvando…'; }
+
   const isCatalog = document.querySelector('input[name="ps-prod-type"]:checked')?.value === 'catalog';
   const qty   = parseInt(document.getElementById('ps-qty').value)        || 1;
   const price = parseFloat(document.getElementById('ps-price').value)    || 0;
   const disc  = parseFloat(document.getElementById('ps-discount').value) || 0;
 
-  if (price <= 0) { toast('Informe o valor unitário da venda.', 'error'); return; }
+  if (price <= 0) {
+    toast('Informe o valor unitário da venda.', 'error');
+    if (btn) { btn.disabled = false; btn.textContent = 'Registrar Venda'; }
+    return;
+  }
 
   let productName, categoryVal, catalogProductId = null, saleSize = '';
 
   if (isCatalog) {
     const sel = document.getElementById('ps-catalog-select');
-    if (!sel.value) { toast('Selecione um produto do catálogo.', 'error'); return; }
-    const products = DB.get('products') || [];
-    const p = products.find(x => x.id === sel.value);
-    if (!p) { toast('Produto não encontrado.', 'error'); return; }
+    if (!sel.value) { toast('Selecione um produto do catálogo.', 'error'); if (btn) { btn.disabled = false; btn.textContent = 'Registrar Venda'; } return; }
+    const p = products.find(x => x.id === Number(sel.value));
+    if (!p) { toast('Produto não encontrado.', 'error'); if (btn) { btn.disabled = false; btn.textContent = 'Registrar Venda'; } return; }
     productName      = p.name;
     categoryVal      = p.category;
-    catalogProductId = p.id;
+    catalogProductId = String(p.id);
     saleSize         = document.getElementById('ps-size-select')?.value || '';
   } else {
     productName = document.getElementById('ps-product-new')?.value.trim();
     categoryVal = document.getElementById('ps-category')?.value || 'outros';
-    if (!productName) { toast('Informe o nome do produto.', 'error'); return; }
+    if (!productName) { toast('Informe o nome do produto.', 'error'); if (btn) { btn.disabled = false; btn.textContent = 'Registrar Venda'; } return; }
   }
 
-  const sale = {
-    id: 'FS' + uid(),
-    product: productName, category: categoryVal,
-    catalogProductId, size: saleSize,
-    quantity: qty, unitPrice: price, discount: disc,
-    total: Math.max(0, price * qty - disc),
+  const total = Math.max(0, price * qty - disc);
+
+  const record = {
+    product:            productName,
+    category:           categoryVal,
+    catalog_product_id: catalogProductId,
+    size:               saleSize,
+    quantity:           qty,
+    unit_price:         price,
+    discount:           disc,
+    total,
     payment:  document.getElementById('ps-payment').value,
-    seller:   document.getElementById('ps-seller').value.trim(),
-    customer: document.getElementById('ps-customer').value.trim(),
-    details:  document.getElementById('ps-details').value.trim(),
-    notes:    document.getElementById('ps-notes').value.trim(),
-    createdAt: now(),
+    seller:   document.getElementById('ps-seller').value.trim() || null,
+    customer: document.getElementById('ps-customer').value.trim() || null,
+    details:  document.getElementById('ps-details').value.trim() || null,
+    notes:    document.getElementById('ps-notes').value.trim() || null,
   };
 
-  // ── Deduz estoque do produto do catálogo ──────────────────
-  if (catalogProductId) {
-    const products = DB.get('products') || [];
-    const pIdx = products.findIndex(p => p.id === catalogProductId);
-    if (pIdx >= 0) {
-      if (saleSize && products[pIdx].stock[saleSize] !== undefined) {
-        products[pIdx].stock[saleSize] = Math.max(0, products[pIdx].stock[saleSize] - qty);
-      } else {
-        // Deduz do tamanho com mais estoque
-        const maxEntry = Object.entries(products[pIdx].stock).sort((a,b) => b[1]-a[1])[0];
-        if (maxEntry) products[pIdx].stock[maxEntry[0]] = Math.max(0, maxEntry[1] - qty);
-      }
-      DB.set('products', products);
-      const total = Object.values(products[pIdx].stock).reduce((a,b)=>a+b,0);
-      if (total <= 3) addNotification(`⚠️ Estoque baixo: ${products[pIdx].name} (${total} un. restantes)`, 'bi-exclamation-triangle');
-      if (currentSection === 'inventory') renderInventory();
-    }
-  }
+  const { error } = await sb.from('physical_sales').insert(record);
+  if (btn) { btn.disabled = false; btn.textContent = 'Registrar Venda'; }
+  if (error) { toast('Erro ao salvar venda: ' + error.message, 'error'); return; }
 
-  const physical = DB.get('physical') || [];
-  physical.unshift(sale);
-  DB.set('physical', physical);
   e.target.reset();
   document.getElementById('ps-qty').value = 1;
   document.getElementById('ps-discount').value = 0;
   togglePsType('catalog');
   populateCatalogSelect();
   updateSalePreview();
+  await loadPhysical();
   renderPhysicalSales();
-  toast(`Venda registrada — ${fmtBRL(sale.total)} ✓`, 'success');
-  addNotification(`Nova venda física: ${sale.product} — ${fmtBRL(sale.total)}`, 'bi-shop');
+  toast(`Venda registrada — ${fmtBRL(total)} ✓`, 'success');
+  addNotification(`Nova venda física: ${productName} — ${fmtBRL(total)}`, 'bi-shop');
 }
 
 // ── Toggle catálogo / novo produto ────────────────────────────
@@ -1250,63 +1222,42 @@ function togglePsType(type) {
 function populateCatalogSelect() {
   const sel = document.getElementById('ps-catalog-select');
   if (!sel) return;
-  const products = DB.get('products') || [];
-  const active   = products.filter(p => p.status === 'active');
-  sel.innerHTML  = '<option value="">— Selecione um produto —</option>' +
-    active.map(p => {
-      const total = Object.values(p.stock).reduce((a,b)=>a+b,0);
-      return `<option value="${p.id}">${p.name} — ${fmtBRL(p.price)} · Estoque: ${total} un.</option>`;
-    }).join('');
+  sel.innerHTML = '<option value="">— Selecione um produto —</option>' +
+    products.map(p =>
+      `<option value="${p.id}">${p.name} — ${fmtBRL(p.price)}</option>`
+    ).join('');
 }
 
 function onCatalogSelect() {
-  const products = DB.get('products') || [];
   const id = document.getElementById('ps-catalog-select').value;
-  const p  = products.find(x => x.id === id);
+  const p  = products.find(x => x.id === Number(id));
   const sizeSelect = document.getElementById('ps-size-select');
   const stockInfo  = document.getElementById('ps-stock-info');
   const priceInput = document.getElementById('ps-price');
 
   if (!p) {
     sizeSelect.innerHTML  = '<option value="">Todos / Único</option>';
-    stockInfo.textContent = 'Selecione um produto';
+    if (stockInfo) stockInfo.textContent = 'Selecione um produto';
     if (priceInput) priceInput.value = '';
     updateSalePreview();
     return;
   }
 
-  // Tamanhos disponíveis com estoque
   sizeSelect.innerHTML = '<option value="">Todos / Único</option>' +
-    Object.entries(p.stock)
-      .filter(([,v]) => v > 0)
-      .map(([sz, qty]) => `<option value="${sz}">${sz} — ${qty} un. disponíveis</option>`)
-      .join('');
+    (p.sizes || []).map(sz => `<option value="${sz}">${sz}</option>`).join('');
 
-  // Preço do catálogo (editável)
   if (priceInput) priceInput.value = p.price;
-
-  // Info de estoque
-  const total = Object.values(p.stock).reduce((a,b)=>a+b,0);
-  const color = total === 0 ? '#dc2626' : total <= 5 ? '#d97706' : '#059669';
-  stockInfo.innerHTML = `Estoque total: <strong style="color:${color}">${total} un.</strong>`;
+  if (stockInfo) stockInfo.textContent = p.category || '';
 
   updateSalePreview();
 }
 
 function onSizeSelect() {
-  const products = DB.get('products') || [];
-  const prodId = document.getElementById('ps-catalog-select')?.value;
-  const size   = document.getElementById('ps-size-select')?.value;
-  const p = products.find(x => x.id === prodId);
-  if (!p || !size) return;
-  const qty = p.stock[size] || 0;
-  const color = qty === 0 ? '#dc2626' : qty <= 3 ? '#d97706' : '#059669';
-  const stockInfo = document.getElementById('ps-stock-info');
-  if (stockInfo) stockInfo.innerHTML = `Tamanho <strong>${size}</strong>: <strong style="color:${color}">${qty} un. disponíveis</strong>`;
+  // Stock data not tracked for site products
 }
 
 function renderPhysicalSales() {
-  const physical = DB.get('physical') || [];
+  const physical = _cache.physical;
   const period   = document.getElementById('ps-period-filter')?.value || 'all';
   const now2 = new Date();
 
@@ -1341,15 +1292,16 @@ function renderPhysicalSales() {
       <td>${PAYMNT_ICONS[s.payment]||''} ${PAYMENT_LABELS[s.payment]||s.payment}</td>
       <td style="font-size:12px">${s.seller||'—'}</td>
       <td style="font-size:11px;white-space:nowrap">${fmtDateTime(s.createdAt)}</td>
-      <td><button class="btn-icon btn-icon--danger" onclick="deletePhysical('${s.id}')" title="Remover"><i class="bi bi-trash"></i></button></td>
+      <td><button class="btn-icon btn-icon--danger" onclick="deletePhysical('${s._id}')" title="Remover"><i class="bi bi-trash"></i></button></td>
     </tr>
   `).join('') : `<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--warm-gray)">Nenhuma venda no período selecionado.</td></tr>`;
 }
 
-function deletePhysical(id) {
+async function deletePhysical(supabaseId) {
   if (!confirm2('Remover este registro de venda?')) return;
-  const physical = (DB.get('physical') || []).filter(s=>s.id!==id);
-  DB.set('physical', physical);
+  const { error } = await sb.from('physical_sales').delete().eq('id', supabaseId);
+  if (error) { toast('Erro ao remover venda.', 'error'); return; }
+  await loadPhysical();
   renderPhysicalSales();
   toast('Venda removida.', 'info');
 }
@@ -1372,8 +1324,8 @@ document.addEventListener('input', e => {
 let charts = {};
 
 function renderMetrics() {
-  const orders   = DB.get('orders')   || [];
-  const physical = DB.get('physical') || [];
+  const orders   = _cache.orders;
+  const physical = _cache.physical;
   const year     = parseInt(document.getElementById('metrics-year')?.value || new Date().getFullYear());
   const MONTHS   = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 
@@ -1382,7 +1334,7 @@ function renderMetrics() {
   const physicalMonthly = Array(12).fill(0);
   const ordersMonthly   = Array(12).fill(0);
 
-  orders.filter(o=>o.status!=='cancelled' && new Date(o.createdAt).getFullYear()===year).forEach(o=>{
+  orders.filter(o=>o.status!=='cancelado' && new Date(o.createdAt).getFullYear()===year).forEach(o=>{
     const m = new Date(o.createdAt).getMonth();
     onlineMonthly[m]  += o.total;
     ordersMonthly[m]  += 1;
@@ -1485,7 +1437,7 @@ function renderMetrics() {
 
   // ── Top products horizontal bar
   const soldMap2 = {};
-  orders.filter(o=>o.status!=='cancelled'&&new Date(o.createdAt).getFullYear()===year).forEach(o=>
+  orders.filter(o=>o.status!=='cancelado'&&new Date(o.createdAt).getFullYear()===year).forEach(o=>
     o.items.forEach(i=>{ soldMap2[i.name]=(soldMap2[i.name]||0)+(i.price*(i.qty||1)); })
   );
   physical.filter(p=>new Date(p.createdAt).getFullYear()===year).forEach(p=>{
@@ -1504,7 +1456,7 @@ function renderMetrics() {
 
   // ── Payment methods
   const payMap = {};
-  orders.filter(o=>o.status!=='cancelled').forEach(o=>{ payMap[o.payment]=(payMap[o.payment]||0)+o.total; });
+  orders.filter(o=>o.status!=='cancelado').forEach(o=>{ payMap[o.payment]=(payMap[o.payment]||0)+o.total; });
   physical.forEach(p=>{ payMap[p.payment]=(payMap[p.payment]||0)+p.total; });
   const payEntries = Object.entries(payMap).sort((a,b)=>b[1]-a[1]);
   destroyChart('payment');
@@ -1519,8 +1471,8 @@ function renderMetrics() {
 
   // ── Category breakdown
   const catMap = {};
-  orders.filter(o=>o.status!=='cancelled').forEach(o=>o.items.forEach(i=>{
-    const prod = (DB.get('products')||[]).find(p=>p.name===i.name);
+  orders.filter(o=>o.status!=='cancelado').forEach(o=>o.items.forEach(i=>{
+    const prod = products.find(p=>p.name===i.name);
     const cat = prod?.category || 'outros';
     catMap[cat]=(catMap[cat]||0)+(i.price*(i.qty||1));
   }));
@@ -1541,7 +1493,7 @@ function renderMetrics() {
 
 // ── CUSTOMERS ─────────────────────────────────────────────────
 function renderCustomers() {
-  const orders = DB.get('orders') || [];
+  const orders = _cache.orders;
   const search = (document.getElementById('customer-search')?.value || '').toLowerCase();
 
   // Group by email
@@ -1551,7 +1503,7 @@ function renderCustomers() {
     if (!custMap[k]) {
       custMap[k] = { ...o.customer, orders:0, totalSpent:0, lastOrder:o.createdAt };
     }
-    if (o.status !== 'cancelled') {
+    if (o.status !== 'cancelado') {
       custMap[k].orders++;
       custMap[k].totalSpent += o.total;
     }
