@@ -1132,6 +1132,206 @@ function deleteProduct(id) {
 }
 
 
+// ── BULK PRODUCT ENTRY ────────────────────────────────────────
+const BULK_CATS = [
+  ['vestidos','Vestidos & Saias'],
+  ['blusas','Blusas & Tops'],
+  ['conjuntos','Conjuntos'],
+  ['calcas','Calças'],
+  ['blazers','Blazers'],
+  ['acessorios','Acessórios'],
+];
+let _bulkRowCount = 0;
+
+function openBulkModal() {
+  _bulkRowCount = 0;
+  document.getElementById('bulk-rows-container').innerHTML = '';
+  addBulkRow();
+  document.getElementById('bulk-overlay').classList.add('open');
+}
+
+function closeBulkModal(e) {
+  if (e && e.target !== document.getElementById('bulk-overlay')) return;
+  document.getElementById('bulk-overlay').classList.remove('open');
+}
+
+function addBulkRow() {
+  const idx = _bulkRowCount++;
+
+  // Herda categoria do produto anterior para agilizar entrada de itens similares
+  let prevCat = 'vestidos';
+  if (idx > 0) {
+    const prevSel = document.querySelector(`#bulk-row-${idx-1} .bulk-cat`);
+    prevCat = prevSel?.value || 'vestidos';
+  }
+
+  const catOptions = BULK_CATS.map(([v,l]) =>
+    `<option value="${v}"${v===prevCat?' selected':''}>${l}</option>`
+  ).join('');
+
+  const sizesHtml = ['P','M','G','GG'].map(s => `
+    <div class="bulk-sz">
+      <input type="checkbox" id="bsz-${idx}-${s}" class="bulk-sz-chk" value="${s}"
+             onchange="toggleBulkSzStock(this)">
+      <label class="bulk-sz-label" for="bsz-${idx}-${s}">${s}</label>
+      <input type="number" class="bulk-stk-input" placeholder="0" min="0" disabled data-sz="${s}">
+    </div>
+  `).join('');
+
+  const html = `
+    <div class="bulk-row" id="bulk-row-${idx}">
+      <div class="bulk-row__head">
+        <span class="bulk-row__num"><i class="bi bi-tag"></i> Produto ${idx+1}</span>
+        ${idx > 0 ? `<button type="button" class="bulk-row__del" onclick="removeBulkRow('bulk-row-${idx}')" title="Remover"><i class="bi bi-trash"></i></button>` : ''}
+      </div>
+      <div class="bulk-main-fields">
+        <div class="bulk-fg">
+          <label class="form-label">Nome *</label>
+          <input type="text" class="form-input bulk-name" placeholder="ex: Vestido Floral Rosa"
+                 oninput="updateBulkCount()" autocomplete="off">
+        </div>
+        <div class="bulk-fg">
+          <label class="form-label">Categoria</label>
+          <select class="form-select bulk-cat">${catOptions}</select>
+        </div>
+        <div class="bulk-fg">
+          <label class="form-label">Preço R$ *</label>
+          <input type="number" class="form-input bulk-price" placeholder="0,00"
+                 step="0.01" min="0" oninput="updateBulkCount()">
+        </div>
+        <div class="bulk-fg">
+          <label class="form-label">Original R$</label>
+          <input type="number" class="form-input bulk-orig" placeholder="—" step="0.01" min="0">
+        </div>
+        <div class="bulk-fg">
+          <label class="form-label">Status</label>
+          <select class="form-select bulk-status">
+            <option value="active">Ativo</option>
+            <option value="inactive">Inativo</option>
+          </select>
+        </div>
+      </div>
+      <div class="bulk-sizes-strip">
+        <span class="bulk-sizes-label">Tamanhos & Estoque:</span>
+        ${sizesHtml}
+      </div>
+      <div class="bulk-img-row">
+        <div class="bulk-fg">
+          <label class="form-label">URL da Foto (opcional — pode adicionar depois)</label>
+          <input type="text" class="form-input bulk-img" placeholder="https://..." oninput="previewBulkImg(this)">
+        </div>
+        <img class="bulk-img-preview" id="bulk-img-prev-${idx}" alt="">
+      </div>
+    </div>`;
+
+  document.getElementById('bulk-rows-container').insertAdjacentHTML('beforeend', html);
+
+  // Foca no nome do novo produto e rola até ele
+  setTimeout(() => {
+    const row = document.getElementById(`bulk-row-${idx}`);
+    row?.querySelector('.bulk-name')?.focus();
+    row?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, 50);
+
+  updateBulkCount();
+}
+
+function toggleBulkSzStock(chk) {
+  const stk = chk.closest('.bulk-sz').querySelector('.bulk-stk-input');
+  stk.disabled = !chk.checked;
+  if (chk.checked) {
+    stk.value = stk.value || '0';
+    stk.focus();
+    stk.select();
+  }
+}
+
+function removeBulkRow(rowId) {
+  document.getElementById(rowId)?.remove();
+  updateBulkCount();
+}
+
+function previewBulkImg(input) {
+  const row = input.closest('.bulk-row');
+  const prev = row?.querySelector('.bulk-img-preview');
+  if (!prev) return;
+  const url = input.value.trim();
+  if (url) { prev.src = url; prev.style.display = 'block'; }
+  else { prev.style.display = 'none'; }
+}
+
+function updateBulkCount() {
+  const rows = document.querySelectorAll('#bulk-rows-container .bulk-row');
+  let valid = 0;
+  rows.forEach(row => {
+    const name  = row.querySelector('.bulk-name')?.value.trim();
+    const price = parseFloat(row.querySelector('.bulk-price')?.value);
+    if (name && price > 0) valid++;
+  });
+  const btn = document.getElementById('bulk-save-btn');
+  if (btn) btn.textContent = valid > 0
+    ? `Salvar ${valid} produto${valid > 1 ? 's' : ''}`
+    : 'Salvar produtos';
+}
+
+function saveBulkProducts() {
+  const rows = document.querySelectorAll('#bulk-rows-container .bulk-row');
+  const products = DB.get('products') || [];
+  let saved = 0, skipped = 0;
+
+  rows.forEach(row => {
+    const name  = row.querySelector('.bulk-name')?.value.trim();
+    const price = parseFloat(row.querySelector('.bulk-price')?.value);
+
+    if (!name || !(price > 0)) {
+      row.classList.add('bulk-row--error');
+      skipped++;
+      return;
+    }
+    row.classList.remove('bulk-row--error');
+
+    const sizes = [];
+    const stock = { P:0, M:0, G:0, GG:0 };
+    row.querySelectorAll('.bulk-sz-chk:checked').forEach(chk => {
+      sizes.push(chk.value);
+      const stkInput = chk.closest('.bulk-sz').querySelector('.bulk-stk-input');
+      stock[chk.value] = parseInt(stkInput?.value) || 0;
+    });
+
+    const imgUrl = row.querySelector('.bulk-img')?.value.trim() || '';
+
+    products.push({
+      id:            'P' + uid(),
+      name,
+      category:      row.querySelector('.bulk-cat')?.value || 'vestidos',
+      price,
+      originalPrice: parseFloat(row.querySelector('.bulk-orig')?.value) || 0,
+      image:         imgUrl,
+      images:        imgUrl ? [imgUrl] : [],
+      description:   '',
+      colors:        [],
+      sizes,
+      stock,
+      status:        row.querySelector('.bulk-status')?.value || 'active',
+      createdAt:     now(),
+    });
+    saved++;
+  });
+
+  if (saved === 0) {
+    toast('Preencha pelo menos um produto com nome e preço.', 'error');
+    return;
+  }
+
+  DB.set('products', products);
+  renderProducts();
+  document.getElementById('bulk-overlay').classList.remove('open');
+  toast(`${saved} produto${saved > 1 ? 's cadastrados' : ' cadastrado'} com sucesso!`, 'success');
+  if (skipped > 0)
+    setTimeout(() => toast(`${skipped} linha${skipped > 1 ? 's ignoradas' : ' ignorada'} por falta de nome/preço.`, 'info'), 700);
+}
+
+
 // ── PHYSICAL SALES ────────────────────────────────────────────
 async function submitPhysicalSale(e) {
   e.preventDefault();

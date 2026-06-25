@@ -186,9 +186,14 @@
           <h1 class="sec-title">Produtos</h1>
           <p class="sec-sub">Cadastre e gerencie o catálogo da loja.</p>
         </div>
-        <button class="btn-primary" onclick="openProductModal()">
-          <i class="bi bi-plus-lg"></i> Novo Produto
-        </button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn-outline" onclick="openBulkModal()" title="Cadastrar vários produtos de uma vez">
+            <i class="bi bi-grid-plus"></i> Adicionar em Lote
+          </button>
+          <button class="btn-primary" onclick="openProductModal()">
+            <i class="bi bi-plus-lg"></i> Novo Produto
+          </button>
+        </div>
       </div>
 
       <!-- Filters -->
@@ -647,6 +652,30 @@
   </div>
 </div>
 
+<!-- ═══════════════════════════════════════════ BULK PRODUCT MODAL -->
+<div id="bulk-overlay" onclick="closeBulkModal(event)">
+  <div class="bulk-modal" id="bulk-modal">
+    <div class="bulk-modal__head">
+      <i class="bi bi-grid-plus" style="font-size:22px;color:var(--rose)"></i>
+      <h2>Cadastro em Lote</h2>
+      <button class="bulk-modal__close" onclick="document.getElementById('bulk-overlay').classList.remove('open')" aria-label="Fechar">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    <p class="bulk-modal__hint">Preencha os produtos abaixo e clique em <strong>Salvar todos</strong>. Campos obrigatórios: nome e preço.</p>
+    <div id="bulk-rows-container"></div>
+    <div class="bulk-modal__footer">
+      <button class="bulk-add-btn" onclick="addBulkRow()">
+        <i class="bi bi-plus-lg"></i> Adicionar mais um
+      </button>
+      <button class="btn-primary bulk-save-btn" id="bulk-save-btn" onclick="saveBulkProducts()">
+        Salvar produtos
+      </button>
+      <button class="btn-outline" onclick="document.getElementById('bulk-overlay').classList.remove('open')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
 <!-- ═══════════════════════════════════════════ TOAST -->
 <div id="admin-toast" class="admin-toast"></div>
 
@@ -662,6 +691,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="supabase-client.js?v=1"></script>
+<script src="products-data.js?v=4"></script>
 <script src="admin-script.js"></script>
 </body>
 </html>
