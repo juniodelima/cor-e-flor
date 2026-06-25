@@ -214,7 +214,7 @@ function goTo(sec) {
   // lazy render — dados reais do Supabase
   if (sec === 'dashboard') Promise.all([loadOrders(), loadPhysical()]).then(renderDashboard);
   if (sec === 'orders')    loadOrders().then(renderOrders);
-  if (sec === 'products')  renderProducts();
+  if (sec === 'products')  setTimeout(renderProducts, 0);
   if (sec === 'physical')  loadPhysical().then(() => { populateCatalogSelect(); renderPhysicalSales(); updateSalePreview(); });
   if (sec === 'metrics')   Promise.all([loadOrders(), loadPhysical()]).then(() => setTimeout(renderMetrics, 50));
   if (sec === 'customers') loadOrders().then(renderCustomers);
@@ -525,13 +525,20 @@ function closeModal(e) {
 
 // ── PRODUCTS ─────────────────────────────────────────────────
 function renderProducts() {
-  const products = DB.get('products') || [];
-  const search   = (document.getElementById('product-search')?.value || '').toLowerCase();
-  const cat      = document.getElementById('product-cat-filter')?.value || '';
-  const status   = document.getElementById('product-status-filter')?.value || '';
+  // Garante que os produtos do catálogo estejam sempre sincronizados
+  let prods = DB.get('products') || [];
+  if (prods.length === 0) {
+    initData();
+    prods = DB.get('products') || [];
+  }
+  const products = prods;
+
+  const search = (document.getElementById('product-search')?.value || '').toLowerCase();
+  const cat    = document.getElementById('product-cat-filter')?.value  || '';
+  const status = document.getElementById('product-status-filter')?.value || '';
 
   const filtered = products.filter(p => {
-    const matchSearch = !search || p.name.toLowerCase().includes(search) || p.category.includes(search);
+    const matchSearch = !search || (p.name || '').toLowerCase().includes(search) || (p.category || '').includes(search);
     const matchCat    = !cat    || p.category === cat;
     const matchStatus = !status || p.status === status;
     return matchSearch && matchCat && matchStatus;
@@ -540,7 +547,8 @@ function renderProducts() {
   const CAT_LABELS = {vestidos:'Vestidos',blusas:'Blusas',conjuntos:'Conjuntos',calcas:'Calças',blazers:'Blazers',acessorios:'Acessórios'};
 
   document.getElementById('products-grid').innerHTML = filtered.length ? filtered.map(p => {
-    const totalStock = Object.values(p.stock).reduce((a,b)=>a+b,0);
+    const stock = p.stock || {};
+    const totalStock = Object.values(stock).reduce((a,b) => a + Number(b), 0);
     return `
       <div class="prod-card">
         <div class="prod-card__img">
@@ -1798,19 +1806,22 @@ function renderCustomers() {
 
 // ── INVENTORY ─────────────────────────────────────────────────
 function renderInventory() {
-  const products = DB.get('products') || [];
+  let prods = DB.get('products') || [];
+  if (prods.length === 0) { initData(); prods = DB.get('products') || []; }
+  const products = prods;
   const filter   = document.getElementById('inv-filter')?.value || 'all';
   const CAT_LABELS = {vestidos:'Vestidos',blusas:'Blusas',conjuntos:'Conjuntos',calcas:'Calças',blazers:'Blazers',acessorios:'Acessórios'};
 
   let list = products.filter(p => {
-    const total = Object.values(p.stock).reduce((a,b)=>a+b,0);
+    const total = Object.values(p.stock || {}).reduce((a,b)=>a+Number(b),0);
     if (filter === 'low') return total <= 5 && total > 0;
     if (filter === 'out') return total === 0;
     return true;
   });
 
   document.getElementById('inventory-tbody').innerHTML = list.length ? list.map(p => {
-    const total = Object.values(p.stock).reduce((a,b)=>a+b,0);
+    const stock = p.stock || {};
+    const total = Object.values(stock).reduce((a,b)=>a+Number(b),0);
     const stockStatus = total === 0 ? 'out-stock' : total <= 5 ? 'low-stock' : 'active';
     const stockLabel  = total === 0 ? 'Esgotado'  : total <= 5 ? 'Baixo'    : 'OK';
     return `
@@ -1826,9 +1837,9 @@ function renderInventory() {
         </td>
         <td>${CAT_LABELS[p.category]||p.category}</td>
         <td>${fmtBRL(p.price)}</td>
-        <td><input type="number" class="stock-input" value="${p.stock.P||0}" min="0" onchange="updateStock('${p.id}','P',this.value)"></td>
-        <td><input type="number" class="stock-input" value="${p.stock.M||0}" min="0" onchange="updateStock('${p.id}','M',this.value)"></td>
-        <td><input type="number" class="stock-input" value="${p.stock.G||0}" min="0" onchange="updateStock('${p.id}','G',this.value)"></td>
+        <td><input type="number" class="stock-input" value="${stock.P||0}" min="0" onchange="updateStock('${p.id}','P',this.value)"></td>
+        <td><input type="number" class="stock-input" value="${stock.M||0}" min="0" onchange="updateStock('${p.id}','M',this.value)"></td>
+        <td><input type="number" class="stock-input" value="${stock.G||0}" min="0" onchange="updateStock('${p.id}','G',this.value)"></td>
         <td><strong>${total}</strong></td>
         <td><span class="badge badge--${stockStatus}">${stockLabel}</span></td>
         <td>
