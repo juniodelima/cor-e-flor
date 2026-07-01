@@ -85,7 +85,30 @@ CREATE POLICY "orders_admin"  ON orders FOR ALL USING (
   EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true)
 );
 
--- 5. FAVORITOS
+-- 5. VENDAS FÍSICAS
+CREATE TABLE IF NOT EXISTS physical_sales (
+  id             UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  product        TEXT NOT NULL,
+  category       TEXT DEFAULT 'outros',
+  catalog_product_id TEXT,
+  size           TEXT,
+  quantity       INTEGER DEFAULT 1,
+  unit_price     DECIMAL(10,2) NOT NULL,
+  discount       DECIMAL(10,2) DEFAULT 0,
+  total          DECIMAL(10,2) NOT NULL,
+  payment        TEXT,
+  seller         TEXT,
+  customer       TEXT,
+  details        TEXT,
+  notes          TEXT,
+  created_at     TIMESTAMPTZ DEFAULT NOW()
+);
+ALTER TABLE physical_sales ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "admin_all_physical" ON physical_sales FOR ALL USING (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true)
+);
+
+-- 6. FAVORITOS
 CREATE TABLE IF NOT EXISTS favorites (
   id          UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   customer_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
@@ -133,7 +156,7 @@ CREATE POLICY "waitlist_admin"  ON waitlist FOR SELECT USING (
 CREATE TABLE IF NOT EXISTS coupons (
   id             UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   code           TEXT UNIQUE NOT NULL,
-  discount_type  TEXT CHECK (discount_type IN ('percent','fixed')) NOT NULL,
+  discount_type  TEXT CHECK (discount_type IN ('percent','fixed','frete')) NOT NULL,
   discount_value DECIMAL(10,2) NOT NULL,
   min_order      DECIMAL(10,2) DEFAULT 0,
   max_uses       INT,
