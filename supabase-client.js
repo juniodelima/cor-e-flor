@@ -93,6 +93,9 @@ const Coupons = {
     if (data.max_uses && data.uses >= data.max_uses) return { ok: false, msg: 'Cupom esgotado.' };
     const BRL = n => 'R$ ' + n.toFixed(2).replace('.', ',');
     if (subtotal < data.min_order) return { ok: false, msg: `Mínimo ${BRL(data.min_order)} para este cupom.` };
+    if (data.discount_type === 'frete') {
+      return { ok: true, coupon: data, discount: 0, free_shipping: true };
+    }
     const discount = data.discount_type === 'percent'
       ? subtotal * (data.discount_value / 100) : data.discount_value;
     return { ok: true, coupon: data, discount: Math.min(discount, subtotal) };

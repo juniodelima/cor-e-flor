@@ -1,14 +1,18 @@
 /* checkout.js — Página de finalização de compra */
 
 const MP_PUBLIC_KEY = 'APP_USR-51ce84d0-ae1e-4a0a-b010-0fe696012fc6';
-const BRL = n => 'R$ ' + Number(n).toFixed(2).replace('.', ',');
+const BRL = n => 'R$ ' + Number(n).toFixed(2).replace('.', ',');
 
-let _cart       = [];
-let _couponData = null;
-let _subtotal   = 0;
-let _mpBrick    = null;
-let _orderData  = null;
-let _toastTimer = null;
+let _cart         = [];
+let _couponData   = null;
+let _subtotal     = 0;
+let _mpBrick      = null;
+let _orderData    = null;
+let _toastTimer   = null;
+let _freightCost    = 0;
+let _freightService = null; // 'PAC' | 'SEDEX'
+let _freightFree    = false;
+let _freightData    = null; // resposta do /api/freight
 
 // ── Toast ────────────────────────────────────────────────────────────────────
 
@@ -74,19 +78,126 @@ function updateTotals() {
   }, 0);
 
   const discount = _couponData?.discount || 0;
-  const total    = Math.max(0, _subtotal - discount);
+
+  // Frete grátis por valor mínimo (verifica mesmo após cupom de desconto)
+  let freightCost = _freightCost;
+  if (_freightData && !_freightFree) {
+    const afterDiscount = _subtotal - discount;
+    if (afterDiscount >= (_freightData.free_above || 299)) {
+      freightCost = 0;
+    }
+  }
+
+  const total = Math.max(0, _subtotal - discount + freightCost);
 
   document.getElementById('co-subtotal').textContent = BRL(_subtotal);
   document.getElementById('co-total').textContent    = BRL(total);
 
+  const freteEl = document.getElementById('co-frete-val');
+  if (freteEl) {
+    if (!_freightData) {
+      freteEl.textContent  = 'Digite o CEP';
+      freteEl.style.color  = 'var(--warm-gray)';
+      freteEl.style.fontStyle = 'italic';
+    } else if (_freightFree || freightCost === 0) {
+      freteEl.textContent  = 'Grátis ✿';
+      freteEl.style.color  = '#2e7d4f';
+      freteEl.style.fontStyle = 'normal';
+    } else {
+      freteEl.textContent  = BRL(freightCost);
+      freteEl.style.color  = 'var(--ink)';
+      freteEl.style.fontStyle = 'normal';
+    }
+  }
+
   const discRow = document.getElementById('co-discount-row');
   if (discount > 0 && _couponData) {
     discRow.style.display = '';
-    document.getElementById('co-coupon-label').textContent  = `(${_couponData.coupon.code})`;
-    document.getElementById('co-discount-val').textContent  = '−' + BRL(discount);
+    document.getElementById('co-coupon-label').textContent = `(${_couponData.coupon.code})`;
+    document.getElementById('co-discount-val').textContent = '−' + BRL(discount);
   } else {
     discRow.style.display = 'none';
   }
+}
+
+// ── Frete ────────────────────────────────────────────────────────────────────
+
+async function calcFreight(cep) {
+  const section  = document.getElementById('co-freight-section');
+  const loading  = document.getElementById('co-freight-loading');
+  const freeMsg  = document.getElementById('co-freight-free-msg');
+  const options  = document.getElementById('co-freight-options');
+  const freteVal = document.getElementById('co-frete-val');
+
+  if (!section) return;
+  section.style.display = '';
+  if (loading)  loading.style.display  = '';
+  if (freeMsg)  freeMsg.style.display  = 'none';
+  if (options)  options.style.display  = 'none';
+  if (freteVal) freteVal.textContent   = 'Calculando…';
+
+  try {
+    const r = await fetch(`/api/freight?cep=${cep}`);
+    const d = await r.json();
+
+    if (d.error) {
+      if (loading) loading.style.display = 'none';
+      if (freteVal) freteVal.textContent = 'CEP inválido';
+      return;
+    }
+
+    _freightData = d;
+    if (loading) loading.style.display = 'none';
+
+    const discount      = _couponData?.discount || 0;
+    const afterDiscount = _subtotal - discount;
+    const threshold     = d.free_above || 299;
+
+    if (_freightFree || afterDiscount >= threshold) {
+      // Frete grátis (cupom ou valor mínimo)
+      _freightCost    = 0;
+      _freightService = 'PAC';
+      if (options) options.style.display = 'none';
+      if (freeMsg) {
+        freeMsg.style.display = '';
+        const reason = _freightFree
+          ? `com o cupom aplicado`
+          : `para compras acima de ${BRL(threshold)}`;
+        freeMsg.innerHTML = `<p class="co-freight-free-msg">🎁 Frete grátis ${reason}!</p>`;
+      }
+    } else {
+      // Exibe opções PAC / SEDEX
+      _freightService = 'PAC';
+      _freightCost    = d.pac.price;
+      if (options) {
+        options.style.display = '';
+        const pacPriceEl   = document.getElementById('co-pac-price');
+        const pacDaysEl    = document.getElementById('co-pac-days');
+        const sedexPriceEl = document.getElementById('co-sedex-price');
+        const sedexDaysEl  = document.getElementById('co-sedex-days');
+        if (pacPriceEl)   pacPriceEl.textContent   = BRL(d.pac.price);
+        if (pacDaysEl)    pacDaysEl.textContent     = d.pac.days;
+        if (sedexPriceEl) sedexPriceEl.textContent  = BRL(d.sedex.price);
+        if (sedexDaysEl)  sedexDaysEl.textContent   = d.sedex.days;
+        // Seleciona PAC por padrão
+        const pacRadio = document.querySelector('input[name="freight"][value="PAC"]');
+        if (pacRadio) pacRadio.checked = true;
+      }
+    }
+
+    updateTotals();
+  } catch (err) {
+    if (loading) loading.style.display = 'none';
+    if (freteVal) freteVal.textContent = 'Erro ao calcular';
+    console.error('[freight]', err);
+  }
+}
+
+function selectFreight(service) {
+  if (!_freightData || _freightFree) return;
+  _freightService = service;
+  _freightCost    = service === 'SEDEX' ? _freightData.sedex.price : _freightData.pac.price;
+  updateTotals();
 }
 
 // ── CEP ──────────────────────────────────────────────────────────────────────
@@ -107,6 +218,7 @@ async function lookupCep(raw) {
     setValue('co-cidade', d.localidade);
     setValue('co-estado', d.uf);
     document.getElementById('co-num')?.focus();
+    calcFreight(cep);
   } catch {
     toast('Erro ao buscar CEP. Preencha manualmente.');
   }
@@ -142,11 +254,30 @@ async function applyCoupon() {
   const result = await Coupons.validate(code, _subtotal);
   if (result.ok) {
     _couponData = result;
-    msgEl.className = 'co-coupon-msg ok';
-    msgEl.textContent = `✓ Desconto de ${BRL(result.discount)} aplicado!`;
+
+    if (result.free_shipping) {
+      // Cupom de frete grátis
+      _freightFree = true;
+      _freightCost = 0;
+      msgEl.className  = 'co-coupon-msg ok';
+      msgEl.textContent = '✓ Frete grátis aplicado!';
+      // Atualiza exibição de frete se já foi calculado
+      if (_freightData) {
+        const options = document.getElementById('co-freight-options');
+        const freeMsg = document.getElementById('co-freight-free-msg');
+        if (options) options.style.display = 'none';
+        if (freeMsg) {
+          freeMsg.style.display = '';
+          freeMsg.innerHTML = `<p class="co-freight-free-msg">🎁 Frete grátis com o cupom <strong>${code}</strong>!</p>`;
+        }
+      }
+    } else {
+      msgEl.className  = 'co-coupon-msg ok';
+      msgEl.textContent = `✓ Desconto de ${BRL(result.discount)} aplicado!`;
+    }
   } else {
     _couponData = null;
-    msgEl.className = 'co-coupon-msg err';
+    msgEl.className  = 'co-coupon-msg err';
     msgEl.textContent = result.msg;
   }
   updateTotals();
@@ -180,6 +311,11 @@ function validateForm() {
     document.getElementById('co-email')?.focus();
     return false;
   }
+  if (!_freightService && !_freightFree) {
+    toast('Aguarde o cálculo do frete ou verifique o CEP.');
+    document.getElementById('co-cep')?.focus();
+    return false;
+  }
   return true;
 }
 
@@ -187,22 +323,30 @@ function validateForm() {
 
 async function goToPayment() {
   if (!validateForm()) return;
-  if (!_cart.length)   { toast('Seu carrinho está vazio.'); return; }
+  if (!_cart.length) { toast('Seu carrinho está vazio.'); return; }
 
   const discount = _couponData?.discount || 0;
-  const total    = Math.max(0, _subtotal - discount);
+  let freightCost = _freightCost;
+  if (_freightFree || (_freightData && (_subtotal - discount) >= (_freightData.free_above || 299))) {
+    freightCost = 0;
+  }
+  const total = Math.max(0, _subtotal - discount + freightCost);
 
   _orderData = {
-    customer_id:    null,
-    customer_name:  document.getElementById('co-name').value.trim(),
-    customer_email: document.getElementById('co-email').value.trim(),
-    customer_phone: document.getElementById('co-phone').value.trim(),
+    customer_id:     null,
+    customer_name:   document.getElementById('co-name').value.trim(),
+    customer_email:  document.getElementById('co-email').value.trim(),
+    customer_phone:  document.getElementById('co-phone').value.trim(),
     items: _cart.map(it => {
       const p = products.find(x => x.id === it.id);
       return { id: it.id, name: p?.name, image: p?.image, size: it.size, qty: it.qty, price: it.piecePrice ?? p?.price };
     }),
-    subtotal: _subtotal, discount, total,
-    coupon_code: _couponData?.coupon?.code || null,
+    subtotal:        _subtotal,
+    discount,
+    freight:         freightCost,
+    freight_service: _freightService || 'PAC',
+    total,
+    coupon_code:     _couponData?.coupon?.code || null,
     address: {
       cep:    document.getElementById('co-cep').value.trim(),
       rua:    document.getElementById('co-rua').value.trim(),
@@ -215,7 +359,6 @@ async function goToPayment() {
     notes: document.getElementById('co-notes').value.trim() || null,
   };
 
-  // Tenta preencher customer_id se usuário estiver logado
   try {
     const user = await Auth.user();
     if (user) _orderData.customer_id = user.id;
@@ -273,6 +416,8 @@ async function initMPBrick(amount, email) {
                 payer:             formData.payer,
                 items:             _cart.map(it => ({ id: it.id, qty: it.qty, piecePrice: it.piecePrice ?? null })),
                 coupon_code:       _couponData?.coupon?.code || null,
+                freight_cost:      _orderData.freight || 0,
+                freight_service:   _orderData.freight_service || 'PAC',
                 idempotency_key:   `checkout-${Date.now()}`
               })
             });
@@ -293,7 +438,7 @@ async function initMPBrick(amount, email) {
             }
           } catch (err) {
             console.error('[payment submit]', err);
-            throw err; // devolve ao Brick para exibir mensagem de erro
+            throw err;
           }
         }
       }
@@ -329,7 +474,6 @@ async function finalizeOrder(paymentId, paymentStatus) {
 // ── Init ──────────────────────────────────────────────────────────────────────
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Carrega carrinho
   try { _cart = JSON.parse(localStorage.getItem('cf_cart') || '[]'); } catch { _cart = []; }
   if (!_cart.length) { window.location.href = 'index.html'; return; }
 
@@ -339,6 +483,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const cepInput = document.getElementById('co-cep');
   cepInput?.addEventListener('input', e => { e.target.value = maskCep(e.target.value); });
   cepInput?.addEventListener('blur',  e => lookupCep(e.target.value));
+
+  // Seleção de modalidade de frete
+  document.addEventListener('change', e => {
+    if (e.target.name === 'freight') selectFreight(e.target.value);
+  });
 
   // Máscaras
   document.getElementById('co-phone')?.addEventListener('input', e => { e.target.value = maskPhone(e.target.value); });
@@ -352,10 +501,10 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('checkout-form')?.addEventListener('submit', async e => {
     e.preventDefault();
     const btn = document.getElementById('co-continue-btn');
-    btn.disabled = true;
+    btn.disabled    = true;
     btn.textContent = 'Aguarde…';
     await goToPayment();
-    btn.disabled = false;
+    btn.disabled    = false;
     btn.textContent = 'Continuar para pagamento →';
   });
 

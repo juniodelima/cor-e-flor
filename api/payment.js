@@ -6,7 +6,7 @@ module.exports = async function handler(req, res) {
 
   const {
     token, payment_method_id, issuer_id, installments,
-    payer, items, coupon_code, idempotency_key
+    payer, items, coupon_code, freight_cost, freight_service, idempotency_key
   } = req.body;
 
   if (!token || !payer?.email || !Array.isArray(items) || !items.length) {
@@ -61,11 +61,15 @@ module.exports = async function handler(req, res) {
         const tooSmall = subtotal < (coupon.min_order || 0);
 
         if (!expired && !depleted && !tooSmall) {
-          discount = coupon.discount_type === 'percent'
-            ? subtotal * (coupon.discount_value / 100)
-            : Number(coupon.discount_value);
-          discount = Math.min(discount, subtotal);
-          discount = Math.round(discount * 100) / 100;
+          if (coupon.discount_type === 'frete') {
+            discount = 0; // frete grátis: sem desconto no subtotal
+          } else {
+            discount = coupon.discount_type === 'percent'
+              ? subtotal * (coupon.discount_value / 100)
+              : Number(coupon.discount_value);
+            discount = Math.min(discount, subtotal);
+            discount = Math.round(discount * 100) / 100;
+          }
         }
       }
     } catch (err) {
@@ -73,7 +77,10 @@ module.exports = async function handler(req, res) {
     }
   }
 
-  const total = Math.round((subtotal - discount) * 100) / 100;
+  // Frete (entre 0 e R$ 999)
+  const freight = Math.round(Math.max(0, Math.min(Number(freight_cost) || 0, 999)) * 100) / 100;
+
+  const total = Math.round((subtotal - discount + freight) * 100) / 100;
 
   if (total <= 0) return res.status(400).json({ error: 'Valor inválido' });
 
@@ -107,7 +114,7 @@ module.exports = async function handler(req, res) {
       return res.status(resp.status).json(result);
     }
 
-    console.log(`[payment] id:${result.id} status:${result.status} total:${total}`);
+    console.log(`[payment] id:${result.id} status:${result.status} subtotal:${subtotal} discount:${discount} freight:${freight} total:${total} service:${freight_service || 'PAC'}`);
     return res.status(200).json({
       id:            result.id,
       status:        result.status,
