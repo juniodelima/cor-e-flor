@@ -105,6 +105,21 @@
 .fv-modal__btn{display:block;width:100%;padding:14px;background:var(--rose);color:#fff;border:none;border-radius:12px;font-family:var(--sans);font-size:15px;font-weight:600;cursor:pointer;transition:background .15s;text-decoration:none;margin-bottom:10px}
 .fv-modal__btn:hover{background:var(--rose-deep)}
 .fv-modal__skip{background:none;border:none;color:var(--warm-gray);font-family:var(--sans);font-size:12px;cursor:pointer;text-decoration:underline;display:block;margin:0 auto}
+.fv-modal__btn.is-done{background:#2e7d4f;pointer-events:none}
+
+/* ─── Cupons resgatados no carrinho ─── */
+.cart__coupons{display:flex;flex-direction:column;gap:8px;margin-bottom:4px}
+.cart__coupons:empty{display:none}
+.coupon-chip{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:rgba(212,103,154,.06);border:1.5px dashed var(--rose);border-radius:12px;padding:10px 14px;cursor:pointer;font-family:var(--sans);transition:background .15s,border-color .15s}
+.coupon-chip:hover{background:rgba(212,103,154,.12)}
+.coupon-chip__tag{font-size:18px}
+.coupon-chip__info{flex:1;min-width:0}
+.coupon-chip__code{font-weight:700;font-size:13px;letter-spacing:2px;color:var(--rose-deep)}
+.coupon-chip__desc{font-size:11px;color:var(--warm-gray)}
+.coupon-chip__state{font-size:11px;font-weight:600;color:var(--rose);white-space:nowrap}
+.coupon-chip.is-selected{background:rgba(46,125,79,.08);border-color:#2e7d4f;border-style:solid}
+.coupon-chip.is-selected .coupon-chip__code{color:#2e7d4f}
+.coupon-chip.is-selected .coupon-chip__state{color:#2e7d4f}
 
 @media(max-width:860px){
   .promos-dia__grid{grid-template-columns:repeat(2,1fr);gap:14px}
@@ -616,7 +631,7 @@
   </div>
   <div class="stories-row reveal">
     <div class="story-phone">
-      <video src="assets/insta-video-esq.mp4" muted loop playsinline preload="none" data-autoplay></video>
+      <video src="assets/insta-video-esq.mp4?v=2" muted loop playsinline preload="metadata" data-autoplay></video>
       <div class="story-overlay"></div>
       <div class="story-bar"><span class="done"></span><span></span><span></span></div>
       <div class="story-header">
@@ -626,7 +641,7 @@
       <a class="story-cta" href="https://www.instagram.com/coreflorbrasilia?igsh=dzFlZDZrd2lkZG9i" target="_blank" rel="noopener">Ver no Instagram</a>
     </div>
     <div class="story-phone story-phone--center">
-      <video src="assets/insta-video-1.mp4" muted loop playsinline preload="none" data-autoplay></video>
+      <video src="assets/insta-video-1.mp4?v=2" muted loop playsinline preload="metadata" data-autoplay></video>
       <div class="story-overlay"></div>
       <div class="story-bar"><span class="done"></span><span class="done"></span><span></span></div>
       <div class="story-header">
@@ -636,7 +651,7 @@
       <a class="story-cta" href="https://www.instagram.com/coreflorbrasilia?igsh=dzFlZDZrd2lkZG9i" target="_blank" rel="noopener">Ver no Instagram</a>
     </div>
     <div class="story-phone">
-      <video src="assets/insta-video-dir.mp4" muted loop playsinline preload="none" data-autoplay></video>
+      <video src="assets/insta-video-dir.mp4?v=2" muted loop playsinline preload="metadata" data-autoplay></video>
       <div class="story-overlay"></div>
       <div class="story-bar"><span class="done"></span><span class="done"></span><span class="done"></span></div>
       <div class="story-header">
@@ -759,6 +774,8 @@
   <ul class="cart__list" id="cart-list">
     <!-- injected -->
   </ul>
+
+  <div class="cart__coupons" id="cart-coupons"></div>
 
   <div class="cart__discount">
     <input type="text" placeholder="Cupom de desconto" />
@@ -968,22 +985,21 @@
       <p class="fv-modal__sub">Temos um presentinho especial<br>para a sua primeira visita.</p>
     </div>
     <div class="fv-modal__body">
-      <p class="fv-modal__offer">Ganhe <strong>frete grátis</strong> na sua primeira compra acima de <strong>R$ 150</strong>. Use o cupom abaixo no checkout:</p>
+      <p class="fv-modal__offer">Ganhe <strong>frete grátis</strong> na sua primeira compra acima de <strong>R$ 150</strong>. Resgate o cupom e selecione no carrinho:</p>
       <div class="fv-modal__coupon">
         <div class="fv-modal__coupon-label">Seu cupom exclusivo</div>
-        <div class="fv-modal__code" id="fv-code" title="Clique para copiar">PRIMEIRA</div>
-        <p class="fv-modal__copy-tip">Clique no código para copiar</p>
+        <div class="fv-modal__code" id="fv-code">PRIMEIRA</div>
       </div>
-      <a href="#novidades" class="fv-modal__btn" id="fv-cta">Aproveitar agora ✿</a>
+      <button class="fv-modal__btn" id="fv-redeem">🎟️ Resgatar Cupom</button>
       <button class="fv-modal__skip" id="fv-skip">Não, obrigada</button>
     </div>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-client.js?v=1"></script>
+<script src="supabase-client.js?v=2"></script>
 <script src="products-data.js?v=4"></script>
-<script src="script.js?v=7"></script>
+<script src="script.js?v=8"></script>
 </body>
 </html>
 

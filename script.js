@@ -213,6 +213,14 @@ const videoObserver = new IntersectionObserver((entries) => {
 
 document.querySelectorAll("video[data-autoplay]").forEach(v => videoObserver.observe(v));
 
+// iOS em Modo de Baixo Consumo bloqueia play() sem gesto — o 1º toque destrava
+document.addEventListener("touchstart", () => {
+  document.querySelectorAll("video[data-autoplay]").forEach(v => {
+    const r = v.getBoundingClientRect();
+    if (r.top < window.innerHeight && r.bottom > 0 && v.paused) v.play().catch(() => {});
+  });
+}, { passive: true });
+
 
 /* ---------- PAGE LOAD VEIL + HERO ANIM ---------- */
 let _veilDone = _isBackNav;
@@ -371,7 +379,52 @@ function renderCart() {
   cartBanner.innerHTML = missing > 0
     ? `<span>✿</span> Falta <strong>${BRL(missing)}</strong> para frete grátis!`
     : `<span>✿</span> <strong>Você ganhou frete grátis!</strong> 💌`;
+
+  renderCartCoupons();
 }
+
+/* ---------- CUPONS RESGATADOS (carteirinha) ---------- */
+const COUPON_DESCS = { PRIMEIRA: 'Frete grátis acima de R$ 150' };
+
+function myCoupons() {
+  try { return JSON.parse(localStorage.getItem('cf_my_coupons') || '[]'); }
+  catch { return []; }
+}
+
+function renderCartCoupons() {
+  const box = document.getElementById('cart-coupons');
+  if (!box) return;
+  const coupons  = myCoupons();
+  const selected = localStorage.getItem('cf_selected_coupon') || '';
+  box.innerHTML = coupons.map(code => {
+    const isSel = code === selected;
+    return `
+      <button type="button" class="coupon-chip${isSel ? ' is-selected' : ''}" data-coupon="${code}">
+        <span class="coupon-chip__tag">🎟️</span>
+        <span class="coupon-chip__info">
+          <span class="coupon-chip__code">${code}</span><br>
+          <span class="coupon-chip__desc">${COUPON_DESCS[code] || 'Cupom de desconto'}</span>
+        </span>
+        <span class="coupon-chip__state">${isSel ? '✓ Será aplicado' : 'Tocar para usar'}</span>
+      </button>`;
+  }).join('');
+}
+
+document.getElementById('cart-coupons')?.addEventListener('click', e => {
+  const chip = e.target.closest('[data-coupon]');
+  if (!chip) return;
+  const code = chip.dataset.coupon;
+  const current = localStorage.getItem('cf_selected_coupon') || '';
+  if (current === code) {
+    localStorage.removeItem('cf_selected_coupon');
+    toast('Cupom desmarcado');
+  } else {
+    localStorage.setItem('cf_selected_coupon', code);
+    toast(`✿ Cupom ${code} será aplicado no checkout`);
+  }
+  renderCartCoupons();
+});
+
 renderCart();
 
 document.getElementById("open-cart").addEventListener("click", openCart);
@@ -864,11 +917,39 @@ async function _finalizarPedido(paymentId, paymentStatus) {
    PROMOS DO DIA — grid + countdown até meia-noite
 ================================================================ */
 
-function renderPromosDia() {
+/* Rotação automática: embaralha o pool de forma determinística pelo dia,
+   então todos os visitantes veem as mesmas promos e elas mudam a cada 24h */
+function _dailyPromoPick(pool, n) {
+  const daySeed = Math.floor(Date.now() / 86400000); // dias desde 1970
+  let s = daySeed;
+  const rand = () => { s = (s * 1103515245 + 12345) % 2147483648; return s / 2147483648; };
+  const arr = [...pool];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr.slice(0, n);
+}
+
+async function renderPromosDia() {
   const grid = document.getElementById('promos-dia-grid');
   if (!grid) return;
 
-  const promos = products.filter(p => p.badge === 'SALE').slice(0, 4);
+  // 1º: produtos escolhidos pelo admin (Supabase); se vazio → rotação automática
+  let promos = [];
+  try {
+    if (typeof SiteSettings !== 'undefined') {
+      const ids = await SiteSettings.get('promo_products');
+      if (Array.isArray(ids) && ids.length) {
+        promos = ids.map(id => products.find(p => p.id === Number(id))).filter(Boolean).slice(0, 4);
+      }
+    }
+  } catch {}
+
+  if (!promos.length) {
+    const pool = products.filter(p => p.badge === 'SALE' || (p.originalPrice && p.originalPrice > p.price));
+    promos = _dailyPromoPick(pool, 4);
+  }
   if (!promos.length) { document.getElementById('promos-dia')?.remove(); return; }
 
   grid.innerHTML = '';
@@ -961,17 +1042,21 @@ document.getElementById('promos-dia-grid')?.addEventListener('click', e => {
 
   veil.querySelector('#fv-close')?.addEventListener('click', closeModal);
   veil.querySelector('.fv-modal__skip')?.addEventListener('click', closeModal);
-  veil.querySelector('.fv-modal__btn')?.addEventListener('click', closeModal);
 
   // Fechar ao clicar fora do modal
   veil.addEventListener('click', e => { if (e.target === veil) closeModal(); });
 
-  // Copiar código ao clicar no código
-  veil.querySelector('.fv-modal__code')?.addEventListener('click', function() {
-    navigator.clipboard?.writeText('PRIMEIRA').then(() => {
-      const orig = this.textContent;
-      this.textContent = 'Copiado! ✿';
-      setTimeout(() => { this.textContent = orig; }, 1500);
-    }).catch(() => {});
+  // Resgatar cupom → salva na carteirinha e aparece no carrinho para seleção
+  veil.querySelector('#fv-redeem')?.addEventListener('click', function() {
+    const coupons = myCoupons();
+    if (!coupons.includes('PRIMEIRA')) coupons.push('PRIMEIRA');
+    localStorage.setItem('cf_my_coupons', JSON.stringify(coupons));
+    renderCartCoupons();
+    this.classList.add('is-done');
+    this.textContent = '✓ Cupom resgatado!';
+    setTimeout(() => {
+      closeModal();
+      toast('🎟️ Cupom PRIMEIRA está no seu carrinho');
+    }, 900);
   });
 })();

@@ -281,6 +281,34 @@ async function applyCoupon() {
     msgEl.textContent = result.msg;
   }
   updateTotals();
+  renderMyCoupons();
+}
+
+// ── Cupons resgatados (carteirinha do cliente) ───────────────────────────────
+
+const COUPON_DESCS = { PRIMEIRA: 'Frete grátis acima de R$ 150' };
+
+function _myCoupons() {
+  try { return JSON.parse(localStorage.getItem('cf_my_coupons') || '[]'); }
+  catch { return []; }
+}
+
+function renderMyCoupons() {
+  const box = document.getElementById('co-my-coupons');
+  if (!box) return;
+  const applied = _couponData?.coupon?.code || '';
+  box.innerHTML = _myCoupons().map(code => {
+    const isSel = code.toUpperCase() === applied.toUpperCase();
+    return `
+      <button type="button" class="coupon-chip${isSel ? ' is-selected' : ''}" data-coupon="${code}">
+        <span class="coupon-chip__tag">🎟️</span>
+        <span class="coupon-chip__info">
+          <span class="coupon-chip__code">${code}</span><br>
+          <span class="coupon-chip__desc">${COUPON_DESCS[code] || 'Cupom de desconto'}</span>
+        </span>
+        <span class="coupon-chip__state">${isSel ? '✓ Aplicado' : 'Tocar para aplicar'}</span>
+      </button>`;
+  }).join('');
 }
 
 // ── Validação ─────────────────────────────────────────────────────────────────
@@ -465,6 +493,13 @@ async function finalizeOrder(paymentId, paymentStatus) {
   if (_mpBrick) { _mpBrick.unmount(); _mpBrick = null; }
   localStorage.removeItem('cf_cart');
 
+  // Remove da carteirinha o cupom usado nesta compra
+  const usedCoupon = _couponData?.coupon?.code;
+  if (usedCoupon) {
+    localStorage.setItem('cf_my_coupons', JSON.stringify(_myCoupons().filter(c => c.toUpperCase() !== usedCoupon.toUpperCase())));
+    localStorage.removeItem('cf_selected_coupon');
+  }
+
   const shortId = (data?.id || '').slice(0, 8).toUpperCase() || String(paymentId).slice(0, 8);
   document.getElementById('co-order-id').textContent = shortId;
 
@@ -478,6 +513,20 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!_cart.length) { window.location.href = 'index.html'; return; }
 
   renderSummary();
+
+  // Cupons resgatados: renderiza chips e auto-aplica o selecionado no carrinho
+  renderMyCoupons();
+  const _selCoupon = localStorage.getItem('cf_selected_coupon');
+  if (_selCoupon) {
+    const inp = document.getElementById('co-coupon');
+    if (inp) { inp.value = _selCoupon; applyCoupon(); }
+  }
+  document.getElementById('co-my-coupons')?.addEventListener('click', e => {
+    const chip = e.target.closest('[data-coupon]');
+    if (!chip) return;
+    const inp = document.getElementById('co-coupon');
+    if (inp) { inp.value = chip.dataset.coupon; applyCoupon(); }
+  });
 
   // CEP
   const cepInput = document.getElementById('co-cep');

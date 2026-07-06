@@ -108,3 +108,14 @@ const Waitlist = {
     return sb.from('waitlist').insert({ product_id: productId, email, size: size || null });
   }
 };
+
+/* ---- Configurações do site (chave/valor JSONB) ---- */
+const SiteSettings = {
+  async get(key) {
+    const { data } = await sb.from('site_settings').select('value').eq('key', key).maybeSingle();
+    return data ? data.value : null;
+  },
+  async set(key, value) {
+    return sb.from('site_settings').upsert({ key, value, updated_at: new Date().toISOString() });
+  }
+};

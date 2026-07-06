@@ -258,6 +258,22 @@ CREATE POLICY "gc_admin"  ON gift_cards FOR ALL USING (
 );
 
 -- ================================================================
+--  11. CONFIGURAÇÕES DO SITE (ex: produtos das Promos do Dia)
+-- ================================================================
+CREATE TABLE IF NOT EXISTS site_settings (
+  key        TEXT PRIMARY KEY,
+  value      JSONB,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+ALTER TABLE site_settings ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "site_settings_read"  ON site_settings FOR SELECT USING (true);
+CREATE POLICY "site_settings_admin" ON site_settings FOR ALL USING (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true)
+) WITH CHECK (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true)
+);
+
+-- ================================================================
 --  PRIMEIRO ADMIN — execute manualmente após criar a conta
 --  Substitua pelo e-mail cadastrado no Supabase Auth
 -- ================================================================

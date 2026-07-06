@@ -1203,6 +1203,66 @@ function deleteProduct(id) {
 }
 
 
+// ── PROMOS DO DIA ─────────────────────────────────────────────
+// Seleção manual salva no Supabase (site_settings). Vazio = modo
+// automático: o site sorteia 4 produtos em oferta e troca a cada 24h.
+async function openPromosModal() {
+  const catalog = typeof products !== 'undefined' ? products : [];
+  if (!catalog.length) { toast('Catálogo da loja não carregado.', 'error'); return; }
+
+  let selected = [];
+  try { selected = (await SiteSettings.get('promo_products')) || []; } catch {}
+  selected = selected.map(Number);
+
+  document.getElementById('modal-body').innerHTML = `
+    <h3 class="modal-title"><i class="bi bi-fire"></i> Promos do Dia</h3>
+    <p style="font-size:13px;color:var(--warm-gray);margin:0 0 6px;line-height:1.6">
+      Escolha até <strong>4 produtos</strong> para aparecerem na vitrine <strong>Promos do Dia</strong> da loja.
+    </p>
+    <p style="font-size:12px;color:rgba(74,64,64,.55);margin:0 0 16px;line-height:1.6">
+      <i class="bi bi-magic"></i> Se nenhum produto for escolhido, a seleção fica <strong>automática</strong>:
+      o site sorteia entre os produtos em oferta e troca a cada 24 horas.
+    </p>
+    <div id="promo-pick-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;max-height:46vh;overflow-y:auto;padding:2px">
+      ${catalog.map(p => `
+        <label style="border:1.5px solid rgba(212,103,154,.25);border-radius:12px;padding:8px;cursor:pointer;display:flex;flex-direction:column;gap:6px;align-items:center;text-align:center;background:${selected.includes(Number(p.id))?'rgba(212,103,154,.07)':'#fff'}">
+          <input type="checkbox" class="promo-pick" value="${p.id}" ${selected.includes(Number(p.id))?'checked':''}
+                 onchange="limitPromoPicks(this)" style="accent-color:var(--rose);width:16px;height:16px">
+          <img src="${p.image}" style="width:100%;height:105px;object-fit:cover;border-radius:8px;background:var(--nude)" onerror="this.style.opacity='.3'">
+          <span style="font-size:12px;font-weight:500;line-height:1.3">${p.name}</span>
+          <span style="font-size:11px;color:var(--rose-deep);font-weight:600">${fmtBRL(p.price)}</span>
+        </label>`).join('')}
+    </div>
+    <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
+      <button class="btn-primary" style="flex:1;justify-content:center;min-width:150px" onclick="savePromoPicks(false)">
+        <i class="bi bi-check-lg"></i> Salvar Promos
+      </button>
+      <button class="btn-outline" onclick="savePromoPicks(true)" title="Limpa a seleção e volta ao sorteio automático diário">
+        <i class="bi bi-magic"></i> Modo automático
+      </button>
+      <button class="btn-outline" onclick="closeModal()">Cancelar</button>
+    </div>`;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function limitPromoPicks(chk) {
+  if (document.querySelectorAll('.promo-pick:checked').length > 4) {
+    chk.checked = false;
+    toast('Máximo de 4 produtos nas Promos do Dia.', 'error');
+  }
+}
+
+async function savePromoPicks(autoMode) {
+  const ids = autoMode ? [] : [...document.querySelectorAll('.promo-pick:checked')].map(c => Number(c.value));
+  const { error } = await SiteSettings.set('promo_products', ids);
+  if (error) { toast('Erro ao salvar: ' + error.message, 'error'); return; }
+  closeModal();
+  toast(ids.length
+    ? `${ids.length} produto(s) definidos como Promos do Dia!`
+    : 'Promos do Dia em modo automático — troca a cada 24h.', 'success');
+}
+
+
 // ── PHYSICAL SALES ────────────────────────────────────────────
 async function submitPhysicalSale(e) {
   e.preventDefault();

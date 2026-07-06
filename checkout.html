@@ -53,6 +53,17 @@
   .co-coupon-msg { font-size: 12px; margin-top: 6px; }
   .co-coupon-msg.ok { color: #2e7d4f; }
   .co-coupon-msg.err { color: #c0392b; }
+  .co-my-coupons { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+  .co-my-coupons:empty { display: none; }
+  .coupon-chip { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; background: rgba(212,103,154,.06); border: 1.5px dashed var(--rose); border-radius: 12px; padding: 10px 14px; cursor: pointer; font-family: var(--sans); transition: background .15s, border-color .15s; }
+  .coupon-chip:hover { background: rgba(212,103,154,.12); }
+  .coupon-chip__tag { font-size: 18px; }
+  .coupon-chip__info { flex: 1; min-width: 0; }
+  .coupon-chip__code { font-weight: 700; font-size: 13px; letter-spacing: 2px; color: var(--rose-deep); }
+  .coupon-chip__desc { font-size: 11px; color: var(--warm-gray); }
+  .coupon-chip__state { font-size: 11px; font-weight: 600; color: var(--rose); white-space: nowrap; }
+  .coupon-chip.is-selected { background: rgba(46,125,79,.08); border-color: #2e7d4f; border-style: solid; }
+  .coupon-chip.is-selected .coupon-chip__code, .coupon-chip.is-selected .coupon-chip__state { color: #2e7d4f; }
 
   .co-section-title { font-family: var(--sans); font-size: 12px; font-weight: 600; color: var(--rose-deep); text-transform: uppercase; letter-spacing: 1px; margin: 28px 0 14px; }
   .co-section-title:first-child { margin-top: 0; }
@@ -266,6 +277,7 @@
       </ul>
 
       <div class="co-coupon">
+        <div class="co-my-coupons" id="co-my-coupons"></div>
         <div class="co-coupon-row">
           <input type="text" id="co-coupon" placeholder="CUPOM DE DESCONTO" />
           <button class="btn btn--outline" id="co-coupon-btn" type="button">Aplicar</button>
@@ -292,8 +304,8 @@
 <div id="toast" class="toast" aria-live="polite"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-client.js?v=1"></script>
+<script src="supabase-client.js?v=2"></script>
 <script src="products-data.js?v=4"></script>
-<script src="checkout.js?v=2"></script>
+<script src="checkout.js?v=3"></script>
 </body>
 </html>
