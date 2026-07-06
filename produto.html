@@ -21,6 +21,28 @@
 <link rel="preload" as="image" href="assets/logo-nova.png">
 
 <link rel="stylesheet" href="styles.css?v=4" />
+<style>
+  /* ── Calculadora de frete na página do produto ── */
+  .prod-freight { margin: 18px 0 4px; border: 1px solid rgba(212,103,154,.2); border-radius: 12px; padding: 16px 18px; background: #fdfaf8; }
+  .prod-freight__label { font-family: var(--sans); font-size: 11px; font-weight: 700; color: var(--rose-deep); text-transform: uppercase; letter-spacing: 1.2px; display: flex; align-items: center; gap: 7px; margin-bottom: 12px; }
+  .prod-freight__row { display: flex; gap: 8px; }
+  .prod-freight__input { flex: 1; padding: 10px 14px; border: 1.5px solid rgba(212,103,154,.25); border-radius: 8px; font-family: var(--sans); font-size: 14px; color: var(--ink); outline: none; background: #fff; transition: border-color .15s; }
+  .prod-freight__input:focus { border-color: var(--rose); }
+  .prod-freight__btn { padding: 10px 18px; background: var(--rose); color: #fff; border: none; border-radius: 8px; font-family: var(--sans); font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: background .15s; }
+  .prod-freight__btn:hover { background: var(--rose-deep); }
+  .prod-freight__link { display: inline-block; margin-top: 8px; font-size: 11px; color: var(--warm-gray); text-decoration: none; }
+  .prod-freight__link:hover { color: var(--rose); text-decoration: underline; }
+  #freight-result { margin-top: 10px; }
+  .freight-loading { font-size: 13px; color: var(--warm-gray); margin: 0; }
+  .freight-err { font-size: 13px; color: #c0392b; margin: 0; }
+  .freight-free-msg { font-size: 13px; color: #2e7d4f; font-weight: 500; background: rgba(46,125,79,.07); padding: 10px 14px; border-radius: 8px; margin: 0; }
+  .freight-opt-row { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(212,103,154,.1); gap: 10px; }
+  .freight-opt-row:last-of-type { border-bottom: none; }
+  .freight-opt-name { font-family: var(--sans); font-size: 13px; font-weight: 700; color: var(--ink); min-width: 55px; }
+  .freight-opt-days { flex: 1; font-size: 12px; color: var(--warm-gray); }
+  .freight-opt-price { font-family: var(--serif); font-size: 15px; color: var(--rose-deep); font-weight: 600; }
+  .freight-tip { font-size: 11px; color: var(--warm-gray); margin: 8px 0 0; padding: 8px 12px; background: rgba(212,103,154,.05); border-radius: 6px; }
+</style>
 
 <!-- Bootstrap Icons carregado de forma não-bloqueante -->
 <link rel="preload" as="style" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" onload="this.rel='stylesheet'">
@@ -233,6 +255,20 @@
         <div>Troca fácil em 30 dias</div>
         <div>Até 10× sem juros</div>
         <div>Pagamento seguro</div>
+      </div>
+
+      <!-- Calculadora de Frete -->
+      <div class="prod-freight">
+        <div class="prod-freight__label">
+          <svg width="16" height="16" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14h22v18H4z"/><path d="M26 20h11l5 6v6H26z"/><circle cx="13" cy="36" r="3"/><circle cx="33" cy="36" r="3"/></svg>
+          Calcular frete
+        </div>
+        <div class="prod-freight__row">
+          <input class="prod-freight__input" type="text" id="freight-cep-input" placeholder="00000-000" maxlength="9" inputmode="numeric">
+          <button class="prod-freight__btn" onclick="calcProdFreight()">Calcular</button>
+        </div>
+        <div id="freight-result"></div>
+        <a class="prod-freight__link" href="https://buscacepinter.correios.com.br/app/endereco/index.php" target="_blank" rel="noopener">Não sei meu CEP →</a>
       </div>
 
       <!-- Descrição -->
@@ -655,7 +691,12 @@ const CATALOG = [
     description: "Vestido vinho com design sofisticado que combina elegância e feminilidade. A cor profunda e o caimento impecável fazem desta peça a escolha perfeita para noites especiais.",
     material: "Tecido premium com leve brilho acetinado.",
     care: "Lavar à mão com sabão neutro. Secar à sombra. Passar com ferro morno pelo avesso.",
-    fit: "Modelagem ajustada que valoriza a silhueta. Comprimento midi. Segue tabela padrão." }
+    fit: "Modelagem ajustada que valoriza a silhueta. Comprimento midi. Segue tabela padrão." },
+  { id: 99, name: "Produto Teste — R$ 1", category: "Teste", price: 1.00, originalPrice: null, badge: "TESTE",
+    image: "assets/p-blusa-azul.png",
+    colors: [{ name: "Rosa", hex: "#D4679A" }], sizes: ["M"],
+    description: "Produto de teste para validar o fluxo completo de pagamento. Valor simbólico de R$ 1,00.",
+    material: "Produto de teste.", care: "Produto de teste.", fit: "Produto de teste." }
 ];
 
 /* ========= UTILS ========= */
@@ -1137,6 +1178,53 @@ const io = new IntersectionObserver(function(entries) {
   });
 }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
 document.querySelectorAll('.reveal').forEach(function(el) { io.observe(el); });
+
+/* ========= CALCULADORA DE FRETE ========= */
+(function() {
+  var inp = document.getElementById('freight-cep-input');
+  if (!inp) return;
+  inp.addEventListener('input', function(e) {
+    e.target.value = e.target.value.replace(/\D/g,'').replace(/^(\d{5})(\d)/,'$1-$2').slice(0,9);
+  });
+  inp.addEventListener('keydown', function(e) { if (e.key === 'Enter') calcProdFreight(); });
+})();
+
+async function calcProdFreight() {
+  var inp    = document.getElementById('freight-cep-input');
+  var result = document.getElementById('freight-result');
+  var cep    = inp.value.replace(/\D/g,'');
+
+  if (cep.length !== 8) {
+    result.innerHTML = '<p class="freight-err">Digite um CEP válido (8 dígitos).</p>';
+    return;
+  }
+
+  result.innerHTML = '<p class="freight-loading">⏳ Calculando frete…</p>';
+
+  try {
+    var r = await fetch('/api/freight?cep=' + cep);
+    var d = await r.json();
+
+    if (d.error) { result.innerHTML = '<p class="freight-err">CEP não encontrado.</p>'; return; }
+
+    var prodPrice = product.price;
+    var threshold = d.free_above || 299;
+    var isFree    = prodPrice >= threshold;
+
+    if (isFree) {
+      result.innerHTML = '<p class="freight-free-msg">🎁 Frete grátis para ' + d.city + ' / ' + d.uf + '!</p>';
+    } else {
+      var missing = 'R$ ' + (threshold - prodPrice).toFixed(2).replace('.', ',');
+      result.innerHTML =
+        '<div class="freight-opt-row"><span class="freight-opt-name">PAC</span><span class="freight-opt-days">Até ' + d.pac.days + ' dias úteis</span><span class="freight-opt-price">' + BRL(d.pac.price) + '</span></div>' +
+        '<div class="freight-opt-row"><span class="freight-opt-name">SEDEX</span><span class="freight-opt-days">Até ' + d.sedex.days + ' dias úteis</span><span class="freight-opt-price">' + BRL(d.sedex.price) + '</span></div>' +
+        '<p class="freight-tip">💡 Adicione mais ' + missing + ' em compras para ganhar frete grátis.</p>';
+    }
+  } catch(err) {
+    result.innerHTML = '<p class="freight-err">Erro ao calcular. Tente novamente.</p>';
+    console.error('[calcProdFreight]', err);
+  }
+}
 
 /* ========= AVALIAÇÕES FICTÍCIAS ========= */
 (function renderReviews() {
