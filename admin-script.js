@@ -115,21 +115,7 @@ async function loadPhysical() {
   _cache.physical = (data||[]).map(_normPhysical);
 }
 
-// --- dados fictícios removidos, agora usa Supabase ---
-const _SAMPLE_ORDERS_REMOVED = [
-  { id:'CF-1042', customer:{name:'Camila Rodrigues',email:'camila.r@email.com',phone:'(11) 9 9812-3344',address:{street:'Rua das Flores, 248',neighborhood:'Vila Madalena',city:'São Paulo',state:'SP',zip:'05435-010'}}, items:[{name:'Vestido Laranja Floral',qty:1,price:299.90,size:'M'},{name:'Regata Branca Classic',qty:2,price:99.90,size:'P'}], total:499.70, payment:'pix',         status:'delivered',   createdAt:mkDate(28,'14:32') },
-  { id:'CF-1043', customer:{name:'Juliana Mendes',  email:'ju.mendes@gmail.com',phone:'(31) 9 8744-0022',address:{street:'Av. Contorno, 1500',neighborhood:'Funcionários',city:'Belo Horizonte',state:'MG',zip:'30110-920'}}, items:[{name:'Conjunto Rosa Verão',qty:1,price:349.90,size:'M'}], total:349.90, payment:'credit_card', status:'delivered',   createdAt:mkDate(25,'09:18') },
-  { id:'CF-1044', customer:{name:'Patricia Santos', email:'patricia.s@icloud.com',phone:'(61) 9 9001-7788',address:{street:'SQN 305 Bloco C, 201',neighborhood:'Asa Norte',city:'Brasília',state:'DF',zip:'70736-030'}}, items:[{name:'Blazer Caqui Premium',qty:1,price:459.90,size:'G'}], total:459.90, payment:'credit_card', status:'shipped',     createdAt:mkDate(20,'16:45') },
-  { id:'CF-1045', customer:{name:'Ana Lima',        email:'ana.lima@hotmail.com',phone:'(21) 9 7234-9900',address:{street:'Rua Visconde de Pirajá, 82',neighborhood:'Ipanema',city:'Rio de Janeiro',state:'RJ',zip:'22410-001'}}, items:[{name:'Saia Cetim Midi',qty:1,price:259.90,size:'P'},{name:'Body Marrom Decote',qty:1,price:149.90,size:'P'}], total:409.80, payment:'pix', status:'shipped',  createdAt:mkDate(18,'11:22') },
-  { id:'CF-1046', customer:{name:'Fernanda Costa',  email:'fecosta@outlook.com',phone:'(41) 9 8811-6644',address:{street:'Rua XV de Novembro, 330',neighborhood:'Centro',city:'Curitiba',state:'PR',zip:'80020-310'}}, items:[{name:'Blusa Azul Seda',qty:1,price:189.90,size:'M'}], total:189.90, payment:'debit_card',  status:'processing',  createdAt:mkDate(10,'08:05') },
-  { id:'CF-1047', customer:{name:'Mariana Ferreira',email:'mfe@email.com',phone:'(51) 9 9500-1133',address:{street:'Av. Osvaldo Aranha, 440',neighborhood:'Bom Fim',city:'Porto Alegre',state:'RS',zip:'90035-190'}}, items:[{name:'Look Azul Celeste',qty:1,price:389.90,size:'M'}], total:389.90, payment:'pix', status:'processing',  createdAt:mkDate(8,'15:30') },
-  { id:'CF-1048', customer:{name:'Beatriz Alves',   email:'bia.alves@gmail.com',phone:'(85) 9 8844-2211',address:{street:'Rua Tibúrcio Cavalcante, 66',neighborhood:'Meireles',city:'Fortaleza',state:'CE',zip:'60125-100'}}, items:[{name:'Vestido Laranja Floral',qty:1,price:299.90,size:'G'},{name:'Conjunto Rosa Verão',qty:1,price:349.90,size:'G'}], total:649.80, payment:'credit_card', status:'pending', createdAt:mkDate(4,'19:14') },
-  { id:'CF-1049', customer:{name:'Larissa Oliveira',email:'la.oliveira@yahoo.com',phone:'(11) 9 7733-8800',address:{street:'Rua Pamplona, 556',neighborhood:'Jardins',city:'São Paulo',state:'SP',zip:'01405-001'}}, items:[{name:'Regata Branca Classic',qty:3,price:99.90,size:'M'}], total:299.70, payment:'pix', status:'pending', createdAt:mkDate(2,'10:48') },
-  { id:'CF-1050', customer:{name:'Tatiane Rocha',   email:'tati.r@email.com',phone:'(62) 9 9600-4455',address:{street:'Av. T-63, 1200',neighborhood:'Setor Bueno',city:'Goiânia',state:'GO',zip:'74230-010'}}, items:[{name:'Saia Cetim Midi',qty:1,price:259.90,size:'M'}], total:259.90, payment:'credit_card', status:'pending', createdAt:mkDate(1,'17:22') },
-  { id:'CF-1051', customer:{name:'Renata Pinto',    email:'renata.p@gmail.com',phone:'(11) 9 8822-7766',address:{street:'Rua Oscar Freire, 200',neighborhood:'Cerqueira César',city:'São Paulo',state:'SP',zip:'01426-001'}}, items:[{name:'Blazer Caqui Premium',qty:1,price:459.90,size:'P'},{name:'Body Marrom Decote',qty:1,price:149.90,size:'P'}], total:609.80, payment:'pix', status:'cancelled', createdAt:mkDate(15,'13:10') },
-];
-
-// vendas físicas fictícias removidas — agora vêm do Supabase (physical_sales)
+// --- dados fictícios removidos, agora usa Supabase (orders e physical_sales) ---
 
 // Mapeia categorias do catálogo da loja para os slugs do admin
 function _normCat(cat) {
@@ -214,7 +200,7 @@ function goTo(sec) {
   // lazy render — dados reais do Supabase
   if (sec === 'dashboard') Promise.all([loadOrders(), loadPhysical()]).then(renderDashboard);
   if (sec === 'orders')    loadOrders().then(renderOrders);
-  if (sec === 'products')  { renderProducts(); setTimeout(renderProducts, 100); }
+  if (sec === 'products')  renderProducts();
   if (sec === 'physical')  loadPhysical().then(() => { populateCatalogSelect(); renderPhysicalSales(); updateSalePreview(); });
   if (sec === 'metrics')   Promise.all([loadOrders(), loadPhysical()]).then(() => setTimeout(renderMetrics, 50));
   if (sec === 'customers') loadOrders().then(renderCustomers);
@@ -728,6 +714,14 @@ function openProductModal(id) {
         <button type="submit" class="btn-primary" style="flex:1;justify-content:center"><i class="bi bi-check-lg"></i> ${p?'Salvar Alterações':'Cadastrar Produto'}</button>
         <button type="button" class="btn-outline" onclick="closeModal()">Cancelar</button>
       </div>
+      ${p ? '' : `
+      <button type="button" class="btn-outline" onclick="saveProductAndAddMore()"
+              style="width:100%;justify-content:center;margin-top:10px;border-style:dashed">
+        <i class="bi bi-plus-circle"></i> Salvar e Adicionar Mais
+      </button>
+      <p style="font-size:11px;color:rgba(74,64,64,.5);text-align:center;margin-top:6px">
+        Salva este produto e abre um formulário em branco para cadastrar o próximo.
+      </p>`}
     </form>
   `;
   document.getElementById('modal-overlay').classList.add('open');
@@ -1136,10 +1130,11 @@ async function generateProductText() {
 
 // ─────────────────────────────────────────────────────────────
 
-function saveProduct(e, id) {
-  e.preventDefault();
+function _saveProductFromForm(id) {
   const products = DB.get('products') || [];
+  const existing = id ? products.find(p=>p.id===id) : null;
   const sizes = [...document.querySelectorAll('.pf-size:checked')].map(c=>c.value);
+  const currentImg = document.getElementById('pf-img-current')?.value || '';
   const prod = {
     id: id || 'P' + uid(),
     name:          document.getElementById('pf-name').value.trim(),
@@ -1150,8 +1145,8 @@ function saveProduct(e, id) {
                      ? aiStudioState.selectedImages
                      : (window._pendingImgBase64
                          ? [window._pendingImgBase64]
-                         : (p?.images || (p?.image ? [p.image] : []))),
-    image:         aiStudioState.selectedImages[0] || window._pendingImgBase64 || document.getElementById('pf-img-current')?.value || '',
+                         : (existing?.images || (currentImg ? [currentImg] : []))),
+    image:         aiStudioState.selectedImages[0] || window._pendingImgBase64 || currentImg,
     description:   document.getElementById('pf-desc').value.trim(),
     colors:        document.getElementById('pf-colors').value.split(',').map(s=>s.trim()).filter(Boolean),
     sizes,
@@ -1162,20 +1157,34 @@ function saveProduct(e, id) {
       GG: parseInt(document.getElementById('pf-stk-GG').value) || 0,
     },
     status: document.getElementById('pf-status').value,
-    createdAt: id ? (products.find(p=>p.id===id)?.createdAt || now()) : now(),
+    createdAt: existing?.createdAt || now(),
   };
 
   if (id) {
     const idx = products.findIndex(p=>p.id===id);
     if (idx>=0) products[idx] = prod; else products.push(prod);
-    toast('Produto atualizado com sucesso!', 'success');
   } else {
     products.push(prod);
-    toast('Produto cadastrado com sucesso!', 'success');
   }
   DB.set('products', products);
-  closeModal();
   renderProducts();
+  return prod;
+}
+
+function saveProduct(e, id) {
+  e.preventDefault();
+  _saveProductFromForm(id);
+  toast(id ? 'Produto atualizado com sucesso!' : 'Produto cadastrado com sucesso!', 'success');
+  closeModal();
+}
+
+// Salva o produto atual e reabre o formulário limpo para cadastrar o próximo
+function saveProductAndAddMore() {
+  const form = document.getElementById('prod-form');
+  if (!form || !form.reportValidity()) return;
+  const prod = _saveProductFromForm('');
+  openProductModal();
+  toast(`"${prod.name}" cadastrado! Adicione o próximo produto.`, 'success');
 }
 
 function restoreProductCatalog() {
@@ -1191,216 +1200,6 @@ function deleteProduct(id) {
   DB.set('products', products);
   renderProducts();
   toast('Produto removido.', 'info');
-}
-
-
-// ── BULK PRODUCT ENTRY ────────────────────────────────────────
-const BULK_CATS = [
-  ['vestidos','Vestidos & Saias'],
-  ['blusas','Blusas & Tops'],
-  ['conjuntos','Conjuntos'],
-  ['calcas','Calças'],
-  ['blazers','Blazers'],
-  ['acessorios','Acessórios'],
-];
-let _bulkRowCount = 0;
-
-function openBulkModal() {
-  _bulkRowCount = 0;
-  const overlay = document.getElementById('bulk-overlay');
-  const cont    = document.getElementById('bulk-rows-container');
-  if (!overlay || !cont) { toast('Erro ao abrir modal. Recarregue a página.', 'error'); return; }
-  cont.innerHTML = '';
-  addBulkRow();
-  overlay.style.display       = 'flex';
-  overlay.style.opacity       = '1';
-  overlay.style.pointerEvents = 'all';
-  overlay.classList.add('open');
-}
-
-function closeBulkModal(e) {
-  if (e && e.target !== document.getElementById('bulk-overlay')) return;
-  const overlay = document.getElementById('bulk-overlay');
-  overlay.style.display       = 'none';
-  overlay.style.opacity       = '0';
-  overlay.style.pointerEvents = 'none';
-  overlay.classList.remove('open');
-}
-
-function addBulkRow() {
-  const idx = _bulkRowCount++;
-
-  // Herda categoria do produto anterior para agilizar entrada de itens similares
-  let prevCat = 'vestidos';
-  if (idx > 0) {
-    const prevSel = document.querySelector(`#bulk-row-${idx-1} .bulk-cat`);
-    prevCat = prevSel?.value || 'vestidos';
-  }
-
-  const catOptions = BULK_CATS.map(([v,l]) =>
-    `<option value="${v}"${v===prevCat?' selected':''}>${l}</option>`
-  ).join('');
-
-  const sizesHtml = ['P','M','G','GG'].map(s => `
-    <div class="bulk-sz">
-      <input type="checkbox" id="bsz-${idx}-${s}" class="bulk-sz-chk" value="${s}"
-             onchange="toggleBulkSzStock(this)">
-      <label class="bulk-sz-label" for="bsz-${idx}-${s}">${s}</label>
-      <input type="number" class="bulk-stk-input" placeholder="0" min="0" disabled data-sz="${s}">
-    </div>
-  `).join('');
-
-  const html = `
-    <div class="bulk-row" id="bulk-row-${idx}">
-      <div class="bulk-row__head">
-        <span class="bulk-row__num"><i class="bi bi-tag"></i> Produto ${idx+1}</span>
-        ${idx > 0 ? `<button type="button" class="bulk-row__del" onclick="removeBulkRow('bulk-row-${idx}')" title="Remover"><i class="bi bi-trash"></i></button>` : ''}
-      </div>
-      <div class="bulk-main-fields">
-        <div class="bulk-fg">
-          <label class="form-label">Nome *</label>
-          <input type="text" class="form-input bulk-name" placeholder="ex: Vestido Floral Rosa"
-                 oninput="updateBulkCount()" autocomplete="off">
-        </div>
-        <div class="bulk-fg">
-          <label class="form-label">Categoria</label>
-          <select class="form-select bulk-cat">${catOptions}</select>
-        </div>
-        <div class="bulk-fg">
-          <label class="form-label">Preço R$ *</label>
-          <input type="number" class="form-input bulk-price" placeholder="0,00"
-                 step="0.01" min="0" oninput="updateBulkCount()">
-        </div>
-        <div class="bulk-fg">
-          <label class="form-label">Original R$</label>
-          <input type="number" class="form-input bulk-orig" placeholder="—" step="0.01" min="0">
-        </div>
-        <div class="bulk-fg">
-          <label class="form-label">Status</label>
-          <select class="form-select bulk-status">
-            <option value="active">Ativo</option>
-            <option value="inactive">Inativo</option>
-          </select>
-        </div>
-      </div>
-      <div class="bulk-sizes-strip">
-        <span class="bulk-sizes-label">Tamanhos & Estoque:</span>
-        ${sizesHtml}
-      </div>
-      <div class="bulk-img-row">
-        <div class="bulk-fg">
-          <label class="form-label">URL da Foto (opcional — pode adicionar depois)</label>
-          <input type="text" class="form-input bulk-img" placeholder="https://..." oninput="previewBulkImg(this)">
-        </div>
-        <img class="bulk-img-preview" id="bulk-img-prev-${idx}" alt="">
-      </div>
-    </div>`;
-
-  document.getElementById('bulk-rows-container').insertAdjacentHTML('beforeend', html);
-
-  // Foca no nome do novo produto e rola até ele
-  setTimeout(() => {
-    const row = document.getElementById(`bulk-row-${idx}`);
-    row?.querySelector('.bulk-name')?.focus();
-    row?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }, 50);
-
-  updateBulkCount();
-}
-
-function toggleBulkSzStock(chk) {
-  const stk = chk.closest('.bulk-sz').querySelector('.bulk-stk-input');
-  stk.disabled = !chk.checked;
-  if (chk.checked) {
-    stk.value = stk.value || '0';
-    stk.focus();
-    stk.select();
-  }
-}
-
-function removeBulkRow(rowId) {
-  document.getElementById(rowId)?.remove();
-  updateBulkCount();
-}
-
-function previewBulkImg(input) {
-  const row = input.closest('.bulk-row');
-  const prev = row?.querySelector('.bulk-img-preview');
-  if (!prev) return;
-  const url = input.value.trim();
-  if (url) { prev.src = url; prev.style.display = 'block'; }
-  else { prev.style.display = 'none'; }
-}
-
-function updateBulkCount() {
-  const rows = document.querySelectorAll('#bulk-rows-container .bulk-row');
-  let valid = 0;
-  rows.forEach(row => {
-    const name  = row.querySelector('.bulk-name')?.value.trim();
-    const price = parseFloat(row.querySelector('.bulk-price')?.value);
-    if (name && price > 0) valid++;
-  });
-  const btn = document.getElementById('bulk-save-btn');
-  if (btn) btn.textContent = valid > 0
-    ? `Salvar ${valid} produto${valid > 1 ? 's' : ''}`
-    : 'Salvar produtos';
-}
-
-function saveBulkProducts() {
-  const rows = document.querySelectorAll('#bulk-rows-container .bulk-row');
-  const products = DB.get('products') || [];
-  let saved = 0, skipped = 0;
-
-  rows.forEach(row => {
-    const name  = row.querySelector('.bulk-name')?.value.trim();
-    const price = parseFloat(row.querySelector('.bulk-price')?.value);
-
-    if (!name || !(price > 0)) {
-      row.classList.add('bulk-row--error');
-      skipped++;
-      return;
-    }
-    row.classList.remove('bulk-row--error');
-
-    const sizes = [];
-    const stock = { P:0, M:0, G:0, GG:0 };
-    row.querySelectorAll('.bulk-sz-chk:checked').forEach(chk => {
-      sizes.push(chk.value);
-      const stkInput = chk.closest('.bulk-sz').querySelector('.bulk-stk-input');
-      stock[chk.value] = parseInt(stkInput?.value) || 0;
-    });
-
-    const imgUrl = row.querySelector('.bulk-img')?.value.trim() || '';
-
-    products.push({
-      id:            'P' + uid(),
-      name,
-      category:      row.querySelector('.bulk-cat')?.value || 'vestidos',
-      price,
-      originalPrice: parseFloat(row.querySelector('.bulk-orig')?.value) || 0,
-      image:         imgUrl,
-      images:        imgUrl ? [imgUrl] : [],
-      description:   '',
-      colors:        [],
-      sizes,
-      stock,
-      status:        row.querySelector('.bulk-status')?.value || 'active',
-      createdAt:     now(),
-    });
-    saved++;
-  });
-
-  if (saved === 0) {
-    toast('Preencha pelo menos um produto com nome e preço.', 'error');
-    return;
-  }
-
-  DB.set('products', products);
-  renderProducts();
-  document.getElementById('bulk-overlay').classList.remove('open');
-  toast(`${saved} produto${saved > 1 ? 's cadastrados' : ' cadastrado'} com sucesso!`, 'success');
-  if (skipped > 0)
-    setTimeout(() => toast(`${skipped} linha${skipped > 1 ? 's ignoradas' : ' ignorada'} por falta de nome/preço.`, 'info'), 700);
 }
 
 
