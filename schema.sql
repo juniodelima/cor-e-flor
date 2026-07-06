@@ -229,6 +229,34 @@ BEGIN
 END;
 $$;
 
+-- Cupom PRIMEIRA: frete grátis para primeira compra acima de R$ 150
+INSERT INTO coupons (code, discount_type, discount_value, min_order, active)
+VALUES ('PRIMEIRA', 'frete', 0, 150, true)
+ON CONFLICT (code) DO NOTHING;
+
+-- ================================================================
+--  10. VALE PRESENTE
+-- ================================================================
+CREATE TABLE IF NOT EXISTS gift_cards (
+  id              UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  code            TEXT UNIQUE NOT NULL,
+  amount          DECIMAL(10,2) NOT NULL,
+  to_name         TEXT NOT NULL,
+  to_email        TEXT NOT NULL,
+  from_name       TEXT NOT NULL,
+  from_email      TEXT NOT NULL,
+  message         TEXT,
+  status          TEXT DEFAULT 'pending_payment' CHECK (status IN ('pending_payment','active','used','expired')),
+  used            BOOLEAN DEFAULT FALSE,
+  used_by_order   UUID,
+  created_at      TIMESTAMPTZ DEFAULT NOW()
+);
+ALTER TABLE gift_cards ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "gc_insert" ON gift_cards FOR INSERT WITH CHECK (true);
+CREATE POLICY "gc_admin"  ON gift_cards FOR ALL USING (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true)
+);
+
 -- ================================================================
 --  PRIMEIRO ADMIN — execute manualmente após criar a conta
 --  Substitua pelo e-mail cadastrado no Supabase Auth

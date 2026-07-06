@@ -21,6 +21,104 @@
 <link rel="preload" as="image" href="assets/logo-nova.png">
 
 <link rel="stylesheet" href="styles.css?v=4" />
+<style>
+/* ─── Ticker de anúncios ─── */
+.promo-ticker{background:var(--rose-deep);color:#fff;height:36px;overflow:hidden;display:flex;align-items:center;position:relative;z-index:50}
+.promo-ticker__track{display:flex;gap:32px;align-items:center;white-space:nowrap;animation:ticker-slide 32s linear infinite;font-family:var(--sans);font-size:12.5px;font-weight:500;letter-spacing:.3px;padding-left:32px}
+.promo-ticker__track strong{font-weight:800;background:rgba(255,255,255,.18);padding:1px 7px;border-radius:4px}
+.promo-ticker__dot{opacity:.5;flex-shrink:0}
+@keyframes ticker-slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ─── Promos do Dia ─── */
+.promos-dia{background:linear-gradient(135deg,#7B1F50 0%,#C0527E 55%,#9B3068 100%);padding:52px 0 60px;overflow:hidden;position:relative}
+.promos-dia::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat}
+.promos-dia__head{max-width:1200px;margin:0 auto;padding:0 24px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;position:relative}
+.promos-dia__left{flex:1}
+.promos-dia__eyebrow{font-family:var(--sans);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,.7);margin-bottom:6px;display:block}
+.promos-dia__title{font-family:var(--serif);font-size:34px;font-weight:400;color:#fff;margin:0;line-height:1.15}
+.promos-dia__title em{font-style:italic;opacity:.9}
+.promos-timer{text-align:right}
+.promos-timer__label{font-family:var(--sans);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,.6);margin-bottom:8px;display:block}
+.promos-timer__blocks{display:flex;align-items:center;gap:6px}
+.promos-timer__blk{background:rgba(0,0,0,.3);border-radius:10px;padding:10px 14px;text-align:center;min-width:58px;backdrop-filter:blur(4px)}
+.promos-timer__blk span{font-family:var(--serif);font-size:28px;font-weight:700;color:#fff;line-height:1;display:block}
+.promos-timer__blk small{font-family:var(--sans);font-size:9px;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:1px}
+.promos-timer__sep{font-family:var(--serif);font-size:24px;color:rgba(255,255,255,.5);font-weight:700;margin-bottom:12px}
+.promos-dia__grid{max-width:1200px;margin:0 auto;padding:0 24px;display:grid;grid-template-columns:repeat(4,1fr);gap:20px;position:relative}
+.promo-card{background:#fff;border-radius:18px;overflow:hidden;transition:transform .25s ease,box-shadow .25s ease;cursor:pointer;text-decoration:none;display:block}
+.promo-card:hover{transform:translateY(-8px);box-shadow:0 24px 56px rgba(28,20,20,.22)}
+.promo-card__media{aspect-ratio:3/4;overflow:hidden;position:relative}
+.promo-card__media img{width:100%;height:100%;object-fit:cover;transition:transform .5s ease;display:block}
+.promo-card:hover .promo-card__media img{transform:scale(1.08)}
+.promo-card__badge{position:absolute;top:12px;left:12px;background:#c0392b;color:#fff;font-family:var(--sans);font-size:10px;font-weight:800;letter-spacing:.8px;padding:5px 11px;border-radius:20px;text-transform:uppercase}
+.promo-card__body{padding:16px 18px 18px}
+.promo-card__name{font-family:var(--sans);font-size:13.5px;font-weight:600;color:var(--ink);margin:0 0 10px;line-height:1.35}
+.promo-card__prices{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.promo-card__now{font-family:var(--serif);font-size:21px;font-weight:700;color:var(--rose-deep)}
+.promo-card__was{font-family:var(--sans);font-size:12px;color:var(--warm-gray);text-decoration:line-through}
+.promo-card__saving{display:inline-block;font-family:var(--sans);font-size:11px;font-weight:700;color:#2e7d4f;background:rgba(46,125,79,.1);padding:3px 9px;border-radius:5px;margin-bottom:10px}
+.promo-card__btn{display:block;width:100%;padding:10px;background:var(--rose);color:#fff;border:none;border-radius:9px;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;transition:background .15s;text-align:center}
+.promo-card__btn:hover{background:var(--rose-deep)}
+
+/* ─── Card enhancements (frete grátis + social proof) ─── */
+.card__extra{display:flex;flex-direction:column;gap:4px;margin-top:6px}
+.card__freeship{display:inline-flex;align-items:center;gap:5px;font-family:var(--sans);font-size:10px;font-weight:700;color:#2e7d4f;background:rgba(46,125,79,.09);padding:3px 9px;border-radius:5px;width:fit-content}
+.card__viewers{display:flex;align-items:center;gap:5px;font-family:var(--sans);font-size:10.5px;color:var(--warm-gray)}
+.card__viewers-dot{width:6px;height:6px;border-radius:50%;background:#22c55e;flex-shrink:0;animation:pulse-dot 2s infinite}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.25}}
+.card__stock{font-family:var(--sans);font-size:10px;font-weight:600;color:#c0392b}
+
+/* ─── Banner Vale Presente ─── */
+.gift-banner{background:linear-gradient(135deg,#1C0E18 0%,#3D1F30 50%,#1C0E18 100%);padding:64px 24px;text-align:center;position:relative;overflow:hidden}
+.gift-banner__orb{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none}
+.gift-banner__orb--a{width:300px;height:300px;background:rgba(212,103,154,.25);top:-60px;left:10%}
+.gift-banner__orb--b{width:250px;height:250px;background:rgba(196,149,106,.2);bottom:-40px;right:15%}
+.gift-banner__inner{position:relative;max-width:580px;margin:0 auto}
+.gift-banner__emoji{font-size:52px;display:block;margin-bottom:16px;animation:gift-float 3s ease-in-out infinite}
+@keyframes gift-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.gift-banner__title{font-family:var(--serif);font-size:34px;color:#fff;margin:0 0 14px;font-weight:400;line-height:1.2}
+.gift-banner__title em{color:var(--rose);font-style:italic}
+.gift-banner__sub{font-family:var(--sans);font-size:15px;color:rgba(255,255,255,.65);margin:0 0 30px;line-height:1.7}
+.gift-banner__pills{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:28px}
+.gift-banner__pill{font-family:var(--sans);font-size:12px;font-weight:600;color:rgba(255,255,255,.8);background:rgba(255,255,255,.1);padding:6px 16px;border-radius:20px;border:1px solid rgba(255,255,255,.15)}
+.gift-banner__btn{display:inline-block;padding:15px 40px;background:var(--rose);color:#fff;border-radius:50px;font-family:var(--sans);font-size:14px;font-weight:700;text-decoration:none;transition:background .15s,transform .2s;letter-spacing:.3px}
+.gift-banner__btn:hover{background:var(--rose-deep);transform:scale(1.05)}
+
+/* ─── Modal primeira compra ─── */
+#first-visit-veil{position:fixed;inset:0;background:rgba(28,20,20,.7);z-index:9000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px);opacity:0;transition:opacity .4s}
+#first-visit-veil.is-in{opacity:1}
+.fv-modal{background:#fff;border-radius:24px;max-width:440px;width:100%;overflow:hidden;transform:translateY(40px) scale(.96);transition:transform .4s cubic-bezier(.4,0,.2,1)}
+#first-visit-veil.is-in .fv-modal{transform:translateY(0) scale(1)}
+.fv-modal__top{background:linear-gradient(135deg,#9B3068,#D4679A,#C4956A);padding:36px 32px 28px;text-align:center;position:relative}
+.fv-modal__close{position:absolute;top:12px;right:14px;background:rgba(255,255,255,.2);border:none;width:32px;height:32px;border-radius:50%;color:#fff;font-size:18px;cursor:pointer;display:grid;place-items:center;line-height:1;transition:background .15s}
+.fv-modal__close:hover{background:rgba(255,255,255,.35)}
+.fv-modal__emoji{font-size:40px;display:block;margin-bottom:12px}
+.fv-modal__title{font-family:var(--serif);font-size:26px;color:#fff;margin:0 0 8px;font-weight:400}
+.fv-modal__sub{font-family:var(--sans);font-size:13px;color:rgba(255,255,255,.82);margin:0;line-height:1.55}
+.fv-modal__body{padding:28px 32px 32px;text-align:center}
+.fv-modal__offer{font-family:var(--sans);font-size:14px;color:var(--ink);margin:0 0 20px;line-height:1.65}
+.fv-modal__offer strong{color:var(--rose-deep)}
+.fv-modal__coupon{background:rgba(212,103,154,.07);border:2px dashed var(--rose);border-radius:14px;padding:18px 20px;margin-bottom:22px}
+.fv-modal__coupon-label{font-family:var(--sans);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--warm-gray);margin-bottom:8px}
+.fv-modal__code{font-family:var(--serif);font-size:30px;font-weight:700;color:var(--rose-deep);letter-spacing:3px;cursor:pointer;user-select:all}
+.fv-modal__copy-tip{font-size:11px;color:var(--warm-gray);margin:4px 0 0}
+.fv-modal__btn{display:block;width:100%;padding:14px;background:var(--rose);color:#fff;border:none;border-radius:12px;font-family:var(--sans);font-size:15px;font-weight:600;cursor:pointer;transition:background .15s;text-decoration:none;margin-bottom:10px}
+.fv-modal__btn:hover{background:var(--rose-deep)}
+.fv-modal__skip{background:none;border:none;color:var(--warm-gray);font-family:var(--sans);font-size:12px;cursor:pointer;text-decoration:underline;display:block;margin:0 auto}
+
+@media(max-width:860px){
+  .promos-dia__grid{grid-template-columns:repeat(2,1fr);gap:14px}
+  .promos-dia__title{font-size:26px}
+  .promos-timer__blk{min-width:46px;padding:8px 10px}
+  .promos-timer__blk span{font-size:22px}
+}
+@media(max-width:480px){
+  .promos-dia__grid{gap:10px}
+  .promo-card__body{padding:12px 14px 14px}
+  .promo-card__now{font-size:18px}
+  .gift-banner__title{font-size:26px}
+}
+</style>
 </head>
 <body>
 
@@ -182,6 +280,32 @@
 </div>
 
 
+<!-- ===== TICKER DE ANÚNCIOS ===== -->
+<div class="promo-ticker" role="marquee" aria-label="Promoções">
+  <div class="promo-ticker__track">
+    <span>🚚&nbsp; Frete grátis em compras acima de R$ 299</span>
+    <span class="promo-ticker__dot">✦</span>
+    <span>🎁&nbsp; Primeira compra: cupom <strong>PRIMEIRA</strong> — frete grátis acima de R$ 150</span>
+    <span class="promo-ticker__dot">✦</span>
+    <span>⭐&nbsp; Parcelamento em até 10× sem juros</span>
+    <span class="promo-ticker__dot">✦</span>
+    <span>🌸&nbsp; Troca grátis em até 30 dias</span>
+    <span class="promo-ticker__dot">✦</span>
+    <span>💳&nbsp; Pix, cartão de crédito e débito</span>
+    <span class="promo-ticker__dot">✦</span>
+    <span>🚚&nbsp; Frete grátis em compras acima de R$ 299</span>
+    <span class="promo-ticker__dot">✦</span>
+    <span>🎁&nbsp; Primeira compra: cupom <strong>PRIMEIRA</strong> — frete grátis acima de R$ 150</span>
+    <span class="promo-ticker__dot">✦</span>
+    <span>⭐&nbsp; Parcelamento em até 10× sem juros</span>
+    <span class="promo-ticker__dot">✦</span>
+    <span>🌸&nbsp; Troca grátis em até 30 dias</span>
+    <span class="promo-ticker__dot">✦</span>
+    <span>💳&nbsp; Pix, cartão de crédito e débito</span>
+    <span class="promo-ticker__dot">✦</span>
+  </div>
+</div>
+
 <!-- ===== HERO ===== -->
 <main id="top">
 <section class="hero" data-screen-label="01 Home | Hero">
@@ -311,6 +435,28 @@
       </div>
     </a>
   </div>
+</section>
+
+
+<!-- ===== PROMOS DO DIA ===== -->
+<section class="promos-dia" id="promos-dia">
+  <div class="promos-dia__head">
+    <div class="promos-dia__left">
+      <span class="promos-dia__eyebrow">🔥 OFERTA DO DIA</span>
+      <h2 class="promos-dia__title">Promos <em>do Dia</em></h2>
+    </div>
+    <div class="promos-timer">
+      <span class="promos-timer__label">Acaba em</span>
+      <div class="promos-timer__blocks">
+        <div class="promos-timer__blk"><span id="ptd-h">00</span><small>h</small></div>
+        <div class="promos-timer__sep">:</div>
+        <div class="promos-timer__blk"><span id="ptd-m">00</span><small>m</small></div>
+        <div class="promos-timer__sep">:</div>
+        <div class="promos-timer__blk"><span id="ptd-s">00</span><small>s</small></div>
+      </div>
+    </div>
+  </div>
+  <div class="promos-dia__grid" id="promos-dia-grid"><!-- injetado por JS --></div>
 </section>
 
 
@@ -499,6 +645,25 @@
       </div>
       <a class="story-cta" href="https://www.instagram.com/coreflorbrasilia?igsh=dzFlZDZrd2lkZG9i" target="_blank" rel="noopener">Ver no Instagram</a>
     </div>
+  </div>
+</section>
+
+<!-- ===== VALE PRESENTE ===== -->
+<section class="gift-banner">
+  <div class="gift-banner__orb gift-banner__orb--a"></div>
+  <div class="gift-banner__orb gift-banner__orb--b"></div>
+  <div class="gift-banner__inner reveal">
+    <span class="gift-banner__emoji">🎁</span>
+    <h2 class="gift-banner__title">Presente perfeito para quem você <em>ama.</em></h2>
+    <p class="gift-banner__sub">Dê um vale presente Cor & Flor e deixe ela escolher a peça que faz o coração dela florescer. Enviamos o código por e-mail em instantes.</p>
+    <div class="gift-banner__pills">
+      <span class="gift-banner__pill">R$ 100</span>
+      <span class="gift-banner__pill">R$ 150</span>
+      <span class="gift-banner__pill">R$ 200</span>
+      <span class="gift-banner__pill">R$ 300</span>
+      <span class="gift-banner__pill">Valor livre</span>
+    </div>
+    <a href="vale-presente.html" class="gift-banner__btn">Presentear agora ✿</a>
   </div>
 </section>
 
@@ -793,10 +958,32 @@
 </div>
 
 
+<!-- ===== MODAL PRIMEIRA COMPRA ===== -->
+<div id="first-visit-veil" aria-modal="true" role="dialog" aria-label="Oferta de boas-vindas" style="display:none">
+  <div class="fv-modal">
+    <div class="fv-modal__top">
+      <button class="fv-modal__close" id="fv-close" aria-label="Fechar">×</button>
+      <span class="fv-modal__emoji">🌸</span>
+      <h2 class="fv-modal__title">Bem-vinda ao jardim!</h2>
+      <p class="fv-modal__sub">Temos um presentinho especial<br>para a sua primeira visita.</p>
+    </div>
+    <div class="fv-modal__body">
+      <p class="fv-modal__offer">Ganhe <strong>frete grátis</strong> na sua primeira compra acima de <strong>R$ 150</strong>. Use o cupom abaixo no checkout:</p>
+      <div class="fv-modal__coupon">
+        <div class="fv-modal__coupon-label">Seu cupom exclusivo</div>
+        <div class="fv-modal__code" id="fv-code" title="Clique para copiar">PRIMEIRA</div>
+        <p class="fv-modal__copy-tip">Clique no código para copiar</p>
+      </div>
+      <a href="#novidades" class="fv-modal__btn" id="fv-cta">Aproveitar agora ✿</a>
+      <button class="fv-modal__skip" id="fv-skip">Não, obrigada</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="supabase-client.js?v=1"></script>
 <script src="products-data.js?v=4"></script>
-<script src="script.js?v=6"></script>
+<script src="script.js?v=7"></script>
 </body>
 </html>
 

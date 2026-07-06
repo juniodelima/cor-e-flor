@@ -37,9 +37,23 @@ const DISPLAY_CATS = [
 function makeCard(p) {
   const badgeClass = p.badge === "SALE" ? "card__badge--sale"
                    : p.badge === "EXCLUSIVO" ? "card__badge--exclusive" : "";
-  const badge   = p.badge ? `<span class="card__badge ${badgeClass}">${p.badge}</span>` : "";
-  const was     = p.originalPrice ? `<span class="card__price-was">${BRL(p.originalPrice)}</span>` : "";
+  const badge    = p.badge ? `<span class="card__badge ${badgeClass}">${p.badge}</span>` : "";
+  const was      = p.originalPrice ? `<span class="card__price-was">${BRL(p.originalPrice)}</span>` : "";
   const swatches = p.colors.map(c => `<span class="card__sw" style="background:${c.hex||c}"></span>`).join("");
+
+  // Frete grátis para produtos acima de R$ 299
+  const freeShip = p.price >= 299
+    ? `<span class="card__freeship">🚚 Frete grátis</span>` : "";
+
+  // Espectadores simulados (seed pelo id para ser consistente)
+  const viewers = 5 + (p.id * 7 + 3) % 24;
+  const viewersHtml = `<span class="card__viewers"><span class="card__viewers-dot"></span>${viewers} pessoas vendo agora</span>`;
+
+  // Urgência de estoque para produtos SALE ou EXCLUSIVO
+  const stockUnits = 3 + (p.id * 3) % 4;
+  const stockHtml  = (p.badge === "SALE" || p.badge === "EXCLUSIVO")
+    ? `<span class="card__stock">⚡ Últimas ${stockUnits} unidades</span>` : "";
+
   const el = document.createElement("article");
   el.className = "card";
   el.dataset.id = p.id;
@@ -60,6 +74,7 @@ function makeCard(p) {
         ${was}
       </div>
       <div class="card__colors" aria-label="Cores disponíveis">${swatches}</div>
+      <div class="card__extra">${freeShip}${viewersHtml}${stockHtml}</div>
     </div>`;
   el.querySelector('.card__media').addEventListener('click', e => {
     if (!e.target.closest('button')) window.location.href = `produto.html?id=${p.id}`;
@@ -843,3 +858,120 @@ async function _finalizarPedido(paymentId, paymentStatus) {
   document.getElementById('checkout-step-ok').style.display      = 'block';
   document.getElementById('checkout-order-id').textContent = data.id.slice(0,8).toUpperCase();
 }
+
+
+/* ================================================================
+   PROMOS DO DIA — grid + countdown até meia-noite
+================================================================ */
+
+function renderPromosDia() {
+  const grid = document.getElementById('promos-dia-grid');
+  if (!grid) return;
+
+  const promos = products.filter(p => p.badge === 'SALE').slice(0, 4);
+  if (!promos.length) { document.getElementById('promos-dia')?.remove(); return; }
+
+  grid.innerHTML = '';
+  promos.forEach(p => {
+    const pct = p.originalPrice ? Math.round((1 - p.price / p.originalPrice) * 100) : 0;
+    const wasBadge = pct > 0 ? `<span class="promo-card__badge">-${pct}%</span>` : '';
+    const wasPrice = p.originalPrice ? `<span class="promo-card__was">${BRL(p.originalPrice)}</span>` : '';
+    const saving   = pct > 0 ? `<span class="promo-card__saving">Economia ${BRL(p.originalPrice - p.price)}</span>` : '';
+
+    const card = document.createElement('div');
+    card.className = 'promo-card';
+    card.innerHTML = `
+      <div class="promo-card__media">
+        <a href="produto.html?id=${p.id}">
+          <img src="${p.image}" alt="${p.name}" loading="lazy">
+        </a>
+        ${wasBadge}
+      </div>
+      <div class="promo-card__body">
+        <h3 class="promo-card__name">${p.name}</h3>
+        <div class="promo-card__prices">
+          <span class="promo-card__now">${BRL(p.price)}</span>
+          ${wasPrice}
+        </div>
+        ${saving}
+        <button class="promo-card__btn" data-add-promo="${p.id}">
+          <svg width="14" height="14"><use href="#i-bag"/></svg> Adicionar
+        </button>
+      </div>`;
+    card.querySelector('[data-add-promo]').addEventListener('click', () => addToCart(p.id));
+    grid.appendChild(card);
+  });
+}
+
+function startPromoCountdown() {
+  const elH = document.getElementById('ptd-h');
+  const elM = document.getElementById('ptd-m');
+  const elS = document.getElementById('ptd-s');
+  if (!elH) return;
+
+  function tick() {
+    const now  = new Date();
+    const end  = new Date(now);
+    end.setHours(23, 59, 59, 999);
+    const diff = Math.max(0, end - now);
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    elH.textContent = String(h).padStart(2, '0');
+    elM.textContent = String(m).padStart(2, '0');
+    elS.textContent = String(s).padStart(2, '0');
+  }
+  tick();
+  setInterval(tick, 1000);
+}
+
+renderPromosDia();
+startPromoCountdown();
+
+// delegação de clique no grid de promos (fallback)
+document.getElementById('promos-dia-grid')?.addEventListener('click', e => {
+  const btn = e.target.closest('[data-add-promo]');
+  if (btn) addToCart(parseInt(btn.dataset.addPromo, 10));
+});
+
+
+/* ================================================================
+   MODAL PRIMEIRA VISITA — cupom PRIMEIRA (frete grátis acima R$150)
+================================================================ */
+
+(function firstVisitModal() {
+  const veil = document.getElementById('first-visit-veil');
+  if (!veil) return;
+
+  // Só mostra na primeira visita
+  if (localStorage.getItem('cf_visited')) return;
+
+  function closeModal() {
+    veil.classList.remove('is-in');
+    setTimeout(() => { veil.style.display = 'none'; }, 400);
+    localStorage.setItem('cf_visited', '1');
+  }
+
+  // Mostra após 4 segundos com animação
+  setTimeout(() => {
+    veil.style.display = 'flex';
+    veil.offsetHeight; // força reflow para a transição disparar
+    veil.classList.add('is-in');
+  }, 4000);
+
+  veil.querySelector('#fv-close')?.addEventListener('click', closeModal);
+  veil.querySelector('.fv-modal__skip')?.addEventListener('click', closeModal);
+  veil.querySelector('.fv-modal__btn')?.addEventListener('click', closeModal);
+
+  // Fechar ao clicar fora do modal
+  veil.addEventListener('click', e => { if (e.target === veil) closeModal(); });
+
+  // Copiar código ao clicar no código
+  veil.querySelector('.fv-modal__code')?.addEventListener('click', function() {
+    navigator.clipboard?.writeText('PRIMEIRA').then(() => {
+      const orig = this.textContent;
+      this.textContent = 'Copiado! ✿';
+      setTimeout(() => { this.textContent = orig; }, 1500);
+    }).catch(() => {});
+  });
+})();
