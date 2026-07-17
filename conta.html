@@ -284,6 +284,12 @@ const cartVeil = document.getElementById('cart-veil');
 document.getElementById('open-cart').addEventListener('click', () => { cart.classList.add('is-open'); cartVeil.classList.add('is-open'); cart.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; });
 document.getElementById('close-cart').addEventListener('click', () => { cart.classList.remove('is-open'); cartVeil.classList.remove('is-open'); cart.setAttribute('aria-hidden','true'); document.body.style.overflow=''; });
 cartVeil.addEventListener('click', () => document.getElementById('close-cart').click());
+document.getElementById('cart-continue')?.addEventListener('click', () => document.getElementById('close-cart').click());
+document.querySelector('.cart__cta')?.addEventListener('click', () => {
+  const _items = JSON.parse(localStorage.getItem('cf_cart') || '[]');
+  if (!_items.length) { toast('Seu carrinho está vazio ✿'); return; }
+  window.location.href = 'checkout.html';
+});
 
 /* ── auth check + carregar dados ── */
 let _user = null;

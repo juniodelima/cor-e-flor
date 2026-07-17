@@ -275,6 +275,12 @@ document.getElementById('close-cart').addEventListener('click', closeCart);
 document.getElementById('close-cart-2').addEventListener('click', closeCart);
 document.getElementById('cart-veil').addEventListener('click', closeCart);
 
+/* Finalizar compra → checkout */
+document.getElementById('cart-checkout').addEventListener('click', () => {
+  if (!cartState.length) return;
+  window.location.href = 'checkout.html';
+});
+
 grid.addEventListener('click', e => {
   const fav = e.target.closest('.card__fav');
   if (fav) { fav.classList.toggle('is-on'); fav.querySelector('use').setAttribute('href', fav.classList.contains('is-on') ? '#i-heart-fill' : '#i-heart'); return; }

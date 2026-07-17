@@ -284,6 +284,54 @@ async function applyCoupon() {
   renderMyCoupons();
 }
 
+// ── Ofertas "leve junto" (upsell no step de dados) ───────────────────────────
+
+function renderUpsell() {
+  const wrap = document.getElementById('co-upsell');
+  const row  = document.getElementById('co-upsell-row');
+  if (!wrap || !row) return;
+
+  const inCart = new Set(_cart.map(it => it.id));
+  const picks = products
+    .filter(p => !inCart.has(p.id))
+    .sort((a, b) => {
+      const pa = a.originalPrice > a.price ? 1 - a.price / a.originalPrice : 0;
+      const pb = b.originalPrice > b.price ? 1 - b.price / b.originalPrice : 0;
+      return pb - pa; // maiores descontos primeiro
+    })
+    .slice(0, 6);
+
+  if (!picks.length) { wrap.style.display = 'none'; return; }
+  wrap.style.display = '';
+
+  row.innerHTML = picks.map(p => {
+    const pct = p.originalPrice > p.price ? Math.round((1 - p.price / p.originalPrice) * 100) : 0;
+    return `
+      <div class="co-upsell-card">
+        ${pct > 0 ? `<span class="co-upsell-card__off">-${pct}%</span>` : ''}
+        <img src="${p.image}" alt="${p.name}" loading="lazy">
+        <div class="co-upsell-card__body">
+          <p class="co-upsell-card__name">${p.name}</p>
+          <span class="co-upsell-card__price">${BRL(p.price)}</span>${p.originalPrice > p.price ? `<span class="co-upsell-card__was">${BRL(p.originalPrice)}</span>` : ''}
+          <button type="button" class="co-upsell-card__btn" data-upsell="${p.id}">+ Adicionar</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function addUpsellToCart(id) {
+  const p = products.find(x => x.id === id);
+  if (!p) return;
+  const existing = _cart.find(x => x.id === id && !x.pieceName);
+  if (existing) existing.qty += 1;
+  else _cart.push({ id, qty: 1, size: (p.sizes && p.sizes[0]) || 'Único', color: p.colors?.[0]?.hex || '' });
+  localStorage.setItem('cf_cart', JSON.stringify(_cart));
+  renderSummary();
+  renderUpsell();
+  if (_couponData) applyCoupon(); // recalcula desconto com o novo subtotal
+  toast(`✿ ${p.name} adicionado ao pedido`);
+}
+
 // ── Cupons resgatados (carteirinha do cliente) ───────────────────────────────
 
 const COUPON_DESCS = { PRIMEIRA: 'Frete grátis acima de R$ 150' };
@@ -513,6 +561,13 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!_cart.length) { window.location.href = 'index.html'; return; }
 
   renderSummary();
+
+  // Ofertas "leve junto"
+  renderUpsell();
+  document.getElementById('co-upsell-row')?.addEventListener('click', e => {
+    const btn = e.target.closest('[data-upsell]');
+    if (btn) addUpsellToCart(Number(btn.dataset.upsell));
+  });
 
   // Cupons resgatados: renderiza chips e auto-aplica o selecionado no carrinho
   renderMyCoupons();

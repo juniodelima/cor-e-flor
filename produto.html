@@ -1120,6 +1120,12 @@ document.getElementById('close-cart').addEventListener('click', closeCart);
 document.getElementById('cart-continue').addEventListener('click', closeCart);
 cartVeil.addEventListener('click', closeCart);
 
+/* ========= FINALIZAR COMPRA → CHECKOUT ========= */
+document.querySelector('.cart__cta').addEventListener('click', function() {
+  if (!cartState.length) { toast('Seu carrinho está vazio ✿'); return; }
+  window.location.href = 'checkout.html';
+});
+
 function openCart() {
   cartEl.classList.add('is-open');
   cartVeil.classList.add('is-open');
