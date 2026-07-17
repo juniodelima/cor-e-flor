@@ -65,20 +65,29 @@
   .coupon-chip.is-selected { background: rgba(46,125,79,.08); border-color: #2e7d4f; border-style: solid; }
   .coupon-chip.is-selected .coupon-chip__code, .coupon-chip.is-selected .coupon-chip__state { color: #2e7d4f; }
 
-  /* ── Ofertas "leve junto" no checkout ── */
-  .co-upsell { background: rgba(212,103,154,.05); border: 1.5px dashed rgba(212,103,154,.35); border-radius: 14px; padding: 16px 16px 12px; margin-bottom: 26px; }
-  .co-upsell__title { font-family: var(--serif); font-size: 17px; font-weight: 500; color: var(--ink); margin: 0 0 2px; }
-  .co-upsell__sub { font-size: 12px; color: var(--warm-gray); margin: 0 0 12px; }
+  /* ── Ofertas "leve +1 e ganhe brinde" no checkout ── */
+  .co-upsell { background: linear-gradient(135deg, #9B3068, #D4679A 60%, #C4956A); border-radius: 16px; padding: 20px 18px 16px; margin-bottom: 26px; box-shadow: 0 8px 28px rgba(155,48,104,.28); }
+  .co-upsell__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; margin-bottom: 14px; flex-wrap: wrap; }
+  .co-upsell__head-txt { flex: 1; min-width: 200px; }
+  .co-upsell__title { font-family: var(--serif); font-size: 20px; font-weight: 500; color: #fff; margin: 0 0 4px; line-height: 1.25; }
+  .co-upsell__title em { font-style: italic; color: #FFE3A9; }
+  .co-upsell__sub { font-size: 12px; color: rgba(255,255,255,.85); margin: 0; line-height: 1.55; }
+  .co-upsell__timer { background: #fff; border-radius: 12px; padding: 8px 14px; text-align: center; flex-shrink: 0; box-shadow: 0 4px 14px rgba(0,0,0,.15); }
+  .co-upsell__timer-label { display: block; font-family: var(--sans); font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--warm-gray); margin-bottom: 2px; }
+  .co-upsell__timer-val { display: block; font-family: var(--serif); font-size: 24px; font-weight: 700; color: var(--rose-deep); font-variant-numeric: tabular-nums; line-height: 1; }
+  .co-upsell__timer.is-urgent .co-upsell__timer-val { color: #c0392b; animation: upsellPulse 1s infinite; }
+  @keyframes upsellPulse { 0%,100% { opacity: 1; } 50% { opacity: .45; } }
   .co-upsell__row { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 6px; -webkit-overflow-scrolling: touch; }
-  .co-upsell-card { flex: 0 0 138px; border: 1px solid rgba(212,103,154,.18); border-radius: 12px; overflow: hidden; background: #fff; position: relative; }
+  .co-upsell-card { flex: 1 1 0; min-width: 132px; max-width: 175px; border-radius: 12px; overflow: hidden; background: #fff; position: relative; display: flex; flex-direction: column; box-shadow: 0 4px 12px rgba(0,0,0,.12); }
   .co-upsell-card img { width: 100%; height: 128px; object-fit: cover; display: block; background: #f5ede8; }
-  .co-upsell-card__off { position: absolute; top: 8px; left: 8px; background: var(--rose-deep); color: #fff; font-family: var(--sans); font-size: 10px; font-weight: 700; padding: 3px 7px; border-radius: 20px; }
-  .co-upsell-card__body { padding: 8px 10px 10px; }
+  .co-upsell-card__off { position: absolute; top: 8px; left: 8px; background: #FFE3A9; color: #9B3068; font-family: var(--sans); font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 20px; box-shadow: 0 2px 6px rgba(0,0,0,.2); }
+  .co-upsell-card__body { padding: 8px 10px 10px; display: flex; flex-direction: column; flex: 1; }
   .co-upsell-card__name { font-family: var(--sans); font-size: 12px; font-weight: 600; color: var(--ink); line-height: 1.3; margin: 0 0 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 31px; }
-  .co-upsell-card__price { font-family: var(--serif); font-size: 14px; color: var(--rose-deep); font-weight: 600; }
+  .co-upsell-card__prices { min-height: 18px; white-space: nowrap; }
+  .co-upsell-card__price { font-family: var(--serif); font-size: 14px; color: var(--rose-deep); font-weight: 700; }
   .co-upsell-card__was { font-size: 11px; color: var(--warm-gray); text-decoration: line-through; margin-left: 4px; }
-  .co-upsell-card__btn { width: 100%; margin-top: 8px; padding: 8px; background: rgba(212,103,154,.12); color: var(--rose-deep); border: none; border-radius: 8px; font-family: var(--sans); font-size: 11px; font-weight: 700; letter-spacing: .5px; cursor: pointer; transition: background .15s, color .15s; }
-  .co-upsell-card__btn:hover { background: var(--rose); color: #fff; }
+  .co-upsell-card__btn { width: 100%; margin-top: auto; padding: 9px; background: var(--rose); color: #fff; border: none; border-radius: 8px; font-family: var(--sans); font-size: 11px; font-weight: 700; letter-spacing: .5px; cursor: pointer; transition: background .15s, transform .15s; }
+  .co-upsell-card__btn:hover { background: var(--rose-deep); transform: scale(1.03); }
 
   .co-section-title { font-family: var(--sans); font-size: 12px; font-weight: 600; color: var(--rose-deep); text-transform: uppercase; letter-spacing: 1px; margin: 28px 0 14px; }
   .co-section-title:first-child { margin-top: 0; }
@@ -162,10 +171,18 @@
       <!-- STEP 1: Dados -->
       <div class="co-form-card" id="step-dados">
 
-        <!-- Ofertas: leve junto -->
+        <!-- Ofertas: leve +1 peça e ganhe brinde -->
         <div class="co-upsell" id="co-upsell" style="display:none">
-          <h3 class="co-upsell__title">🛍️ Aproveite e leve junto</h3>
-          <p class="co-upsell__sub">Ofertas de hoje para acompanhar o seu pedido — adicione com 1 toque:</p>
+          <div class="co-upsell__head">
+            <div class="co-upsell__head-txt">
+              <h3 class="co-upsell__title">🎁 Leve mais uma peça e <em>ganhe um brinde!</em></h3>
+              <p class="co-upsell__sub">Estas peças estão em oferta só para quem está finalizando o pedido. Adicione 1 e o brinde surpresa vai junto na sua sacola ✿</p>
+            </div>
+            <div class="co-upsell__timer">
+              <span class="co-upsell__timer-label">A oferta acaba em</span>
+              <span class="co-upsell__timer-val" id="co-upsell-timer">10:00</span>
+            </div>
+          </div>
           <div class="co-upsell__row" id="co-upsell-row"></div>
         </div>
 
@@ -329,6 +346,6 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="supabase-client.js?v=2"></script>
 <script src="products-data.js?v=4"></script>
-<script src="checkout.js?v=4"></script>
+<script src="checkout.js?v=5"></script>
 </body>
 </html>

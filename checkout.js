@@ -284,12 +284,14 @@ async function applyCoupon() {
   renderMyCoupons();
 }
 
-// ── Ofertas "leve junto" (upsell no step de dados) ───────────────────────────
+// ── Ofertas "leve +1 peça e ganhe brinde" (upsell no step de dados) ──────────
+
+let _upsellExpired = false;
 
 function renderUpsell() {
   const wrap = document.getElementById('co-upsell');
   const row  = document.getElementById('co-upsell-row');
-  if (!wrap || !row) return;
+  if (!wrap || !row || _upsellExpired) return;
 
   const inCart = new Set(_cart.map(it => it.id));
   const picks = products
@@ -299,7 +301,7 @@ function renderUpsell() {
       const pb = b.originalPrice > b.price ? 1 - b.price / b.originalPrice : 0;
       return pb - pa; // maiores descontos primeiro
     })
-    .slice(0, 6);
+    .slice(0, 4);
 
   if (!picks.length) { wrap.style.display = 'none'; return; }
   wrap.style.display = '';
@@ -308,15 +310,47 @@ function renderUpsell() {
     const pct = p.originalPrice > p.price ? Math.round((1 - p.price / p.originalPrice) * 100) : 0;
     return `
       <div class="co-upsell-card">
-        ${pct > 0 ? `<span class="co-upsell-card__off">-${pct}%</span>` : ''}
+        <span class="co-upsell-card__off">${pct > 0 ? `-${pct}% OFF` : 'OFERTA'}</span>
         <img src="${p.image}" alt="${p.name}" loading="lazy">
         <div class="co-upsell-card__body">
           <p class="co-upsell-card__name">${p.name}</p>
-          <span class="co-upsell-card__price">${BRL(p.price)}</span>${p.originalPrice > p.price ? `<span class="co-upsell-card__was">${BRL(p.originalPrice)}</span>` : ''}
+          <div class="co-upsell-card__prices">
+            <span class="co-upsell-card__price">${BRL(p.price)}</span>${p.originalPrice > p.price ? `<span class="co-upsell-card__was">${BRL(p.originalPrice)}</span>` : ''}
+          </div>
           <button type="button" class="co-upsell-card__btn" data-upsell="${p.id}">+ Adicionar</button>
         </div>
       </div>`;
   }).join('');
+}
+
+// Timer de 10 min — o prazo sobrevive a recarregamentos na mesma aba
+function startUpsellTimer() {
+  const el   = document.getElementById('co-upsell-timer');
+  const wrap = document.getElementById('co-upsell');
+  if (!el || !wrap) return;
+
+  let deadline = Number(sessionStorage.getItem('cf_upsell_deadline') || 0);
+  if (!deadline || deadline <= Date.now()) {
+    deadline = Date.now() + 10 * 60000;
+    sessionStorage.setItem('cf_upsell_deadline', String(deadline));
+  }
+
+  let timer = null;
+  function tick() {
+    const left = deadline - Date.now();
+    if (left <= 0) {
+      if (timer) clearInterval(timer);
+      _upsellExpired = true;
+      wrap.style.display = 'none';
+      return;
+    }
+    const m = Math.floor(left / 60000);
+    const s = Math.floor((left % 60000) / 1000);
+    el.textContent = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+    el.parentElement.classList.toggle('is-urgent', left < 60000);
+  }
+  tick();
+  timer = setInterval(tick, 1000);
 }
 
 function addUpsellToCart(id) {
@@ -562,8 +596,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   renderSummary();
 
-  // Ofertas "leve junto"
+  // Ofertas "leve +1 peça e ganhe brinde"
   renderUpsell();
+  startUpsellTimer();
   document.getElementById('co-upsell-row')?.addEventListener('click', e => {
     const btn = e.target.closest('[data-upsell]');
     if (btn) addUpsellToCart(Number(btn.dataset.upsell));
