@@ -68,6 +68,8 @@ CREATE TABLE IF NOT EXISTS orders (
   items          JSONB NOT NULL,
   subtotal       DECIMAL(10,2) NOT NULL,
   discount       DECIMAL(10,2) DEFAULT 0,
+  freight        DECIMAL(10,2) DEFAULT 0,
+  freight_service TEXT DEFAULT 'PAC',
   total          DECIMAL(10,2) NOT NULL,
   coupon_code    TEXT,
   address        JSONB,
@@ -78,6 +80,10 @@ CREATE TABLE IF NOT EXISTS orders (
   payment_status TEXT DEFAULT 'pendente',
   created_at     TIMESTAMPTZ DEFAULT NOW()
 );
+-- Bancos criados antes das colunas de frete: rode estas duas linhas
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS freight DECIMAL(10,2) DEFAULT 0;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS freight_service TEXT DEFAULT 'PAC';
+
 ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "orders_insert" ON orders FOR INSERT WITH CHECK (true);
 CREATE POLICY "orders_own"    ON orders FOR SELECT USING (auth.uid() = customer_id);

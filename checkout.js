@@ -602,12 +602,21 @@ async function initMPBrick(amount, email) {
 async function finalizeOrder(paymentId, paymentStatus) {
   const order = { ..._orderData, payment_id: String(paymentId), payment_status: paymentStatus };
 
-  const { data, error } = await Orders.create(order);
+  let { data, error } = await Orders.create(order);
+
+  // Banco ainda sem as colunas de frete: salva sem elas, registrando o frete nas observações
+  if (error && /freight/i.test(error.message || '')) {
+    console.warn('[orders.create] colunas de frete ausentes, salvando sem elas', error);
+    const { freight, freight_service, ...rest } = order;
+    rest.notes = [order.notes, `Frete: ${BRL(freight || 0)} (${freight_service || 'PAC'})`]
+      .filter(Boolean).join(' | ');
+    ({ data, error } = await Orders.create(rest));
+  }
 
   if (error) {
+    // O pagamento já foi feito — nunca deixa a cliente presa na tela de pagamento
     console.error('[orders.create]', error);
-    toast('Pagamento aprovado, mas erro ao salvar pedido. Anote o número: ' + paymentId + ' e entre em contato.');
-    return;
+    toast('Pagamento aprovado! Houve um erro ao registrar o pedido — guarde o número exibido.');
   }
 
   if (_mpBrick) { _mpBrick.unmount(); _mpBrick = null; }
