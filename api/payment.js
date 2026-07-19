@@ -2,6 +2,7 @@
 // e cria o pedido no banco após a aprovação (fonte única de pedidos pagos).
 const PRICES = require('../lib/prices');
 const { FREIGHT_TABLE, DEFAULT_FREIGHT } = require('../lib/freight-table');
+const { sendOrderEmails } = require('../lib/order-email');
 
 const TEST_PRODUCT_ID = 99; // pedido só com ele não paga frete
 
@@ -186,6 +187,10 @@ module.exports = async function handler(req, res) {
       } catch (e) {
         console.error('[payment] exceção ao salvar pedido:', e);
       }
+
+      // E-mail de confirmação para a cliente + aviso de novo pedido para a loja
+      const shortId = (orderId || String(result.id)).slice(0, 8).toUpperCase();
+      await sendOrderEmails(orderRow, shortId, result.status === 'approved');
     }
 
     return res.status(200).json({
