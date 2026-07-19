@@ -86,9 +86,17 @@ const Reviews = {
 /* ---- Cupons ---- */
 const Coupons = {
   async validate(code, subtotal) {
-    const { data, error } = await sb.from('coupons')
-      .select('*').eq('code', code.trim().toUpperCase()).eq('active', true).single();
-    if (error || !data) return { ok: false, msg: 'Cupom inválido.' };
+    // Busca via função segura (não permite listar cupons); se o banco ainda
+    // não tiver a função, cai no SELECT direto antigo.
+    let data = null;
+    const rpc = await sb.rpc('get_coupon', { p_code: code });
+    if (!rpc.error && Array.isArray(rpc.data)) data = rpc.data[0] || null;
+    if (rpc.error) {
+      const sel = await sb.from('coupons')
+        .select('*').eq('code', code.trim().toUpperCase()).eq('active', true).single();
+      data = sel.data;
+    }
+    if (!data) return { ok: false, msg: 'Cupom inválido.' };
     if (data.expires_at && new Date(data.expires_at) < new Date()) return { ok: false, msg: 'Cupom expirado.' };
     if (data.max_uses && data.uses >= data.max_uses) return { ok: false, msg: 'Cupom esgotado.' };
     const BRL = n => 'R$ ' + n.toFixed(2).replace('.', ',');

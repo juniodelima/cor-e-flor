@@ -49,6 +49,10 @@ const fmtDateTime = s => new Date(s).toLocaleString('pt-BR', {day:'2-digit',mont
 const uid = () => Math.random().toString(36).slice(2,10).toUpperCase();
 const now = () => new Date().toISOString();
 
+// Escapa HTML de textos vindos de clientes antes de renderizar (anti-XSS)
+const esc = s => String(s ?? '').replace(/[&<>"']/g,
+  c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+
 function toast(msg, type='success') {
   const t = document.getElementById('admin-toast');
   const icons = { success:'bi-check-circle-fill', error:'bi-x-circle-fill', info:'bi-info-circle-fill' };
@@ -81,29 +85,30 @@ const PAYMENT_LABELS = { credit_card:'Cartão Crédito', debit_card:'Cartão Dé
 const _cache = { orders: [], physical: [] };
 
 function _normOrder(o) {
+  // esc() em tudo que o cliente digitou: esses textos vão direto para innerHTML
   return {
     id: 'CF-' + o.id.slice(0,8).toUpperCase(), _id: o.id,
     customer: {
-      name: o.customer_name||'', email: o.customer_email||'', phone: o.customer_phone||'',
+      name: esc(o.customer_name), email: esc(o.customer_email), phone: esc(o.customer_phone),
       address: {
-        street: [o.address?.rua, o.address?.num].filter(Boolean).join(', '),
-        neighborhood: o.address?.bairro||'', city: o.address?.cidade||'',
-        state: o.address?.estado||'', zip: o.address?.cep||'',
+        street: esc([o.address?.rua, o.address?.num].filter(Boolean).join(', ')),
+        neighborhood: esc(o.address?.bairro), city: esc(o.address?.cidade),
+        state: esc(o.address?.estado), zip: esc(o.address?.cep),
       },
     },
-    items: (o.items||[]).map(i=>({name:i.name||'—',qty:i.qty||1,price:i.price||0,size:i.size||''})),
+    items: (o.items||[]).map(i=>({name:esc(i.name||'—'),qty:i.qty||1,price:i.price||0,size:esc(i.size)})),
     total: Number(o.total)||0, payment: 'credit_card',
-    status: o.status||'novo', notes: o.notes||'', createdAt: o.created_at,
+    status: o.status||'novo', notes: esc(o.notes), createdAt: o.created_at,
   };
 }
 function _normPhysical(s) {
   return {
     id: 'FS-'+s.id.slice(0,8).toUpperCase(), _id: s.id,
-    product: s.product||'', category: s.category||'outros',
+    product: esc(s.product), category: esc(s.category||'outros'),
     quantity: s.quantity||1, unitPrice: Number(s.unit_price)||0,
     discount: Number(s.discount)||0, total: Number(s.total)||0,
-    payment: s.payment||'dinheiro', seller: s.seller||'', customer: s.customer||'',
-    details: s.details||'', notes: s.notes||'', createdAt: s.created_at,
+    payment: esc(s.payment||'dinheiro'), seller: esc(s.seller), customer: esc(s.customer),
+    details: esc(s.details), notes: esc(s.notes), createdAt: s.created_at,
   };
 }
 async function loadOrders() {

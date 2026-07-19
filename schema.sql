@@ -280,6 +280,44 @@ CREATE POLICY "site_settings_admin" ON site_settings FOR ALL USING (
 );
 
 -- ================================================================
+--  12. SEGURANÇA (hardening) — rode este bloco inteiro no SQL Editor
+-- ================================================================
+
+-- (a) CRÍTICO: impede que um usuário logado se auto-promova a admin.
+--     A política "profiles_own" permite UPDATE na própria linha, o que
+--     incluía a coluna is_admin. Revogamos o update só dessa coluna.
+REVOKE UPDATE (is_admin) ON profiles FROM anon, authenticated;
+
+-- (b) CRÍTICO: a política "invites_check" deixava QUALQUER pessoa listar
+--     os códigos de convite admin não usados (e virar admin com eles).
+--     Trocamos por uma função que só confirma um código exato.
+DROP POLICY IF EXISTS "invites_check" ON admin_invites;
+CREATE OR REPLACE FUNCTION check_admin_invite(p_code TEXT)
+RETURNS BOOLEAN LANGUAGE sql SECURITY DEFINER SET search_path = public AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM admin_invites
+    WHERE code = p_code
+      AND used = false
+      AND (expires_at IS NULL OR expires_at > NOW())
+  );
+$$;
+
+-- (c) A política "coupons_read" deixava qualquer pessoa listar TODOS os
+--     cupons ativos da loja. Trocamos por função que retorna apenas o
+--     cupom de um código exato informado.
+DROP POLICY IF EXISTS "coupons_read" ON coupons;
+CREATE OR REPLACE FUNCTION get_coupon(p_code TEXT)
+RETURNS SETOF coupons LANGUAGE sql SECURITY DEFINER SET search_path = public AS $$
+  SELECT * FROM coupons
+  WHERE code = UPPER(TRIM(p_code)) AND active = true
+  LIMIT 1;
+$$;
+
+-- (d) Vale presente é criado apenas pelo servidor (service role, ignora
+--     RLS). A política pública de INSERT permitia forjar cartões ativos.
+DROP POLICY IF EXISTS "gc_insert" ON gift_cards;
+
+-- ================================================================
 --  PRIMEIRO ADMIN — execute manualmente após criar a conta
 --  Substitua pelo e-mail cadastrado no Supabase Auth
 -- ================================================================

@@ -235,7 +235,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-client.js?v=2"></script>
+<script src="supabase-client.js?v=3"></script>
 <script>
   const ICON_SPIN = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin .8s linear infinite"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>`;
   const ICON_OK   = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>`;
@@ -254,21 +254,24 @@
 
     if (!code) { showState('state-invalid'); return; }
 
-    // Validate invite code (SELECT where used=false — allowed by RLS)
-    const { data, error } = await sb.from('admin_invites')
-      .select('id, code, expires_at')
-      .eq('code', code)
-      .eq('used', false)
-      .single();
-
-    if (error || !data) { showState('state-invalid'); return; }
-
-    // Check expiry
-    if (data.expires_at && new Date(data.expires_at) < new Date()) {
-      showState('state-invalid'); return;
+    // Valida o convite via função segura (não expõe a lista de códigos).
+    // Fallback para o SELECT antigo enquanto o SQL de segurança não rodar.
+    let valid = false;
+    const rpc = await sb.rpc('check_admin_invite', { p_code: code });
+    if (!rpc.error) {
+      valid = rpc.data === true;
+    } else {
+      const { data } = await sb.from('admin_invites')
+        .select('id, code, expires_at')
+        .eq('code', code)
+        .eq('used', false)
+        .single();
+      valid = !!data && (!data.expires_at || new Date(data.expires_at) >= new Date());
     }
 
-    inviteCode = data.code;
+    if (!valid) { showState('state-invalid'); return; }
+
+    inviteCode = code;
     document.getElementById('invite-badge').innerHTML =
       `✓ Convite válido: <code>${inviteCode}</code>`;
     showState('state-form');
