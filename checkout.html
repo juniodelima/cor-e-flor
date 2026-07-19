@@ -97,6 +97,8 @@
   .co-back-btn:hover { color: var(--rose-deep); }
 
   #step-sucesso { text-align: center; padding: 20px 0; }
+  .co-wa-support { display: inline-flex; align-items: center; gap: 8px; padding: 12px 22px; border-radius: 999px; background: #25D366; color: #fff; font-family: var(--sans); font-size: 13px; font-weight: 600; text-decoration: none; transition: background .15s, transform .15s; }
+  .co-wa-support:hover { background: #1eb955; transform: scale(1.03); }
   #step-sucesso svg { margin-bottom: 20px; }
   #step-sucesso h2 { font-family: var(--serif); font-weight: 400; font-size: 28px; color: var(--ink); margin-bottom: 16px; }
   #step-sucesso p { color: var(--warm-gray); font-size: 15px; line-height: 1.65; margin-bottom: 10px; }
@@ -305,6 +307,13 @@
         <div style="margin-top:28px">
           <a href="index.html" class="btn btn--primary">Continuar comprando</a>
         </div>
+        <div style="margin-top:18px">
+          <p style="font-size:13px;margin-bottom:10px">Qualquer dúvida sobre o seu pedido, fale com a gente 💬</p>
+          <a id="co-wa-btn" class="co-wa-support" href="https://wa.me/5561396778731" target="_blank" rel="noopener">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3.5 20.5 5 16a8 8 0 1 1 3 3l-4.5 1.5Zm6.3-5.8c.3.6 1.1 1.4 2 1.7s1.5.2 2-.2c.4-.3.6-.7.6-1l-.3-.4-1.7-.8c-.2 0-.4 0-.5.2l-.4.5c-.2.2-.4.2-.6.1-.7-.3-1.4-.9-1.9-1.7-.1-.2 0-.4.1-.5l.4-.4c.2-.2.2-.3.1-.5L8.9 9.5c-.1-.3-.3-.3-.5-.3-.6 0-1.2.3-1.4.7-.4.6-.4 1.4 0 2.4.4.8 1 1.7 1.8 2.4Z"/></svg>
+            Falar com o suporte no WhatsApp
+          </a>
+        </div>
       </div>
 
     </div>
@@ -346,6 +355,6 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="supabase-client.js?v=3"></script>
 <script src="products-data.js?v=4"></script>
-<script src="checkout.js?v=8"></script>
+<script src="checkout.js?v=9"></script>
 </body>
 </html>

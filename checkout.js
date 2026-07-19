@@ -650,6 +650,13 @@ async function finalizeOrder(paymentId, paymentStatus, serverOrderId) {
   const shortId = (data?.id || '').slice(0, 8).toUpperCase() || String(paymentId).slice(0, 8);
   document.getElementById('co-order-id').textContent = shortId;
 
+  // Botão de suporte já abre o WhatsApp com o número do pedido na mensagem
+  const waBtn = document.getElementById('co-wa-btn');
+  if (waBtn) {
+    const msg = `Olá! Acabei de fazer o pedido #${shortId} no site da Cor & Flor e gostaria de tirar uma dúvida.`;
+    waBtn.href = `https://wa.me/5561396778731?text=${encodeURIComponent(msg)}`;
+  }
+
   setStep(3);
 }
 
