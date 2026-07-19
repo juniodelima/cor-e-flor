@@ -317,6 +317,12 @@ $$;
 --     RLS). A política pública de INSERT permitia forjar cartões ativos.
 DROP POLICY IF EXISTS "gc_insert" ON gift_cards;
 
+-- (e) Pedidos agora são criados pelo servidor (api/payment.js) somente
+--     após o pagamento ser aceito pelo Mercado Pago. O INSERT público
+--     permitia forjar pedidos "pagos" sem pagar nada.
+--     ⚠ Rode SOMENTE depois do deploy que cria pedidos no servidor.
+DROP POLICY IF EXISTS "orders_insert" ON orders;
+
 -- ================================================================
 --  PRIMEIRO ADMIN — execute manualmente após criar a conta
 --  Substitua pelo e-mail cadastrado no Supabase Auth

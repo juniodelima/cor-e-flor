@@ -562,11 +562,22 @@ async function initMPBrick(amount, email) {
                 issuer_id:         formData.issuer_id,
                 installments:      formData.installments,
                 payer:             formData.payer,
-                items:             _cart.map(it => ({ id: it.id, qty: it.qty, piecePrice: it.piecePrice ?? null })),
+                items: _cart.map(it => {
+                  const p = products.find(x => x.id === it.id);
+                  return { id: it.id, qty: it.qty, size: it.size || '', name: p?.name || '', image: p?.image || '', piecePrice: it.piecePrice ?? null };
+                }),
                 coupon_code:       _couponData?.coupon?.code || null,
-                freight_cost:      _orderData.freight || 0,
                 freight_service:   _orderData.freight_service || 'PAC',
-                idempotency_key:   `checkout-${Date.now()}`
+                idempotency_key:   `checkout-${Date.now()}`,
+                // Dados do pedido: o servidor cria o registro após aprovar o pagamento
+                order: {
+                  customer_id:    _orderData.customer_id,
+                  customer_name:  _orderData.customer_name,
+                  customer_email: _orderData.customer_email,
+                  customer_phone: _orderData.customer_phone,
+                  address:        _orderData.address,
+                  notes:          _orderData.notes,
+                }
               })
             });
 
@@ -574,10 +585,10 @@ async function initMPBrick(amount, email) {
 
             if (payment.status === 'approved') {
               if (payment.amount) _orderData.total = payment.amount;
-              await finalizeOrder(payment.id, 'aprovado');
+              await finalizeOrder(payment.id, 'aprovado', payment.order_id);
             } else if (payment.status === 'in_process' || payment.status === 'pending') {
               if (payment.amount) _orderData.total = payment.amount;
-              await finalizeOrder(payment.id, 'pendente');
+              await finalizeOrder(payment.id, 'pendente', payment.order_id);
               const msgEl = document.getElementById('co-payment-msg');
               if (msgEl) msgEl.textContent = 'Pagamento em análise. Você receberá a confirmação por e-mail em breve.';
             } else {
@@ -599,18 +610,25 @@ async function initMPBrick(amount, email) {
 
 // ── Finaliza pedido ───────────────────────────────────────────────────────────
 
-async function finalizeOrder(paymentId, paymentStatus) {
-  const order = { ..._orderData, payment_id: String(paymentId), payment_status: paymentStatus };
+async function finalizeOrder(paymentId, paymentStatus, serverOrderId) {
+  let data = null, error = null;
 
-  let { data, error } = await Orders.create(order);
+  if (serverOrderId) {
+    // Pedido já foi criado pelo servidor junto com o pagamento
+    data = { id: serverOrderId };
+  } else {
+    // Fallback (deploy antigo do servidor): cria o pedido pelo navegador
+    const order = { ..._orderData, payment_id: String(paymentId), payment_status: paymentStatus };
+    ({ data, error } = await Orders.create(order));
 
-  // Banco ainda sem as colunas de frete: salva sem elas, registrando o frete nas observações
-  if (error && /freight/i.test(error.message || '')) {
-    console.warn('[orders.create] colunas de frete ausentes, salvando sem elas', error);
-    const { freight, freight_service, ...rest } = order;
-    rest.notes = [order.notes, `Frete: ${BRL(freight || 0)} (${freight_service || 'PAC'})`]
-      .filter(Boolean).join(' | ');
-    ({ data, error } = await Orders.create(rest));
+    // Banco ainda sem as colunas de frete: salva sem elas, registrando o frete nas observações
+    if (error && /freight/i.test(error.message || '')) {
+      console.warn('[orders.create] colunas de frete ausentes, salvando sem elas', error);
+      const { freight, freight_service, ...rest } = order;
+      rest.notes = [order.notes, `Frete: ${BRL(freight || 0)} (${freight_service || 'PAC'})`]
+        .filter(Boolean).join(' | ');
+      ({ data, error } = await Orders.create(rest));
+    }
   }
 
   if (error) {

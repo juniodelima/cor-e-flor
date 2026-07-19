@@ -1,20 +1,31 @@
 // api/payment.js — Processa pagamento com valor calculado server-side
+// e cria o pedido no banco após a aprovação (fonte única de pedidos pagos).
 const PRICES = require('../lib/prices');
+const { FREIGHT_TABLE, DEFAULT_FREIGHT } = require('../lib/freight-table');
+
+const TEST_PRODUCT_ID = 99; // pedido só com ele não paga frete
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const {
     token, payment_method_id, issuer_id, installments,
-    payer, items, coupon_code, freight_cost, freight_service, idempotency_key
+    payer, items, coupon_code, freight_service, idempotency_key, order
   } = req.body;
 
   if (!token || !payer?.email || !Array.isArray(items) || !items.length) {
     return res.status(400).json({ error: 'Dados de pagamento incompletos' });
   }
 
+  const { createClient } = require('@supabase/supabase-js');
+  const sbAdmin = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY
+  );
+
   // ── Calcula subtotal com preços do servidor ──────────────────────────────
   let subtotal = 0;
+  const orderItems = [];
   for (const item of items) {
     const catalog = PRICES[Number(item.id)];
     if (!catalog) {
@@ -34,21 +45,27 @@ module.exports = async function handler(req, res) {
       unitPrice = catalog.price;
     }
 
-    subtotal += unitPrice * (Number(item.qty) || 1);
+    const qty = Math.max(1, Math.min(Number(item.qty) || 1, 99));
+    subtotal += unitPrice * qty;
+    orderItems.push({
+      id:    Number(item.id),
+      name:  String(item.name  || `Produto ${item.id}`).slice(0, 160),
+      image: String(item.image || '').slice(0, 400),
+      size:  String(item.size  || '').slice(0, 20),
+      qty,
+      price: unitPrice, // preço do servidor, nunca o do cliente
+    });
   }
 
   subtotal = Math.round(subtotal * 100) / 100;
 
   // ── Valida cupom no banco ────────────────────────────────────────────────
   let discount = 0;
+  let freeShipCoupon = false;
+  let couponCode = null;
   if (coupon_code) {
     try {
-      const { createClient } = require('@supabase/supabase-js');
-      const sb = createClient(
-        process.env.SUPABASE_URL,
-        process.env.SUPABASE_SERVICE_ROLE_KEY
-      );
-      const { data: coupon } = await sb
+      const { data: coupon } = await sbAdmin
         .from('coupons')
         .select('*')
         .eq('code', String(coupon_code).trim().toUpperCase())
@@ -61,8 +78,9 @@ module.exports = async function handler(req, res) {
         const tooSmall = subtotal < (coupon.min_order || 0);
 
         if (!expired && !depleted && !tooSmall) {
+          couponCode = coupon.code;
           if (coupon.discount_type === 'frete') {
-            discount = 0; // frete grátis: sem desconto no subtotal
+            freeShipCoupon = true; // frete grátis: sem desconto no subtotal
           } else {
             discount = coupon.discount_type === 'percent'
               ? subtotal * (coupon.discount_value / 100)
@@ -77,8 +95,26 @@ module.exports = async function handler(req, res) {
     }
   }
 
-  // Frete (entre 0 e R$ 999)
-  const freight = Math.round(Math.max(0, Math.min(Number(freight_cost) || 0, 999)) * 100) / 100;
+  // ── Frete calculado no servidor (nunca confia no valor do cliente) ───────
+  const service  = String(freight_service || 'PAC').toUpperCase() === 'SEDEX' ? 'SEDEX' : 'PAC';
+  const testOnly = items.every(i => Number(i.id) === TEST_PRODUCT_ID);
+  let freight = 0;
+  if (!testOnly && !freeShipCoupon) {
+    const freeAbove = parseFloat(process.env.FREE_SHIPPING_ABOVE || '299');
+    if (subtotal - discount < freeAbove) {
+      let table = DEFAULT_FREIGHT;
+      const cepDigits = String(order?.address?.cep || '').replace(/\D/g, '');
+      if (cepDigits.length === 8) {
+        try {
+          const r = await fetch(`https://viacep.com.br/ws/${cepDigits}/json/`);
+          const d = await r.json();
+          if (!d.erro) table = FREIGHT_TABLE[(d.uf || '').toUpperCase()] || DEFAULT_FREIGHT;
+        } catch { /* ViaCEP fora do ar: usa tabela padrão */ }
+      }
+      freight = service === 'SEDEX' ? table.sedex.price : table.pac.price;
+    }
+  }
+  freight = Math.round(freight * 100) / 100;
 
   const total = Math.round((subtotal - discount + freight) * 100) / 100;
 
@@ -114,12 +150,50 @@ module.exports = async function handler(req, res) {
       return res.status(resp.status).json(result);
     }
 
-    console.log(`[payment] id:${result.id} status:${result.status} subtotal:${subtotal} discount:${discount} freight:${freight} total:${total} service:${freight_service || 'PAC'}`);
+    console.log(`[payment] id:${result.id} status:${result.status} subtotal:${subtotal} discount:${discount} freight:${freight} total:${total} service:${service}`);
+
+    // ── Cria o pedido no banco (service role) — fonte única de pedidos pagos ──
+    let orderId = null;
+    if (['approved', 'pending', 'in_process'].includes(result.status)) {
+      const orderRow = {
+        customer_id:     order?.customer_id || null,
+        customer_name:   String(order?.customer_name  || payer.email).slice(0, 120),
+        customer_email:  String(order?.customer_email || payer.email).slice(0, 160),
+        customer_phone:  String(order?.customer_phone || '').slice(0, 40) || null,
+        items:           orderItems,
+        subtotal,
+        discount,
+        freight,
+        freight_service: service,
+        total,
+        coupon_code:     couponCode,
+        address:         order?.address || null,
+        notes:           order?.notes ? String(order.notes).slice(0, 1000) : null,
+        status:          'novo',
+        payment_id:      String(result.id),
+        payment_status:  result.status === 'approved' ? 'aprovado' : 'pendente',
+      };
+      try {
+        let ins = await sbAdmin.from('orders').insert(orderRow).select('id').single();
+        if (ins.error && /freight/i.test(ins.error.message || '')) {
+          // Banco ainda sem colunas de frete: salva sem elas
+          const { freight: _f, freight_service: _s, ...rest } = orderRow;
+          rest.notes = [orderRow.notes, `Frete: R$ ${freight.toFixed(2)} (${service})`].filter(Boolean).join(' | ');
+          ins = await sbAdmin.from('orders').insert(rest).select('id').single();
+        }
+        if (ins.error) console.error('[payment] erro ao salvar pedido:', ins.error);
+        else orderId = ins.data.id;
+      } catch (e) {
+        console.error('[payment] exceção ao salvar pedido:', e);
+      }
+    }
+
     return res.status(200).json({
       id:            result.id,
       status:        result.status,
       status_detail: result.status_detail,
-      amount:        total
+      amount:        total,
+      order_id:      orderId
     });
 
   } catch (err) {
