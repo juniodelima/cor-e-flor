@@ -14,6 +14,13 @@ let _freightService = null; // 'PAC' | 'SEDEX'
 let _freightFree    = false;
 let _freightData    = null; // resposta do /api/freight
 
+// Produto de teste (R$ 1): pedido contendo só ele não paga frete
+const TEST_PRODUCT_ID = 99;
+let _testFreightApplied = false;
+function _isTestOnlyCart() {
+  return _cart.length > 0 && _cart.every(it => Number(it.id) === TEST_PRODUCT_ID);
+}
+
 // ── Toast ────────────────────────────────────────────────────────────────────
 
 function toast(msg) {
@@ -95,11 +102,15 @@ function updateTotals() {
 
   const freteEl = document.getElementById('co-frete-val');
   if (freteEl) {
-    if (!_freightData) {
+    if (_freightFree) {
+      freteEl.textContent  = 'Grátis ✿';
+      freteEl.style.color  = '#2e7d4f';
+      freteEl.style.fontStyle = 'normal';
+    } else if (!_freightData) {
       freteEl.textContent  = 'Digite o CEP';
       freteEl.style.color  = 'var(--warm-gray)';
       freteEl.style.fontStyle = 'italic';
-    } else if (_freightFree || freightCost === 0) {
+    } else if (freightCost === 0) {
       freteEl.textContent  = 'Grátis ✿';
       freteEl.style.color  = '#2e7d4f';
       freteEl.style.fontStyle = 'normal';
@@ -130,6 +141,24 @@ async function calcFreight(cep) {
   const freteVal = document.getElementById('co-frete-val');
 
   if (!section) return;
+
+  // Pedido só com o produto de teste: sem frete, total fica no valor do produto
+  if (_isTestOnlyCart()) {
+    _freightFree        = true;
+    _freightCost        = 0;
+    _freightService     = 'PAC';
+    _testFreightApplied = true;
+    section.style.display = '';
+    if (loading) loading.style.display = 'none';
+    if (options) options.style.display = 'none';
+    if (freeMsg) {
+      freeMsg.style.display = '';
+      freeMsg.innerHTML = '<p class="co-freight-free-msg">🎁 Produto de teste — sem frete!</p>';
+    }
+    updateTotals();
+    return;
+  }
+
   section.style.display = '';
   if (loading)  loading.style.display  = '';
   if (freeMsg)  freeMsg.style.display  = 'none';
@@ -360,6 +389,15 @@ function addUpsellToCart(id) {
   if (existing) existing.qty += 1;
   else _cart.push({ id, qty: 1, size: (p.sizes && p.sizes[0]) || 'Único', color: p.colors?.[0]?.hex || '' });
   localStorage.setItem('cf_cart', JSON.stringify(_cart));
+
+  // Carrinho deixou de ser só o produto de teste → frete volta a valer
+  if (_testFreightApplied && !_isTestOnlyCart()) {
+    _testFreightApplied = false;
+    if (!_couponData?.free_shipping) _freightFree = false;
+    const cepDigits = (document.getElementById('co-cep')?.value || '').replace(/\D/g, '');
+    if (cepDigits.length === 8) calcFreight(cepDigits);
+  }
+
   renderSummary();
   renderUpsell();
   if (_couponData) applyCoupon(); // recalcula desconto com o novo subtotal
@@ -593,6 +631,14 @@ async function finalizeOrder(paymentId, paymentStatus) {
 document.addEventListener('DOMContentLoaded', () => {
   try { _cart = JSON.parse(localStorage.getItem('cf_cart') || '[]'); } catch { _cart = []; }
   if (!_cart.length) { window.location.href = 'index.html'; return; }
+
+  // Pedido só com o produto de teste já entra sem frete
+  if (_isTestOnlyCart()) {
+    _freightFree        = true;
+    _freightCost        = 0;
+    _freightService     = 'PAC';
+    _testFreightApplied = true;
+  }
 
   renderSummary();
 
