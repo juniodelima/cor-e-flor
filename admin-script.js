@@ -92,6 +92,7 @@ function _normOrder(o) {
       name: esc(o.customer_name), email: esc(o.customer_email), phone: esc(o.customer_phone),
       address: {
         street: esc([o.address?.rua, o.address?.num].filter(Boolean).join(', ')),
+        rua: esc(o.address?.rua), num: esc(o.address?.num), comp: esc(o.address?.comp),
         neighborhood: esc(o.address?.bairro), city: esc(o.address?.cidade),
         state: esc(o.address?.estado), zip: esc(o.address?.cep),
       },
@@ -489,6 +490,12 @@ function openOrderDetail(supabaseId) {
         </div>
       </div>
       <div class="order-detail__section">
+        <h5>📦 Envio</h5>
+        <button class="btn-outline" onclick="printShippingLabel('${o._id}')" style="padding:8px 14px;font-size:12px">
+          <i class="bi bi-printer"></i> Imprimir Etiqueta de Envio
+        </button>
+      </div>
+      <div class="order-detail__section">
         <h5>⚙️ Atualizar Status</h5>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           ${STATUSES.map(s=>`
@@ -504,6 +511,68 @@ function openOrderDetail(supabaseId) {
     </div>
   `;
   document.getElementById('modal-overlay').classList.add('open');
+}
+
+function printShippingLabel(supabaseId) {
+  const o = _cache.orders.find(x=>x._id===supabaseId);
+  if (!o) return;
+  const cfg = DB.get('settings') || {};
+  const remetente = {
+    nome: cfg.storeName || 'Cor & Flor',
+    fone: cfg.phone || '',
+    rua: cfg.rua || '', num: cfg.num || '', comp: cfg.comp || '',
+    bairro: cfg.bairro || '', cidade: cfg.cidade || '', estado: cfg.estado || '', cep: cfg.cep || '',
+  };
+  if (!remetente.rua || !remetente.cep) {
+    toast('Cadastre o endereço da loja em Configurações antes de imprimir a etiqueta.', 'error');
+    return;
+  }
+  const dest = o.customer;
+  if (!dest.address.zip) {
+    toast('Este pedido não tem endereço de entrega cadastrado.', 'error');
+    return;
+  }
+  const win = window.open('', '_blank', 'width=420,height=650');
+  if (!win) { toast('Permita pop-ups para imprimir a etiqueta.', 'error'); return; }
+  win.document.write(`<!doctype html><html><head><title>Etiqueta ${o.id}</title>
+  <style>
+    @page { size: 100mm 150mm; margin: 5mm; }
+    * { box-sizing:border-box; }
+    body { font-family: Arial, sans-serif; color:#111; margin:0; padding:0; }
+    .label { width:100%; }
+    .box { border:2px solid #111; border-radius:6px; padding:10px 12px; margin-bottom:10px; }
+    .box h4 { margin:0 0 6px; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#555; }
+    .box p { margin:0; font-size:14px; line-height:1.5; }
+    .box p.name { font-size:16px; font-weight:700; }
+    .meta { display:flex; justify-content:space-between; font-size:11px; color:#555; margin-bottom:8px; }
+    .cep { font-size:20px; font-weight:700; letter-spacing:1px; margin-top:4px; }
+    @media screen { body{ background:#eee; padding:20px; } .label{ max-width:380px; margin:0 auto; background:#fff; padding:16px; box-shadow:0 2px 10px rgba(0,0,0,.15);} }
+  </style></head>
+  <body>
+    <div class="label">
+      <div class="meta"><span>Pedido ${o.id}</span><span>${fmtDateTime(o.createdAt)}</span></div>
+      <div class="box">
+        <h4>Remetente</h4>
+        <p class="name">${remetente.nome}</p>
+        <p>${[remetente.rua, remetente.num].filter(Boolean).join(', ')}${remetente.comp?' — '+remetente.comp:''}</p>
+        <p>${remetente.bairro}</p>
+        <p>${remetente.cidade} - ${remetente.estado}</p>
+        <p class="cep">CEP ${remetente.cep}</p>
+        ${remetente.fone?`<p>Tel: ${remetente.fone}</p>`:''}
+      </div>
+      <div class="box">
+        <h4>Destinatário</h4>
+        <p class="name">${dest.name}</p>
+        <p>${[dest.address.rua, dest.address.num].filter(Boolean).join(', ')}${dest.address.comp?' — '+dest.address.comp:''}</p>
+        <p>${dest.address.neighborhood||''}</p>
+        <p>${dest.address.city} - ${dest.address.state}</p>
+        <p class="cep">CEP ${dest.address.zip}</p>
+        ${dest.phone?`<p>Tel: ${dest.phone}</p>`:''}
+      </div>
+    </div>
+    <script>window.onload = () => { window.print(); };<\/script>
+  </body></html>`);
+  win.document.close();
 }
 
 function closeModal(e) {
@@ -572,11 +641,16 @@ function renderProducts() {
   `;
 }
 
+const LETTER_SIZES = ['PP','P','M','G','GG','U'];
+const NUMBER_SIZES = ['34','35','36','37','38','39','40','41','42','43','44','45','46'];
+
 function openProductModal(id) {
   window._pendingImgBase64 = null;
   resetAIStudio();
   const products = DB.get('products') || [];
   const p = id ? products.find(x=>x.id===id) : null;
+  const pSizeType = p?.sizeType || (p?.sizes?.some(sz=>/^\d+$/.test(sz)) ? 'number' : 'letter');
+  window._pfExistingStock = p?.stock || {};
 
   const imgAreaHtml = p?.image
     ? `<img src="${p.image}" class="img-upload-preview" id="img-preview">
@@ -690,24 +764,35 @@ function openProductModal(id) {
       <div class="modal-section-divider"><span>Tamanhos & Estoque</span></div>
 
       <div class="form-group">
+        <label class="form-label">Tipo de tamanho</label>
+        <div style="display:flex;gap:16px;margin-top:4px">
+          <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px">
+            <input type="radio" name="pf-sizetype" value="letter" ${pSizeType!=='number'?'checked':''} onchange="toggleSizeType()"> Letra (PP, P, M, G, GG, U)
+          </label>
+          <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px">
+            <input type="radio" name="pf-sizetype" value="number" ${pSizeType==='number'?'checked':''} onchange="toggleSizeType()"> Número (34, 36, 38...)
+          </label>
+        </div>
+      </div>
+      <div class="form-group">
         <label class="form-label">Tamanhos disponíveis</label>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
-          ${['PP','P','M','G','GG','U'].map(sz=>`
+        <div id="pf-sizes-letter" style="display:${pSizeType==='number'?'none':'flex'};gap:8px;flex-wrap:wrap;margin-top:4px">
+          ${LETTER_SIZES.map(sz=>`
             <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px">
-              <input type="checkbox" value="${sz}" ${p?.sizes?.includes(sz)?'checked':''} class="pf-size"> ${sz}
+              <input type="checkbox" value="${sz}" ${p?.sizes?.includes(sz)?'checked':''} class="pf-size" onchange="renderProductSizeStock()"> ${sz}
+            </label>
+          `).join('')}
+        </div>
+        <div id="pf-sizes-number" style="display:${pSizeType==='number'?'flex':'none'};gap:8px;flex-wrap:wrap;margin-top:4px">
+          ${NUMBER_SIZES.map(sz=>`
+            <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px">
+              <input type="checkbox" value="${sz}" ${p?.sizes?.includes(sz)?'checked':''} class="pf-size" onchange="renderProductSizeStock()"> ${sz}
             </label>
           `).join('')}
         </div>
       </div>
       <p class="form-label" style="margin-bottom:10px">Estoque por Tamanho</p>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">P</label><input type="number" class="form-input" id="pf-stk-P" value="${p?.stock?.P||0}" min="0"></div>
-        <div class="form-group"><label class="form-label">M</label><input type="number" class="form-input" id="pf-stk-M" value="${p?.stock?.M||0}" min="0"></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">G</label><input type="number" class="form-input" id="pf-stk-G" value="${p?.stock?.G||0}" min="0"></div>
-        <div class="form-group"><label class="form-label">GG</label><input type="number" class="form-input" id="pf-stk-GG" value="${p?.stock?.GG||0}" min="0"></div>
-      </div>
+      <div class="form-row" id="pf-stock-container" style="flex-wrap:wrap;gap:10px"></div>
       <div class="form-group">
         <label class="form-label">Status</label>
         <select class="form-select" id="pf-status">
@@ -731,6 +816,31 @@ function openProductModal(id) {
   `;
   document.getElementById('modal-overlay').classList.add('open');
   renderAISlots();
+  renderProductSizeStock();
+}
+
+function toggleSizeType() {
+  const isNumber = document.querySelector('input[name="pf-sizetype"]:checked')?.value === 'number';
+  document.getElementById('pf-sizes-letter').style.display = isNumber ? 'none' : 'flex';
+  document.getElementById('pf-sizes-number').style.display = isNumber ? 'flex' : 'none';
+  document.querySelectorAll(`#pf-sizes-${isNumber?'letter':'number'} .pf-size`).forEach(c=>c.checked=false);
+  renderProductSizeStock();
+}
+
+function renderProductSizeStock() {
+  const checked = [...document.querySelectorAll('.pf-size:checked')].map(c=>c.value);
+  const container = document.getElementById('pf-stock-container');
+  if (!container) return;
+  const current = {};
+  container.querySelectorAll('input[data-size]').forEach(inp => { current[inp.dataset.size] = inp.value; });
+  const existing = window._pfExistingStock || {};
+  container.innerHTML = checked.length ? checked.map(sz => `
+    <div class="form-group" style="flex:0 0 70px">
+      <label class="form-label">${sz}</label>
+      <input type="number" class="form-input pf-stock-input" data-size="${sz}" min="0"
+             value="${current[sz] ?? (existing[sz] ?? 0)}">
+    </div>
+  `).join('') : `<p style="font-size:12px;color:rgba(74,64,64,.5)">Selecione ao menos um tamanho acima.</p>`;
 }
 
 function onImageUpload(e) {
@@ -1139,6 +1249,9 @@ function _saveProductFromForm(id) {
   const products = DB.get('products') || [];
   const existing = id ? products.find(p=>p.id===id) : null;
   const sizes = [...document.querySelectorAll('.pf-size:checked')].map(c=>c.value);
+  const sizeType = document.querySelector('input[name="pf-sizetype"]:checked')?.value || 'letter';
+  const stock = {};
+  document.querySelectorAll('.pf-stock-input').forEach(inp => { stock[inp.dataset.size] = parseInt(inp.value) || 0; });
   const currentImg = document.getElementById('pf-img-current')?.value || '';
   const prod = {
     id: id || 'P' + uid(),
@@ -1155,12 +1268,8 @@ function _saveProductFromForm(id) {
     description:   document.getElementById('pf-desc').value.trim(),
     colors:        document.getElementById('pf-colors').value.split(',').map(s=>s.trim()).filter(Boolean),
     sizes,
-    stock: {
-      P:  parseInt(document.getElementById('pf-stk-P').value)  || 0,
-      M:  parseInt(document.getElementById('pf-stk-M').value)  || 0,
-      G:  parseInt(document.getElementById('pf-stk-G').value)  || 0,
-      GG: parseInt(document.getElementById('pf-stk-GG').value) || 0,
-    },
+    sizeType,
+    stock,
     status: document.getElementById('pf-status').value,
     createdAt: existing?.createdAt || now(),
   };
@@ -1711,9 +1820,16 @@ function renderInventory() {
         </td>
         <td>${CAT_LABELS[p.category]||p.category}</td>
         <td>${fmtBRL(p.price)}</td>
-        <td><input type="number" class="stock-input" value="${stock.P||0}" min="0" onchange="updateStock('${p.id}','P',this.value)"></td>
-        <td><input type="number" class="stock-input" value="${stock.M||0}" min="0" onchange="updateStock('${p.id}','M',this.value)"></td>
-        <td><input type="number" class="stock-input" value="${stock.G||0}" min="0" onchange="updateStock('${p.id}','G',this.value)"></td>
+        <td>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            ${Object.keys(stock).length ? Object.entries(stock).map(([sz,qty])=>`
+              <div style="display:flex;flex-direction:column;align-items:center">
+                <span style="font-size:10px;color:var(--warm-gray)">${sz}</span>
+                <input type="number" class="stock-input" style="width:52px" value="${qty||0}" min="0" onchange="updateStock('${p.id}','${sz}',this.value)">
+              </div>
+            `).join('') : `<span style="font-size:12px;color:var(--warm-gray)">—</span>`}
+          </div>
+        </td>
         <td><strong>${total}</strong></td>
         <td><span class="badge badge--${stockStatus}">${stockLabel}</span></td>
         <td>
@@ -1721,7 +1837,7 @@ function renderInventory() {
         </td>
       </tr>
     `;
-  }).join('') : `<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--warm-gray)">Nenhum produto encontrado.</td></tr>`;
+  }).join('') : `<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--warm-gray)">Nenhum produto encontrado.</td></tr>`;
 }
 
 function updateStock(id, size, val) {
@@ -1734,6 +1850,25 @@ function updateStock(id, size, val) {
 }
 
 
+async function lookupCfgCep() {
+  const input = document.getElementById('cfg-cep');
+  const cep = (input?.value || '').replace(/\D/g, '');
+  if (cep.length !== 8) return;
+  input.value = cep.replace(/^(\d{5})(\d)/, '$1-$2');
+  try {
+    const r = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+    const d = await r.json();
+    if (d.erro) { toast('CEP não encontrado.', 'error'); return; }
+    if (d.logradouro) document.getElementById('cfg-rua').value = d.logradouro;
+    if (d.bairro)     document.getElementById('cfg-bairro').value = d.bairro;
+    if (d.localidade) document.getElementById('cfg-cidade').value = d.localidade;
+    if (d.uf)         document.getElementById('cfg-estado').value = d.uf;
+    document.getElementById('cfg-num')?.focus();
+  } catch {
+    toast('Erro ao buscar CEP. Preencha manualmente.', 'error');
+  }
+}
+
 // ── SETTINGS ─────────────────────────────────────────────────
 function loadSettings() {
   const cfg = DB.get('settings') || {};
@@ -1741,8 +1876,14 @@ function loadSettings() {
   if (cfg.cnpj)        document.getElementById('cfg-cnpj').value = cfg.cnpj;
   if (cfg.phone)       document.getElementById('cfg-phone').value = cfg.phone;
   if (cfg.email)       document.getElementById('cfg-email').value = cfg.email;
-  if (cfg.address)     document.getElementById('cfg-address').value = cfg.address;
   if (cfg.ig)          document.getElementById('cfg-ig').value = cfg.ig;
+  if (cfg.cep)         document.getElementById('cfg-cep').value = cfg.cep;
+  if (cfg.rua)         document.getElementById('cfg-rua').value = cfg.rua;
+  if (cfg.num)         document.getElementById('cfg-num').value = cfg.num;
+  if (cfg.comp)        document.getElementById('cfg-comp').value = cfg.comp;
+  if (cfg.bairro)      document.getElementById('cfg-bairro').value = cfg.bairro;
+  if (cfg.cidade)      document.getElementById('cfg-cidade').value = cfg.cidade;
+  if (cfg.estado)      document.getElementById('cfg-estado').value = cfg.estado;
   if (cfg.freeShip)    document.getElementById('cfg-free-ship').value = cfg.freeShip;
   if (cfg.shipCost)    document.getElementById('cfg-ship-cost').value = cfg.shipCost;
   if (cfg.shipDays)    document.getElementById('cfg-ship-days').value = cfg.shipDays;
@@ -1765,8 +1906,14 @@ function saveSettings(e, group) {
     cfg.cnpj      = document.getElementById('cfg-cnpj').value;
     cfg.phone     = document.getElementById('cfg-phone').value;
     cfg.email     = document.getElementById('cfg-email').value;
-    cfg.address   = document.getElementById('cfg-address').value;
     cfg.ig        = document.getElementById('cfg-ig').value;
+    cfg.cep       = document.getElementById('cfg-cep').value;
+    cfg.rua       = document.getElementById('cfg-rua').value;
+    cfg.num       = document.getElementById('cfg-num').value;
+    cfg.comp      = document.getElementById('cfg-comp').value;
+    cfg.bairro    = document.getElementById('cfg-bairro').value;
+    cfg.cidade    = document.getElementById('cfg-cidade').value;
+    cfg.estado    = document.getElementById('cfg-estado').value.toUpperCase();
   }
   if (group === 'shipping') {
     cfg.freeShip = document.getElementById('cfg-free-ship').value;
