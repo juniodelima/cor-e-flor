@@ -20,6 +20,13 @@ if (!_isBackNav) {
 
 const BRL = n => "R$ " + n.toFixed(2).replace(".", ",");
 
+/* Aplica overrides do painel (produto ativo/inativo, estoque) assim que possível.
+   Outras partes do código (carrosséis, promos, add-to-cart) esperam essa promise
+   para garantir que nunca mostrem um produto oculto ou vendam algo sem estoque. */
+const productOverridesReady = (typeof applyProductOverrides === 'function')
+  ? applyProductOverrides(products).catch(() => products)
+  : Promise.resolve(products);
+
 /* ---------- CATEGORY CAROUSELS ---------- */
 const DISPLAY_CATS = [
   { key: 'conjuntos', label: 'Conjuntos',       eyebrow: 'CONJUNTOS & MACACÕES',
@@ -49,22 +56,27 @@ function makeCard(p) {
   const viewers = 5 + (p.id * 7 + 3) % 24;
   const viewersHtml = `<span class="card__viewers"><span class="card__viewers-dot"></span>${viewers} pessoas vendo agora</span>`;
 
-  // Urgência de estoque para produtos SALE ou EXCLUSIVO
+  // Urgência de estoque para produtos SALE ou EXCLUSIVO (não exibida se o produto está sem estoque real)
   const stockUnits = 3 + (p.id * 3) % 4;
-  const stockHtml  = (p.badge === "SALE" || p.badge === "EXCLUSIVO")
+  const stockHtml  = (!p.outOfStock && (p.badge === "SALE" || p.badge === "EXCLUSIVO"))
     ? `<span class="card__stock">⚡ Últimas ${stockUnits} unidades</span>` : "";
 
+  const soldOutBadge = p.outOfStock ? `<span class="card__badge card__badge--soldout">Sem estoque</span>` : "";
+  const addBtnHtml    = p.outOfStock
+    ? `<button class="card__add is-disabled" disabled>Sem estoque</button>`
+    : `<button class="card__add" data-add="${p.id}"><svg width="14" height="14"><use href="#i-bag"/></svg> Adicionar</button>`;
+
   const el = document.createElement("article");
-  el.className = "card";
+  el.className = "card" + (p.outOfStock ? " is-soldout" : "");
   el.dataset.id = p.id;
   el.innerHTML = `
     <div class="card__media">
-      ${badge}
+      ${soldOutBadge || badge}
       <button class="card__fav" aria-label="Favoritar ${p.name}">
         <svg width="18" height="18"><use href="#i-heart"/></svg>
       </button>
       <img src="${p.image}" alt="${p.name}" loading="lazy"/>
-      <button class="card__add" data-add="${p.id}"><svg width="14" height="14"><use href="#i-bag"/></svg> Adicionar</button>
+      ${addBtnHtml}
     </div>
     <div class="card__body">
       <span class="card__cat">${p.category}</span>
@@ -114,39 +126,41 @@ function initCarousel(block) {
 }
 
 const catRoot = document.getElementById('categories-root');
-DISPLAY_CATS.forEach(cat => {
-  const items = products.filter(cat.test);
-  if (!items.length) return;
+productOverridesReady.then(() => {
+  DISPLAY_CATS.forEach(cat => {
+    const items = products.filter(cat.test);
+    if (!items.length) return;
 
-  const block = document.createElement('div');
-  block.className = 'cat-block';
-  block.id = 'cat-' + cat.key;
-  block.innerHTML = `
-    <div class="cat-block__head">
-      <div>
-        <span class="sec-eyebrow">✦ ${cat.eyebrow}</span>
-        <h2 class="cat-block__title">${cat.label}</h2>
+    const block = document.createElement('div');
+    block.className = 'cat-block';
+    block.id = 'cat-' + cat.key;
+    block.innerHTML = `
+      <div class="cat-block__head">
+        <div>
+          <span class="sec-eyebrow">✦ ${cat.eyebrow}</span>
+          <h2 class="cat-block__title">${cat.label}</h2>
+        </div>
+        <div class="car-nav">
+          <a class="car-ver-mais" href="categoria.html?cat=${cat.key}">
+            Ver todos <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14m-5-6 6 6-6 6"/></svg>
+          </a>
+          <button class="car-btn car-btn--prev" aria-label="Ver anteriores">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <button class="car-btn car-btn--next" aria-label="Próximo">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
       </div>
-      <div class="car-nav">
-        <a class="car-ver-mais" href="categoria.html?cat=${cat.key}">
-          Ver todos <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14m-5-6 6 6-6 6"/></svg>
-        </a>
-        <button class="car-btn car-btn--prev" aria-label="Ver anteriores">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="15 18 9 12 15 6"/></svg>
-        </button>
-        <button class="car-btn car-btn--next" aria-label="Próximo">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"/></svg>
-        </button>
-      </div>
-    </div>
-    <div class="carousel-wrap">
-      <div class="carousel-track" id="track-${cat.key}"></div>
-    </div>`;
+      <div class="carousel-wrap">
+        <div class="carousel-track" id="track-${cat.key}"></div>
+      </div>`;
 
-  const track = block.querySelector('.carousel-track');
-  items.forEach(p => track.appendChild(makeCard(p)));
-  catRoot.appendChild(block);
-  initCarousel(block);
+    const track = block.querySelector('.carousel-track');
+    items.forEach(p => track.appendChild(makeCard(p)));
+    catRoot.appendChild(block);
+    initCarousel(block);
+  });
 });
 
 /* Scroll suave com offset do navbar para links de categoria */
@@ -454,6 +468,7 @@ cartList.addEventListener("click", e => {
 function addToCart(id){
   const p = products.find(x => x.id === id);
   if (!p) return;
+  if (p.outOfStock) { toast('Sem estoque no momento'); return; }
   const existing = cartState.find(x => x.id === id);
   if (existing) existing.qty += 1;
   else cartState.push({ id, qty: 1, size: p.sizes[0] || 'Único', color: p.colors[0]?.hex || p.colors[0] || '' });
@@ -934,6 +949,7 @@ function _dailyPromoPick(pool, n) {
 async function renderPromosDia() {
   const grid = document.getElementById('promos-dia-grid');
   if (!grid) return;
+  await productOverridesReady;
 
   // 1º: produtos escolhidos pelo admin (Supabase); se vazio → rotação automática
   let promos = [];
@@ -947,7 +963,7 @@ async function renderPromosDia() {
   } catch {}
 
   if (!promos.length) {
-    const pool = products.filter(p => p.badge === 'SALE' || (p.originalPrice && p.originalPrice > p.price));
+    const pool = products.filter(p => !p.outOfStock && (p.badge === 'SALE' || (p.originalPrice && p.originalPrice > p.price)));
     promos = _dailyPromoPick(pool, 4);
   }
   if (!promos.length) { document.getElementById('promos-dia')?.remove(); return; }
@@ -958,6 +974,9 @@ async function renderPromosDia() {
     const wasBadge = pct > 0 ? `<span class="promo-card__badge">-${pct}%</span>` : '';
     const wasPrice = p.originalPrice ? `<span class="promo-card__was">${BRL(p.originalPrice)}</span>` : '';
     const saving   = pct > 0 ? `<span class="promo-card__saving">Economia ${BRL(p.originalPrice - p.price)}</span>` : '';
+    const btnHtml  = p.outOfStock
+      ? `<button class="promo-card__btn is-disabled" disabled>Sem estoque</button>`
+      : `<button class="promo-card__btn" data-add-promo="${p.id}"><svg width="14" height="14"><use href="#i-bag"/></svg> Adicionar</button>`;
 
     const card = document.createElement('div');
     card.className = 'promo-card';
@@ -966,7 +985,7 @@ async function renderPromosDia() {
         <a href="produto.html?id=${p.id}">
           <img src="${p.image}" alt="${p.name}" loading="lazy">
         </a>
-        ${wasBadge}
+        ${p.outOfStock ? '<span class="card__badge card__badge--soldout">Sem estoque</span>' : wasBadge}
       </div>
       <div class="promo-card__body">
         <h3 class="promo-card__name">${p.name}</h3>
@@ -975,11 +994,9 @@ async function renderPromosDia() {
           ${wasPrice}
         </div>
         ${saving}
-        <button class="promo-card__btn" data-add-promo="${p.id}">
-          <svg width="14" height="14"><use href="#i-bag"/></svg> Adicionar
-        </button>
+        ${btnHtml}
       </div>`;
-    card.querySelector('[data-add-promo]').addEventListener('click', () => addToCart(p.id));
+    card.querySelector('[data-add-promo]')?.addEventListener('click', () => addToCart(p.id));
     grid.appendChild(card);
   });
 }

@@ -371,6 +371,7 @@
     fit: "Modelagem ajustada que valoriza a silhueta. Comprimento midi. Segue tabela padrão de tamanhos."
   },
   { id: 99, name: "Produto Teste — R$ 1", category: "blusas", price: 1.00, originalPrice: null, badge: "TESTE",
+    active: false,
     image: "assets/p-blusa-azul.png",
     colors: [{ name: "Rosa", hex: "#D4679A" }],
     sizes: ["M"],

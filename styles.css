@@ -268,6 +268,14 @@ em{ font-style: italic; }
 }
 .btn > *{ position: relative; z-index: 1; }
 .btn:hover::before{ transform: scaleX(1); }
+.btn.is-disabled, .btn:disabled{
+  background: rgba(74,64,64,.35) !important;
+  color: #fff !important;
+  border-color: transparent !important;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.btn.is-disabled::before, .btn:disabled::before{ display: none; }
 
 .btn--primary{ background: var(--rose); color:#fff; box-shadow: var(--shadow-soft); }
 .btn--primary:hover{ color: #fff; }
@@ -888,6 +896,16 @@ em{ font-style: italic; }
 }
 .card__badge--sale{ background: var(--rose); color: #fff; }
 .card__badge--exclusive{ background: var(--ink); color: var(--rose-soft); }
+.card__badge--soldout{ background: #4A4040; color: #fff; }
+
+.card.is-soldout .card__media img{ opacity: .55; filter: grayscale(.4); }
+.card__add:disabled,
+.card__add.is-disabled{
+  opacity: 1 !important; transform: translateY(0) !important;
+  background: rgba(74,64,64,.55); cursor: not-allowed;
+}
+.card__add:disabled:hover,
+.card__add.is-disabled:hover{ background: rgba(74,64,64,.55); }
 
 .card__fav{
   position: absolute; top: 12px; right: 12px;

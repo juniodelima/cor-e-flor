@@ -437,6 +437,8 @@
 </div>
 
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="supabase-client.js?v=4"></script>
 <script>
 'use strict';
 
@@ -693,6 +695,7 @@ const CATALOG = [
     care: "Lavar à mão com sabão neutro. Secar à sombra. Passar com ferro morno pelo avesso.",
     fit: "Modelagem ajustada que valoriza a silhueta. Comprimento midi. Segue tabela padrão." },
   { id: 99, name: "Produto Teste — R$ 1", category: "Teste", price: 1.00, originalPrice: null, badge: "TESTE",
+    active: false,
     image: "assets/p-blusa-azul.png",
     colors: [{ name: "Rosa", hex: "#D4679A" }], sizes: ["M"],
     description: "Produto de teste para validar o fluxo completo de pagamento. Valor simbólico de R$ 1,00.",
@@ -731,6 +734,35 @@ if (product && !Array.isArray(product.colors)) {
 } else if (product && product.colors.length > 0 && typeof product.colors[0] === 'string') {
   product = { ...product, colors: product.colors.map((c, i) => ({ name: 'Cor ' + (i + 1), hex: c })) };
 }
+
+/* ========= STATUS DO PRODUTO (ativo/estoque definidos no painel admin) =========
+   Consulta o Supabase em paralelo ao resto do carregamento da página. Se o
+   produto estiver desativado, redireciona; se estiver sem estoque, desabilita
+   a compra assim que a resposta chega. */
+let productOutOfStock = false;
+function applyStockUI() {
+  if (!productOutOfStock) return;
+  const addBtn = document.getElementById('btn-add-cart');
+  const buyBtn = document.getElementById('btn-buy-now');
+  [addBtn, buyBtn].forEach(function(b) {
+    if (!b) return;
+    b.disabled = true;
+    b.classList.add('is-disabled');
+    b.innerHTML = 'Sem estoque';
+  });
+  const sizesWrap = document.getElementById('prod-sizes');
+  if (sizesWrap) sizesWrap.querySelectorAll('.prod-size').forEach(function(b) { b.classList.add('unavailable'); });
+}
+(async function () {
+  try {
+    const overrides = (typeof ProductStatus !== 'undefined') ? await ProductStatus.getAll() : {};
+    const o = overrides[String(product.id)];
+    const active = o && o.active !== undefined ? o.active : (product.active !== false);
+    if (!active) { window.location.href = 'index.html'; return; }
+    productOutOfStock = !!(o && o.stock !== undefined && Number(o.stock) <= 0);
+    applyStockUI();
+  } catch (e) { /* falha de rede não deve travar a página */ }
+})();
 
 /* ========= PAGE META ========= */
 document.title = product.name + ' | COR & FLOR';
@@ -931,6 +963,7 @@ document.getElementById('btn-fav').addEventListener('click', function() {
 
 /* ========= ADD TO CART ========= */
 document.getElementById('btn-add-cart').addEventListener('click', function() {
+  if (productOutOfStock) { toast('Sem estoque no momento'); return; }
   if (!selectedSize && product.sizes && product.sizes.length > 0) {
     sizeLabel.style.color = '#dc2626';
     setTimeout(function() { sizeLabel.style.color = ''; }, 1500);
@@ -942,6 +975,7 @@ document.getElementById('btn-add-cart').addEventListener('click', function() {
 
 /* ========= BUY NOW ========= */
 document.getElementById('btn-buy-now').addEventListener('click', function() {
+  if (productOutOfStock) { toast('Sem estoque no momento'); return; }
   if (!selectedSize && product.sizes && product.sizes.length > 0) {
     toast('⚠️ Selecione um tamanho');
     return;
@@ -971,7 +1005,7 @@ function addToCart(prod, size, color, amount) {
 }
 
 /* ========= RELATED PRODUCTS ========= */
-const related = CATALOG.filter(function(p) { return p.id !== product.id; }).slice(0, 4);
+const related = CATALOG.filter(function(p) { return p.id !== product.id && p.active !== false; }).slice(0, 4);
 const relGrid = document.getElementById('related-grid');
 related.forEach(function(p) {
   const was = p.originalPrice ? '<span class="card__price-was">' + BRL(p.originalPrice) + '</span>' : '';

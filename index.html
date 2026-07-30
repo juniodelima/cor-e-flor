@@ -59,6 +59,7 @@
 .promo-card__saving{display:inline-block;font-family:var(--sans);font-size:11px;font-weight:700;color:#2e7d4f;background:rgba(46,125,79,.1);padding:3px 9px;border-radius:5px;margin-bottom:10px}
 .promo-card__btn{display:block;width:100%;padding:10px;background:var(--rose);color:#fff;border:none;border-radius:9px;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;transition:background .15s;text-align:center}
 .promo-card__btn:hover{background:var(--rose-deep)}
+.promo-card__btn.is-disabled,.promo-card__btn.is-disabled:hover{background:rgba(74,64,64,.55);cursor:not-allowed}
 
 /* ─── Card enhancements (frete grátis + social proof) ─── */
 .card__extra{display:flex;flex-direction:column;gap:4px;margin-top:6px}
@@ -997,7 +998,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-client.js?v=3"></script>
+<script src="supabase-client.js?v=4"></script>
 <script src="products-data.js?v=4"></script>
 <script src="script.js?v=8"></script>
 </body>

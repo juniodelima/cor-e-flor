@@ -127,3 +127,35 @@ const SiteSettings = {
     return sb.from('site_settings').upsert({ key, value, updated_at: new Date().toISOString() });
   }
 };
+
+/* ---- Status de produtos (ativo/inativo e estoque) definido no painel admin ----
+   Guardado em site_settings sob a chave 'product_status':
+   { [productId]: { active: boolean, stock: number } }
+   Produtos sem entrada aqui usam o padrão do catálogo (ativo, com estoque). */
+const ProductStatus = {
+  async getAll() {
+    try { return (await SiteSettings.get('product_status')) || {}; }
+    catch { return {}; }
+  },
+  async setOne(id, patch) {
+    const all = await ProductStatus.getAll();
+    all[String(id)] = { ...all[String(id)], ...patch };
+    return SiteSettings.set('product_status', all);
+  }
+};
+
+/* Aplica os overrides do painel sobre uma lista de produtos: remove os
+   desativados e marca `outOfStock` nos que estão sem estoque. Muta o array
+   recebido (splice) para que referências existentes (const products = [...])
+   continuem válidas. */
+async function applyProductOverrides(list) {
+  const overrides = await ProductStatus.getAll();
+  for (let i = list.length - 1; i >= 0; i--) {
+    const p = list[i];
+    const o = overrides[String(p.id)];
+    const active = o && o.active !== undefined ? o.active : (p.active !== false);
+    if (!active) { list.splice(i, 1); continue; }
+    p.outOfStock = !!(o && o.stock !== undefined && Number(o.stock) <= 0);
+  }
+  return list;
+}

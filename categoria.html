@@ -182,6 +182,8 @@
   <button class="btn btn--link cart__continue" id="close-cart-2">← Continuar comprando</button>
 </aside>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="supabase-client.js?v=4"></script>
 <script src="products-data.js?v=4"></script>
 <script>
 /* ---- Config de categorias ---- */
@@ -197,14 +199,6 @@ const BRL = n => 'R$ ' + Number(n).toFixed(2).replace('.', ',');
 const params  = new URLSearchParams(location.search);
 const catKey  = params.get('cat') || '';
 const config  = CAT_CONFIG[catKey] || { label: 'Todos os Produtos', eyebrow: 'COLEÇÃO COMPLETA', test: () => true };
-const filtered = products.filter(config.test);
-
-/* ---- Atualiza cabeçalho ---- */
-document.title = config.label + ' | COR & FLOR';
-document.getElementById('page-title').textContent = config.label + ' | COR & FLOR';
-document.getElementById('cat-eyebrow').textContent = '✦ ' + config.eyebrow;
-document.getElementById('cat-title').textContent = config.label;
-document.getElementById('cat-count').textContent = filtered.length + ' peça' + (filtered.length !== 1 ? 's' : '');
 
 /* ---- Filtros de outras categorias ---- */
 const filterStrip = document.getElementById('cat-filters');
@@ -216,48 +210,61 @@ Object.entries(CAT_CONFIG).forEach(([key, cfg]) => {
   filterStrip.appendChild(a);
 });
 
-/* ---- Render grid ---- */
+/* ---- Render grid (aguarda overrides do painel: produto ativo/inativo, estoque) ---- */
 const grid = document.getElementById('cat-grid');
-if (!filtered.length) {
-  grid.innerHTML = '<p class="cat-empty">Nenhuma peça encontrada nesta categoria.</p>';
-} else {
-  filtered.forEach((p, i) => {
-    const badgeClass = p.badge === 'SALE' ? 'card__badge--sale' : p.badge === 'EXCLUSIVO' ? 'card__badge--exclusive' : '';
-    const badge   = p.badge ? `<span class="card__badge ${badgeClass}">${p.badge}</span>` : '';
-    const was     = p.originalPrice ? `<span class="card__price-was">${BRL(p.originalPrice)}</span>` : '';
-    const swatches = p.colors.map(c => `<span class="card__sw" style="background:${c.hex||c}"></span>`).join('');
+(typeof applyProductOverrides === 'function' ? applyProductOverrides(products).catch(() => products) : Promise.resolve(products))
+  .then(() => {
+    const filtered = products.filter(config.test);
 
-    const el = document.createElement('article');
-    el.className = 'card';
-    
-    el.dataset.id = p.id;
-    el.innerHTML = `
-      <div class="card__media">
-        ${badge}
-        <button class="card__fav" aria-label="Favoritar ${p.name}">
-          <svg width="18" height="18"><use href="#i-heart"/></svg>
-        </button>
-        <img src="${p.image}" alt="${p.name}" loading="lazy"/>
-        <button class="card__add" data-add="${p.id}">
-          <svg width="14" height="14"><use href="#i-bag"/></svg> Adicionar
-        </button>
-      </div>
-      <div class="card__body">
-        <span class="card__cat">${p.category}</span>
-        <h3 class="card__name"><a href="produto.html?id=${p.id}" style="color:inherit">${p.name}</a></h3>
-        <div class="card__price">
-          <span class="card__price-now">${BRL(p.price)}</span>
-          ${was}
+    document.title = config.label + ' | COR & FLOR';
+    document.getElementById('page-title').textContent = config.label + ' | COR & FLOR';
+    document.getElementById('cat-eyebrow').textContent = '✦ ' + config.eyebrow;
+    document.getElementById('cat-title').textContent = config.label;
+    document.getElementById('cat-count').textContent = filtered.length + ' peça' + (filtered.length !== 1 ? 's' : '');
+
+    if (!filtered.length) {
+      grid.innerHTML = '<p class="cat-empty">Nenhuma peça encontrada nesta categoria.</p>';
+      return;
+    }
+    filtered.forEach((p, i) => {
+      const badgeClass = p.badge === 'SALE' ? 'card__badge--sale' : p.badge === 'EXCLUSIVO' ? 'card__badge--exclusive' : '';
+      const badge   = p.badge ? `<span class="card__badge ${badgeClass}">${p.badge}</span>` : '';
+      const was     = p.originalPrice ? `<span class="card__price-was">${BRL(p.originalPrice)}</span>` : '';
+      const swatches = p.colors.map(c => `<span class="card__sw" style="background:${c.hex||c}"></span>`).join('');
+      const soldOutBadge = p.outOfStock ? `<span class="card__badge card__badge--soldout">Sem estoque</span>` : '';
+      const addBtnHtml = p.outOfStock
+        ? `<button class="card__add is-disabled" disabled>Sem estoque</button>`
+        : `<button class="card__add" data-add="${p.id}"><svg width="14" height="14"><use href="#i-bag"/></svg> Adicionar</button>`;
+
+      const el = document.createElement('article');
+      el.className = 'card' + (p.outOfStock ? ' is-soldout' : '');
+
+      el.dataset.id = p.id;
+      el.innerHTML = `
+        <div class="card__media">
+          ${soldOutBadge || badge}
+          <button class="card__fav" aria-label="Favoritar ${p.name}">
+            <svg width="18" height="18"><use href="#i-heart"/></svg>
+          </button>
+          <img src="${p.image}" alt="${p.name}" loading="lazy"/>
+          ${addBtnHtml}
         </div>
-        <div class="card__colors">${swatches}</div>
-      </div>`;
+        <div class="card__body">
+          <span class="card__cat">${p.category}</span>
+          <h3 class="card__name"><a href="produto.html?id=${p.id}" style="color:inherit">${p.name}</a></h3>
+          <div class="card__price">
+            <span class="card__price-now">${BRL(p.price)}</span>
+            ${was}
+          </div>
+          <div class="card__colors">${swatches}</div>
+        </div>`;
 
-    el.querySelector('.card__media').addEventListener('click', e => {
-      if (!e.target.closest('button')) window.location.href = `produto.html?id=${p.id}`;
+      el.querySelector('.card__media').addEventListener('click', e => {
+        if (!e.target.closest('button')) window.location.href = `produto.html?id=${p.id}`;
+      });
+      grid.appendChild(el);
     });
-    grid.appendChild(el);
   });
-}
 
 /* ---- Cart (simplificado) ---- */
 let cartState = JSON.parse(localStorage.getItem('cf_cart') || '[]');

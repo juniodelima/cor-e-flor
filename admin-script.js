@@ -613,7 +613,9 @@ function renderProducts() {
       <div class="prod-card">
         <div class="prod-card__img">
           <img src="${p.image}" alt="${p.name}" loading="lazy" onerror="this.style.opacity='.3'">
-          <span class="prod-card__status badge badge--${p.status==='active'?'active':'inactive'}">${p.status==='active'?'Ativo':'Inativo'}</span>
+          <span class="prod-card__status badge badge--${p.status==='active'?'active':'inactive'}"
+                style="cursor:pointer" onclick="toggleProductActive('${p.id}')"
+                title="Clique para ativar/desativar este produto na loja">${p.status==='active'?'Ativo':'Inativo'}</span>
           <div class="prod-card__actions">
             <button class="btn-edit" onclick="openProductModal('${p.id}')" title="Editar"><i class="bi bi-pencil"></i></button>
             <button class="btn-del" onclick="deleteProduct('${p.id}')" title="Excluir"><i class="bi bi-trash"></i></button>
@@ -1282,7 +1284,29 @@ function _saveProductFromForm(id) {
   }
   DB.set('products', products);
   renderProducts();
+  _syncProductStatus(prod);
   return prod;
+}
+
+// Envia status (ativo/inativo) e estoque total para o Supabase, para valerem na loja real.
+function _syncProductStatus(prod) {
+  const stockTotal = Object.values(prod.stock || {}).reduce((a, b) => a + (Number(b) || 0), 0);
+  ProductStatus.setOne(prod.id, { active: prod.status === 'active', stock: stockTotal }).catch(() => {
+    toast('Produto salvo aqui, mas não foi possível sincronizar com a loja online.', 'error');
+  });
+}
+
+// Ativa/desativa um produto direto no card, sem abrir o formulário completo.
+function toggleProductActive(id) {
+  const products = DB.get('products') || [];
+  const idx = products.findIndex(p => p.id === id);
+  if (idx < 0) return;
+  products[idx].status = products[idx].status === 'active' ? 'inactive' : 'active';
+  DB.set('products', products);
+  renderProducts();
+  _syncProductStatus(products[idx]);
+  toast(products[idx].status === 'active' ? 'Produto ativado na loja.' : 'Produto ocultado da loja.',
+        products[idx].status === 'active' ? 'success' : 'info');
 }
 
 function saveProduct(e, id) {
