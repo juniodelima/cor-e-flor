@@ -110,6 +110,12 @@ function initCarousel(block) {
   track.addEventListener('scroll', upd, { passive: true });
   upd();
 
+  /* A vitrine fica dentro de uma seção com `content-visibility: auto`, então
+     enquanto está fora da tela ela mede 0 de largura — e o `upd()` acima
+     travaria a seta "próximo" como desabilitada. O ResizeObserver reavalia
+     assim que o navegador dá o tamanho real à faixa. */
+  if (typeof ResizeObserver !== 'undefined') new ResizeObserver(upd).observe(track);
+
   // arrastar com mouse (desktop)
   let dragging = false, sx = 0, ss = 0;
   track.addEventListener('mousedown',  e => { dragging = true; sx = e.clientX; ss = track.scrollLeft; track.style.cursor = 'grabbing'; e.preventDefault(); });
@@ -126,8 +132,21 @@ function initCarousel(block) {
 }
 
 const catRoot = document.getElementById('categories-root');
+
+/* Carregamento progressivo: monta só as 2 primeiras vitrines de cara.
+   As demais são preenchidas quando faltam ~800px para a pessoa chegar nelas,
+   sempre com folga suficiente para o conteúdo já estar pronto quando aparece. */
+const EAGER_BLOCKS = 2;
+const lazyBlockIO = new IntersectionObserver(entries => {
+  entries.forEach(en => {
+    if (!en.isIntersecting) return;
+    lazyBlockIO.unobserve(en.target);
+    en.target._fill?.();
+  });
+}, { rootMargin: '800px 0px' });
+
 productOverridesReady.then(() => {
-  DISPLAY_CATS.forEach(cat => {
+  DISPLAY_CATS.forEach((cat, i) => {
     const items = products.filter(cat.test);
     if (!items.length) return;
 
@@ -156,10 +175,26 @@ productOverridesReady.then(() => {
         <div class="carousel-track" id="track-${cat.key}"></div>
       </div>`;
 
+    /* Reserva a altura da vitrine antes de preencher, para a página não "pular"
+       quando os cards entram (isso é o que estraga a nota de CLS). */
     const track = block.querySelector('.carousel-track');
-    items.forEach(p => track.appendChild(makeCard(p)));
+    track.dataset.pending = '';
+
+    let filled = false;
+    block._fill = () => {
+      if (filled) return;
+      filled = true;
+      const frag = document.createDocumentFragment();
+      items.forEach(p => frag.appendChild(makeCard(p)));
+      track.appendChild(frag);
+      delete track.dataset.pending;
+      initCarousel(block);
+    };
+
     catRoot.appendChild(block);
-    initCarousel(block);
+
+    if (i < EAGER_BLOCKS) block._fill();
+    else lazyBlockIO.observe(block);
   });
 });
 
@@ -169,6 +204,9 @@ document.querySelectorAll('a[href^="#cat-"], a[href^="#novidades"]').forEach(lin
     const target = document.querySelector(link.getAttribute('href'));
     if (!target) return;
     e.preventDefault();
+    /* Se a vitrine de destino ainda não foi preenchida, preenche antes de rolar,
+       para a pessoa não chegar num espaço vazio. */
+    target._fill?.();
     const offset = 90;
     const top = target.getBoundingClientRect().top + window.scrollY - offset;
     window.scrollTo({ top, behavior: 'smooth' });
@@ -213,11 +251,32 @@ const onScroll = () => {
 window.addEventListener("scroll", onScroll, { passive: true });
 onScroll();
 
-/* ---------- VÍDEOS: play/pause via IntersectionObserver (não baixa sem estar visível) ---------- */
+/* ---------- VÍDEOS: baixa e toca só quando a pessoa se aproxima ----------
+   Enquanto o vídeo não é necessário, o que aparece é o poster (~30 KB em WebP).
+   O arquivo de vídeo só começa a baixar quando falta pouco para entrar na tela. */
+function _loadVideo(v) {
+  if (v.dataset.src) {
+    v.src = v.dataset.src;
+    delete v.dataset.src;
+    v.load();
+  }
+}
+
+/* Pré-carrega quando falta 400px, para o vídeo já estar pronto ao aparecer */
+const videoPreloadObserver = new IntersectionObserver((entries) => {
+  entries.forEach(en => {
+    if (!en.isIntersecting) return;
+    videoPreloadObserver.unobserve(en.target);
+    _loadVideo(en.target);
+  });
+}, { rootMargin: '400px 0px' });
+
+/* Toca/pausa conforme entra e sai da tela */
 const videoObserver = new IntersectionObserver((entries) => {
   entries.forEach(en => {
     const v = en.target;
     if (en.isIntersecting) {
+      _loadVideo(v);
       if (v.paused) v.play().catch(() => {});
     } else {
       if (!v.paused) v.pause();
@@ -225,13 +284,16 @@ const videoObserver = new IntersectionObserver((entries) => {
   });
 }, { threshold: 0.25 });
 
-document.querySelectorAll("video[data-autoplay]").forEach(v => videoObserver.observe(v));
+document.querySelectorAll("video[data-autoplay]").forEach(v => {
+  videoPreloadObserver.observe(v);
+  videoObserver.observe(v);
+});
 
 // iOS em Modo de Baixo Consumo bloqueia play() sem gesto — o 1º toque destrava
 document.addEventListener("touchstart", () => {
   document.querySelectorAll("video[data-autoplay]").forEach(v => {
     const r = v.getBoundingClientRect();
-    if (r.top < window.innerHeight && r.bottom > 0 && v.paused) v.play().catch(() => {});
+    if (r.top < window.innerHeight && r.bottom > 0) { _loadVideo(v); if (v.paused) v.play().catch(() => {}); }
   });
 }, { passive: true });
 

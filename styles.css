@@ -856,6 +856,12 @@ em{ font-style: italic; }
   flex: 0 0 clamp(190px, 25vw, 268px);
   scroll-snap-align: start;
 }
+/* Vitrine ainda não preenchida (carregamento progressivo): reserva a altura
+   exata que os cards vão ocupar, para a página não pular quando eles entram.
+   Conta = largura do card x 4/3 (proporção da foto) + altura do texto. */
+.carousel-track[data-pending] {
+  min-height: calc(clamp(190px, 25vw, 268px) * 1.3333 + 168px);
+}
 
 .news__grid{
   max-width: var(--container);
@@ -1795,6 +1801,7 @@ em{ font-style: italic; }
   .card__fav{ opacity: 1; transform: translateY(0); }
   /* Carousel mobile */
   .carousel-track .card { flex: 0 0 72vw; }
+  .carousel-track[data-pending] { min-height: calc(72vw * 1.3333 + 152px); }
   .car-btn { width: 34px; height: 34px; }
   #categories-root { gap: 56px; }
 
@@ -2712,4 +2719,50 @@ a, button { touch-action: manipulation; }
 
 @media (max-width: 640px) {
   .reviews-grid { grid-template-columns: 1fr; }
+}
+
+/* ================================================================
+   PERFORMANCE — renderização sob demanda
+   ================================================================
+   `content-visibility: auto` manda o navegador NÃO calcular layout, estilo
+   nem pintura das seções que estão fora da tela. Ele só faz esse trabalho
+   quando a seção se aproxima da rolagem. É o que deixa a página "leve de
+   mexer" mesmo com o site inteiro no mesmo HTML.
+
+   `contain-intrinsic-size: auto <valor>` é o par obrigatório disso: informa
+   uma altura estimada enquanto a seção não foi renderizada, para a barra de
+   rolagem não pular. O `auto` faz o navegador guardar a altura real depois
+   da primeira renderização e reusar dali em diante.
+
+   ⚠ O hero e a navbar ficam de fora de propósito: são a primeira coisa que
+   aparece e não podem ter renderização adiada. */
+.cats,
+.promos-dia,
+.news,
+.store-section,
+.perks,
+.quotes,
+.insta-section,
+.gift-banner,
+.news-letter,
+.foot {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 700px;
+}
+
+/* Seções que costumam ser bem mais altas: estimativa maior evita o "pulo"
+   da barra de rolagem enquanto a pessoa desce a página. */
+.cats            { contain-intrinsic-size: auto 1600px; }
+.news            { contain-intrinsic-size: auto 1200px; }
+.insta-section   { contain-intrinsic-size: auto 900px; }
+
+/* Respeita quem pediu menos animação no sistema (acessibilidade + fluidez
+   em aparelho fraco): desliga transições, parallax e animações infinitas. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

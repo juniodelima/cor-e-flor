@@ -6,11 +6,13 @@
 <title id="page-title">Produto | COR &amp; FLOR</title>
 <meta name="description" content="COR & FLOR, moda feminina premium. Peças que celebram quem você é, com a delicadeza que você merece." />
 
-<link rel="icon" type="image/png" href="assets/logo-nova.png">
+<link rel="icon" type="image/png" href="assets/logo-nova.webp">
 
 <!-- Preconnect para fontes e CDN de icons -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://yynukxtyiiuwjcmqiktr.supabase.co" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 
 <!-- Carrega fontes sem bloquear renderização -->
@@ -18,7 +20,7 @@
 <noscript><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet"></noscript>
 
 <!-- Preload do logo -->
-<link rel="preload" as="image" href="assets/logo-nova.png">
+<link rel="preload" as="image" href="assets/logo-nova.webp">
 
 <link rel="stylesheet" href="styles.css?v=4" />
 <style>
@@ -118,7 +120,7 @@
     </button>
 
     <a class="logo" href="index.html" aria-label="COR & FLOR">
-      <img src="assets/logo-nova.png" class="logo__img" alt="COR &amp; FLOR">
+      <img src="assets/logo-nova.webp" class="logo__img" alt="COR &amp; FLOR">
     </a>
 
     <nav class="nav__links" aria-label="Principal">
@@ -146,7 +148,7 @@
     <svg width="22" height="22"><use href="#i-x"/></svg>
   </button>
   <div class="mmenu__logo">
-    <img src="assets/logo-nova.png" class="mmenu__logo-img" alt="COR &amp; FLOR">
+    <img src="assets/logo-nova.webp" class="mmenu__logo-img" alt="COR &amp; FLOR">
   </div>
   <nav class="mmenu__links">
     <a href="index.html#categorias">Coleções</a>
@@ -184,7 +186,7 @@
     <div class="prod-detail__media">
       <div class="prod-detail__img-main" id="img-main-wrap">
         <img id="prod-main-img" src="" alt="">
-        <video id="prod-main-video" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:inherit" controls playsinline></video>
+        <video id="prod-main-video" preload="none" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:inherit" controls playsinline></video>
       </div>
       <div class="prod-detail__thumbs" id="prod-thumbs"></div>
     </div>
@@ -329,7 +331,7 @@
   <div class="foot__top">
     <a class="logo logo--foot" href="index.html" aria-label="COR & FLOR">
       <div class="logo-on-dark">
-        <img src="assets/logo-nova.png" class="logo__img" alt="COR &amp; FLOR">
+        <img src="assets/logo-nova.webp" class="logo__img" alt="COR &amp; FLOR">
       </div>
     </a>
     <p class="foot__tag"><em>Cor porque a vida pede. Flor porque você merece.</em></p>
@@ -372,7 +374,7 @@
 
   <div class="foot__bar">
     <span>© 2026 Cor &amp; Flor. Todos os direitos reservados.</span>
-    <span>Feito com ✿ em São Paulo</span>
+    <span>Feito com ✿ em Brasília</span>
   </div>
 </footer>
 
@@ -446,7 +448,7 @@
 const CATALOG = [
   {
     id: 1, name: "Blusa Drapeado Sereno", category: "Blusa", price: 129, originalPrice: 199.90, badge: "SALE",
-    image: "assets/p-blusa-azul.png",
+    image: "assets/p-blusa-azul.webp",
     colors: [{ name: "Azul Sereno", hex: "#9CAEB8" }],
     sizes: ["36","42"],
     description: "Blusa de tecido fluido com drapeado assimétrico que valoriza o corpo com suavidade. Ideal para compor looks do dia a dia com elegância descomplicada.",
@@ -456,7 +458,7 @@ const CATALOG = [
   },
   {
     id: 2, name: "Vestido Citrus", category: "Vestido Midi", price: 149, originalPrice: null, badge: "NOVO",
-    image: "assets/p-vestido-laranja.png",
+    image: "assets/p-vestido-laranja.webp",
     colors: [{ name: "Laranja Citrus", hex: "#F4A05B" }, { name: "Rosa Claro", hex: "#F4C9D8" }],
     sizes: ["P","M","G"],
     description: "Vestido midi vibrante em tom citrus, com caimento elegante e corte que valoriza a silhueta. Uma peça que transforma qualquer dia em celebração.",
@@ -466,7 +468,7 @@ const CATALOG = [
   },
   {
     id: 3, name: "Conjunto Rosé", category: "Conjunto Cropped", price: 259, originalPrice: null, badge: "NOVO",
-    image: "assets/p-conjunto-rosa.png",
+    image: "assets/p-conjunto-rosa.webp",
     colors: [{ name: "Rosé", hex: "#E29AB0" }, { name: "Nude", hex: "#F9EFF0" }],
     sizes: ["36","38","40","42"],
     description: "Conjunto cropped + calça pantalona em tecido de malha rosé. Peças vendidas juntas que combinam conforto e sofisticação em harmonia perfeita.",
@@ -476,7 +478,7 @@ const CATALOG = [
   },
   {
     id: 4, name: "Body Bronze", category: "Body Drapeado", price: 199, originalPrice: null, badge: "EXCLUSIVO",
-    image: "assets/p-body-marrom.png",
+    image: "assets/p-body-marrom.webp",
     colors: [{ name: "Bronze Escuro", hex: "#7A4234" }, { name: "Caramelo", hex: "#C4956A" }],
     sizes: ["P"],
     description: "Body drapeado em tom bronze com abertura profunda nas costas. Peça exclusiva que exige atitude, para noites que ficam na memória.",
@@ -486,7 +488,7 @@ const CATALOG = [
   },
   {
     id: 5, name: "Saia Cetim Lua", category: "Saia Longa", price: 239, originalPrice: null, badge: null,
-    image: "assets/p-saia-cetim.png",
+    image: "assets/p-saia-cetim.webp",
     colors: [{ name: "Prata Lua", hex: "#C9CACE" }, { name: "Preto", hex: "#1C1414" }],
     sizes: ["36","38","40"],
     description: "Saia longa de cetim com reflexos suaves que evocam o brilho da lua. Fluida, elegante e atemporal, a peça-chave de um guarda-roupa consciente.",
@@ -496,7 +498,7 @@ const CATALOG = [
   },
   {
     id: 6, name: "Blazer Camélia", category: "Blazer", price: 379, originalPrice: null, badge: "NOVO",
-    image: "assets/p-blazer-caqui.png",
+    image: "assets/p-blazer-caqui.webp",
     colors: [{ name: "Caqui Camélia", hex: "#8C7350" }, { name: "Preto", hex: "#1C1414" }],
     sizes: ["38","40","42"],
     description: "Blazer estruturado em tweed misto com botões dourados e lapela clássica. Transita do trabalho à noite com elegância natural e sem esforço.",
@@ -506,7 +508,7 @@ const CATALOG = [
   },
   {
     id: 7, name: "Regata Pérola", category: "Regata Cetim", price: 89, originalPrice: 139.90, badge: "SALE",
-    image: "assets/p-regata-branca.png",
+    image: "assets/p-regata-branca.webp",
     colors: [{ name: "Pérola", hex: "#F5F2EC" }, { name: "Bege", hex: "#E8DDD0" }],
     sizes: ["P","M","G","GG"],
     description: "Regata de cetim leve com alças finas e bojo removível. Uma peça versátil que funciona sozinha ou por baixo de sobreposições com charme discreto.",
@@ -515,112 +517,112 @@ const CATALOG = [
     fit: "Modelagem ajustada com bojo leve. Para usar por baixo de blazers e sobreposições, suba um tamanho."
   },
   { id: 8, name: "Conjunto Cargo Azul", category: "conjuntos", price: 199.90, originalPrice: null, badge: "NOVO",
-    image: "assets/lj-cargo-azul.png", colors: [{ name: "Azul Claro", hex: "#8FA8C0" }, { name: "Preto", hex: "#1C1414" }],
+    image: "assets/lj-cargo-azul.webp", colors: [{ name: "Azul Claro", hex: "#8FA8C0" }, { name: "Preto", hex: "#1C1414" }],
     sizes: ["P","M","G"], description: "Conjunto urbano com calça cargo azul de cintura alta e body preto gola alta. Combinação arrojada que une estilo despojado e feminilidade com muita personalidade.",
     material: "Calça em gabardine leve com bolsos laterais. Body em malha elástica.", care: "Lavar na máquina ciclo delicado, água fria.", fit: "Calça de cintura alta modelagem ampla. Body ajustado." },
   { id: 9, name: "Conjunto Linho Bege", category: "conjuntos", price: 179.90, originalPrice: null, badge: "NOVO",
-    image: "assets/lj-conj-bege.png", colors: [{ name: "Bege Off-White", hex: "#E8DDD0" }],
+    image: "assets/lj-conj-bege.webp", colors: [{ name: "Bege Off-White", hex: "#E8DDD0" }],
     sizes: ["P","M","G","GG"], description: "Conjunto elegante em linho bege com short de cintura alta e blusa estruturada. Perfeito para almoços e eventos ao ar livre com toda a sofisticação.",
     material: "70% linho, 30% viscose.", care: "Lavar ciclo delicado, água fria.", fit: "Short cintura alta. Blusa modelagem reta." },
   { id: 10, name: "Macacão Glamour Nude", category: "conjuntos", price: 239.90, originalPrice: null, badge: "NOVO",
-    image: "assets/lj-macacao-nude.png", colors: [{ name: "Nude", hex: "#C4956A" }, { name: "Bege", hex: "#E8DDD0" }],
+    image: "assets/lj-macacao-nude.webp", colors: [{ name: "Nude", hex: "#C4956A" }, { name: "Bege", hex: "#E8DDD0" }],
     sizes: ["P","M","G"], description: "Macacão curto em tom nude com cinto dourado que valoriza a silhueta. Versátil para o trabalho e à noite.",
     material: "95% poliéster, 5% elastano.", care: "Lavar à mão água fria.", fit: "Ajustada, decote V. Cinto removível." },
   { id: 11, name: "Conjunto Preto Refinado", category: "conjuntos", price: 199.90, originalPrice: null, badge: "NOVO",
-    image: "assets/lj-conj-preto.png", colors: [{ name: "Preto", hex: "#1C1414" }],
+    image: "assets/lj-conj-preto.webp", colors: [{ name: "Preto", hex: "#1C1414" }],
     sizes: ["P","M","G","GG"], description: "Conjunto preto atemporal com short de alfaiataria e blusa sem mangas. Cinto dourado incluso.",
     material: "Crepe de alta qualidade. Cinto metal dourado incluso.", care: "Ciclo delicado.", fit: "Short cintura alta. Blusa alças largas." },
   { id: 12, name: "Tricot Rosê Manguinha", category: "blusas", price: 159.90, originalPrice: null, badge: "NOVO",
-    image: "assets/lj-tricot-rose.png", colors: [{ name: "Rosê", hex: "#C4826A" }, { name: "Caramelo", hex: "#C4956A" }],
+    image: "assets/lj-tricot-rose.webp", colors: [{ name: "Rosê", hex: "#C4826A" }, { name: "Caramelo", hex: "#C4956A" }],
     sizes: ["P","M","G"], description: "Blusa tricot rosê one-shoulder com manga fina e textura canelada. Elegância casual para o dia a dia.",
     material: "80% viscose, 20% poliamida. Tricot canelado.", care: "Lavar à mão água fria.", fit: "Ajustada, one-shoulder." },
   { id: 13, name: "Tricot Marrom Gola Alta", category: "blusas", price: 189.90, originalPrice: null, badge: "NOVO",
-    image: "assets/lj-tricot-marrom.png", colors: [{ name: "Marrom Chocolate", hex: "#4A2F1A" }, { name: "Caramelo", hex: "#C4956A" }],
+    image: "assets/lj-tricot-marrom.webp", colors: [{ name: "Marrom Chocolate", hex: "#4A2F1A" }, { name: "Caramelo", hex: "#C4956A" }],
     sizes: ["P","M","G","GG"], description: "Tricot de gola alta marrom chocolate com textura torcida. Peça de inverno que não abre mão da elegância.",
     material: "60% lã merino, 40% acrílico.", care: "Lavar à mão sabão especial para lã.", fit: "Modelagem solta, gola alta dobrável." },
   { id: 14, name: "Look Tricot Cinza + Short Saia", category: "conjuntos", price: 189.90, originalPrice: null, badge: "NOVO",
-    image: "assets/lj-look-cinza.png", colors: [{ name: "Cinza", hex: "#9A9A9A" }, { name: "Marrom", hex: "#6B4226" }],
+    image: "assets/lj-look-cinza.webp", colors: [{ name: "Cinza", hex: "#9A9A9A" }, { name: "Marrom", hex: "#6B4226" }],
     sizes: ["P","M","G"], description: "Look com tricot cropped cinza e short saia de couro marrom. Contraste de texturas editorial cheio de atitude.",
     material: "Tricot viscose canelada. Short saia couro ecológico.", care: "Tricot: mão. Short: pano úmido.", fit: "Tricot cropped assimétrico. Short cintura alta." },
   { id: 15, name: "Look Tricot Azul + Calça Couro", category: "conjuntos", price: 189.90, originalPrice: null, badge: "NOVO",
-    image: "assets/lj-look-azul.png", colors: [{ name: "Azul Marinho", hex: "#1A2744" }, { name: "Preto", hex: "#1C1414" }],
+    image: "assets/lj-look-azul.webp", colors: [{ name: "Azul Marinho", hex: "#1A2744" }, { name: "Preto", hex: "#1C1414" }],
     sizes: ["P","M","G"], description: "Tricot azul marinho com calça de couro preta. Look poderoso para ocasiões especiais.",
     material: "Tricot viscose grossa. Calça couro ecológico com elastano.", care: "Tricot: mão. Calça: pano úmido.", fit: "Tricot cropped one-shoulder. Calça slim cintura alta." },
   { id: 16, name: "Macacão Estampa Zebra", category: "conjuntos", price: 299.90, originalPrice: null, badge: "EXCLUSIVO",
-    image: "assets/lj-macacao-zebra.png", colors: [{ name: "Animal Print", hex: "#F5F0E8" }],
+    image: "assets/lj-macacao-zebra.webp", colors: [{ name: "Animal Print", hex: "#F5F0E8" }],
     sizes: ["P","M","G"], description: "Macacão pantalona em estampa zebra com ombro único e lenço coordenado. Para quem não tem medo de ser notada.",
     material: "100% viscose estampa animal print exclusiva.", care: "Ciclo delicado. Sem alvejante.", fit: "Ampla pantalona. Ombro único. Lenço e cinto inclusos." },
   { id: 17, name: "Conjunto Off-White Drapeado", category: "conjuntos", price: 229.90, originalPrice: null, badge: "NOVO",
-    image: "assets/lj-conj-offwhite.png", colors: [{ name: "Off-White", hex: "#F5F0E8" }, { name: "Bege", hex: "#E8DDD0" }],
+    image: "assets/lj-conj-offwhite.webp", colors: [{ name: "Off-White", hex: "#F5F0E8" }, { name: "Bege", hex: "#E8DDD0" }],
     sizes: ["P","M","G"], description: "Top drapeado assimétrico e short saia off-white. Elegância e leveza para eventos sofisticados.",
     material: "95% poliéster, 5% elastano. Drapeado fluido.", care: "Lavar à mão água fria.", fit: "Top drapeado com amarração. Short saia cós elástico." },
   { id: 18, name: "Corset Preto", category: "blusas", price: 129.90, originalPrice: null, badge: "NOVO",
-    image: "assets/lj-corset-preto.png", colors: [{ name: "Preto", hex: "#1C1414" }],
+    image: "assets/lj-corset-preto.webp", colors: [{ name: "Preto", hex: "#1C1414" }],
     sizes: ["P","M","G"], description: "Corset preto estruturado que define a silhueta com elegância. Versátil por dentro de calças e saias.",
     material: "Tecido estruturado com barbatanas e forro. Fechamento frontal.", care: "Somente à mão, cuidado nas barbatanas.", fit: "Estruturado, consulte tabela de medidas de busto." },
   { id: 19, name: "Vestido Verde Longo Renda", category: "vestidos", price: 299.90, originalPrice: null, badge: "NOVO",
-    image: "assets/lj-vestido-verde.png", colors: [{ name: "Verde Esmeralda", hex: "#2E7D4F" }],
+    image: "assets/lj-vestido-verde.webp", colors: [{ name: "Verde Esmeralda", hex: "#2E7D4F" }],
     sizes: ["P","M","G"], description: "Vestido longo verde esmeralda com renda bordada e recorte lateral. Deslumbrante para ocasiões especiais.",
     material: "Crepe com renda em poliéster bordada artesanalmente.", care: "Limpeza a seco recomendada.", fit: "Ajustada no busto, saia fluida. Recorte lateral com elástico." },
   { id: 20, name: "Vestido Preto Paetê", category: "vestidos", price: 249.90, originalPrice: null, badge: "EXCLUSIVO",
-    image: "assets/lj-vestido-paete.png", colors: [{ name: "Preto", hex: "#1C1414" }],
+    image: "assets/lj-vestido-paete.webp", colors: [{ name: "Preto", hex: "#1C1414" }],
     sizes: ["P","M","G"], description: "Vestido curto preto com saia em paetê brilhante e top recortado. A pedida para noites inesquecíveis.",
     material: "Top em tecido elástico. Saia em paetê costurado à mão.", care: "Limpeza a seco.", fit: "Top ajustado com recorte. Saia rodada acima do joelho." },
   { id: 21, name: "Colete Vermelho", category: "blazers", price: 99.90, originalPrice: null, badge: "NOVO",
-    image: "assets/lj-colete-vermelho.png", colors: [{ name: "Vermelho", hex: "#C0392B" }, { name: "Preto", hex: "#1C1414" }],
+    image: "assets/lj-colete-vermelho.webp", colors: [{ name: "Vermelho", hex: "#C0392B" }, { name: "Preto", hex: "#1C1414" }],
     sizes: ["P","M","G","GG"], description: "Colete vermelho com botões dourados para looks poderosos. Peça coringa que transforma qualquer produção.",
     material: "Crepe de alta qualidade com forro. Botões metal dourado.", care: "Ciclo delicado ou limpeza a seco.", fit: "Ajustada, sem mangas, comprimento na cintura." },
   { id: 22, name: "Macacão Branco One-Shoulder", category: "conjuntos", price: 389.90, originalPrice: null, badge: "EXCLUSIVO",
-    image: "assets/lj-macacao-branco.png", colors: [{ name: "Branco", hex: "#FAFAFA" }, { name: "Off-White", hex: "#F5F0E8" }],
+    image: "assets/lj-macacao-branco.webp", colors: [{ name: "Branco", hex: "#FAFAFA" }, { name: "Off-White", hex: "#F5F0E8" }],
     sizes: ["38","40","42"], description: "Macacão pantalona branco one-shoulder com drapeado sofisticado. Para eventos formais que exigem elegância impecável.",
     material: "100% viscose premium com elastano. Acabamento alta costura.", care: "Limpeza a seco recomendada.", fit: "Pantalona cintura alta. Ombro único estruturado. Números 38, 40 e 42." },
   { id: 23, name: "Cropped Couro Caramelo", category: "blusas", price: 189.00, originalPrice: null, badge: "NOVO",
-    image: "assets/lj-cropped-caramelo.png", colors: [{ name: "Caramelo", hex: "#C4956A" }, { name: "Preto", hex: "#1C1414" }],
+    image: "assets/lj-cropped-caramelo.webp", colors: [{ name: "Caramelo", hex: "#C4956A" }, { name: "Preto", hex: "#1C1414" }],
     sizes: ["P","G"], description: "Cropped em couro ecológico caramelo com bojo embutido. Eleva qualquer look com atitude e feminilidade sofisticada.",
     material: "Couro ecológico premium com forro e bojo removível.", care: "Pano úmido suave. Condicionador de couro.", fit: "Ajustada, bojo embutido. Disponível P e G." },
   { id: 24, name: "Short Couro Preto", category: "calcas", price: 69.90, originalPrice: 99.90, badge: "SALE",
-    image: "assets/lj-short-couro.png", colors: [{ name: "Preto", hex: "#1C1414" }],
+    image: "assets/lj-short-couro.webp", colors: [{ name: "Preto", hex: "#1C1414" }],
     sizes: ["P","M","G"], description: "Short de couro ecológico preto com cinto de argolas e cintura alta. Rock e feminilidade para looks ousados.",
     material: "Couro ecológico com forro. Cinto de argolas removível incluso.", care: "Pano úmido. Não lavar na máquina.", fit: "Cintura alta, modelagem reta. Cinto incluso." },
   { id: 25, name: "Calça Jeans Reta", category: "calcas", price: 279.00, originalPrice: null, badge: "NOVO",
-    image: "assets/lj-calca-jeans.png", colors: [{ name: "Azul Médio", hex: "#4A6FA5" }, { name: "Azul Escuro", hex: "#2C3E6B" }],
+    image: "assets/lj-calca-jeans.webp", colors: [{ name: "Azul Médio", hex: "#4A6FA5" }, { name: "Azul Escuro", hex: "#2C3E6B" }],
     sizes: ["38","40","42"], description: "Calça jeans reta de cintura alta com caimento impecável. Essencial no guarda-roupa feminino que combina com tudo.",
     material: "98% algodão, 2% elastano. Jeans premium lavagem média.", care: "Lavar ao contrário água fria. Secar à sombra.", fit: "Reta cintura alta. Números 38, 40 e 42." },
   { id: 26, name: "Vestido Vermelho Midi", category: "vestidos", price: 189.00, originalPrice: 299.00, badge: "SALE",
-    image: "assets/lj-vestido-vermelho.png", colors: [{ name: "Vermelho", hex: "#C0392B" }],
+    image: "assets/lj-vestido-vermelho.webp", colors: [{ name: "Vermelho", hex: "#C0392B" }],
     sizes: ["P","GG"], description: "Vestido midi vermelho com franzido lateral que valoriza cada curva. Para ocasiões especiais onde você quer ser a protagonista.",
     material: "95% poliéster, 5% elastano. Malha stretch com franzido.", care: "Ciclo delicado. Não torcer.", fit: "Ajustada com franzido no quadril. Comprimento midi. P e GG." },
   { id: 27, name: "Regata Tule Preta", category: "blusas", price: 89.00, originalPrice: 139.90, badge: "SALE",
-    image: "assets/lj-regata-preta.png", colors: [{ name: "Preto", hex: "#1C1414" }, { name: "Branco", hex: "#FAFAFA" }],
+    image: "assets/lj-regata-preta.webp", colors: [{ name: "Preto", hex: "#1C1414" }, { name: "Branco", hex: "#FAFAFA" }],
     sizes: ["38","40","42"], description: "Regata preta com sobreposição em tule transparente e alças estruturadas. Sofisticação do dia à noite.",
     material: "Regata em cetim. Tule 100% poliéster. Alças reguláveis.", care: "Lavar à mão água fria.", fit: "Ajustada, alças reguláveis. Números 38, 40 e 42." },
   { id: 28, name: "Cropped Floral Rosa", category: "blusas", price: 79.00, originalPrice: 129.90, badge: "SALE",
-    image: "assets/lj-cropped-floral.png", colors: [{ name: "Rosa Floral", hex: "#E8708A" }, { name: "Branco", hex: "#FAFAFA" }],
+    image: "assets/lj-cropped-floral.webp", colors: [{ name: "Rosa Floral", hex: "#E8708A" }, { name: "Branco", hex: "#FAFAFA" }],
     sizes: ["P","M","G"], description: "Cropped com estampa floral vibrante em rosa e branco. Alegre e cheio de personalidade para dias ensolarados.",
     material: "100% viscose com estampa digital exclusiva.", care: "Ciclo delicado, separado de roupas escuras.", fit: "Cropped barra reta, decote frontal." },
   { id: 29, name: "Body One-Shoulder Nude", category: "blusas", price: 199.00, originalPrice: null, badge: "NOVO",
-    image: "assets/lj-body-nude.png", colors: [{ name: "Nude", hex: "#D4A882" }, { name: "Marrom", hex: "#7A4234" }],
+    image: "assets/lj-body-nude.webp", colors: [{ name: "Nude", hex: "#D4A882" }, { name: "Marrom", hex: "#7A4234" }],
     sizes: ["P","M","G"], description: "Body one-shoulder nude com drapeado suave e tecido de segunda pele. Elegante e sensual para qualquer saia ou calça.",
     material: "92% poliamida, 8% elastano. Segunda pele.", care: "Somente à mão água fria.", fit: "Ajustado, one-shoulder, fecho colchetes na entreperna." },
   { id: 30, name: "Blazer Xadrez", category: "blazers", price: 349.00, originalPrice: null, badge: "NOVO",
-    image: "assets/nrl-blazer-xadrez-1.jpg",
-    images: ["assets/nrl-blazer-xadrez-1.jpg","assets/nrl-blazer-xadrez-2.jpg","assets/nrl-blazer-xadrez-3.jpg","assets/nrl-blazer-xadrez-4.jpg"],
-    video: "assets/nrl-blazer-xadrez.mp4",
+    image: "assets/nrl-blazer-xadrez-1.webp",
+    images: ["assets/nrl-blazer-xadrez-1.webp","assets/nrl-blazer-xadrez-2.webp","assets/nrl-blazer-xadrez-3.webp","assets/nrl-blazer-xadrez-4.webp"],
+    video: "assets/nrl-blazer-xadrez.webm",
     colors: [{ name: "Xadrez Clássico", hex: "#4A4040" }], sizes: ["P","M","G"],
     description: "Blazer xadrez estruturado com caimento impecável e estampa clássica que nunca sai de moda. Versátil do casual ao formal com atitude e elegância.",
     material: "Tecido xadrez de alta qualidade com forro interno. Estrutura de ombro levemente marcada.",
     care: "Limpeza a seco recomendada. Para lavagem doméstica, ciclo delicado em água fria.",
     fit: "Modelagem slim com ombros estruturados. Comprimento no quadril. Segue tabela padrão." },
   { id: 31, name: "Blusa Tule Floral", category: "blusas", price: 119.00, originalPrice: null, badge: "NOVO",
-    image: "assets/nrl-blusa-tule.jpg",
+    image: "assets/nrl-blusa-tule.webp",
     colors: [{ name: "Natural", hex: "#F5EFE6" }], sizes: ["P","M","G"],
     description: "Blusa em tule delicado com bordado floral artesanal que traz leveza e romantismo. Uma peça que celebra a feminilidade com suavidade e charme.",
     material: "100% poliéster em tule de alta gramatura. Bordado artesanal aplicado à mão.",
     care: "Lavar somente à mão com sabão neutro em água fria. Secar à sombra estendida.",
     fit: "Modelagem ampla e fluida. Veste folgado, considere um tamanho abaixo se preferir mais ajustado." },
   { id: 32, name: "Conjunto Crochê", category: "conjuntos", price: 319.00, originalPrice: null, badge: "NOVO",
-    image: "assets/nrl-colete-croche.jpg",
-    images: ["assets/nrl-colete-croche.jpg","assets/nrl-calca-croche.jpg"],
+    image: "assets/nrl-colete-croche.webp",
+    images: ["assets/nrl-colete-croche.webp","assets/nrl-calca-croche.webp"],
     colors: [{ name: "Natural", hex: "#D4C5A9" }], sizes: ["P","M","G"],
     pieceOptions: [
       { name: "Conjunto Completo", price: 319.00 },
@@ -632,8 +634,8 @@ const CATALOG = [
     care: "Lavar à mão com sabão neutro em água fria. Secar à sombra deitado. Não torcer.",
     fit: "Colete modelagem cropped. Calça de cintura alta com caimento fluido." },
   { id: 33, name: "Conjunto Jeans", category: "conjuntos", price: 259.00, originalPrice: null, badge: "NOVO",
-    image: "assets/nrl-conjunto-jeans-1.jpg",
-    images: ["assets/nrl-conjunto-jeans-1.jpg"],
+    image: "assets/nrl-conjunto-jeans-1.webp",
+    images: ["assets/nrl-conjunto-jeans-1.webp"],
     colors: [{ name: "Azul Médio", hex: "#4A6FA5" }], sizes: ["P","M","G"],
     pieceOptions: [
       { name: "Conjunto Completo", price: 259.00 },
@@ -645,8 +647,8 @@ const CATALOG = [
     care: "Lavar ao contrário em ciclo delicado, água fria. Secar à sombra.",
     fit: "Top ajustado com barra reta. Calça reta de cintura alta. Segue tabela padrão." },
   { id: 34, name: "Conjunto Tweed", category: "conjuntos", price: 329.00, originalPrice: null, badge: "NOVO",
-    image: "assets/nrl-conjunto-tweed-1.jpg",
-    images: ["assets/nrl-conjunto-tweed-1.jpg","assets/nrl-conjunto-tweed-2.jpg"],
+    image: "assets/nrl-conjunto-tweed-1.webp",
+    images: ["assets/nrl-conjunto-tweed-1.webp","assets/nrl-conjunto-tweed-2.webp"],
     colors: [{ name: "Tweed Multicolor", hex: "#8C7E6A" }], sizes: ["P","M","G"],
     pieceOptions: [
       { name: "Conjunto Completo", price: 329.00 },
@@ -658,8 +660,8 @@ const CATALOG = [
     care: "Limpeza a seco recomendada. Guardar em cabide para manter a estrutura.",
     fit: "Blazer modelagem slim com ombros marcados. Saia midi de cintura alta com forro." },
   { id: 35, name: "Conjunto Corset + Short", category: "conjuntos", price: 229.00, originalPrice: null, badge: "NOVO",
-    image: "assets/nrl-corset-short.jpg",
-    images: ["assets/nrl-corset-short.jpg"],
+    image: "assets/nrl-corset-short.webp",
+    images: ["assets/nrl-corset-short.webp"],
     colors: [{ name: "Preto", hex: "#1C1414" }], sizes: ["P","M","G"],
     pieceOptions: [
       { name: "Conjunto Completo", price: 229.00 },
@@ -671,24 +673,24 @@ const CATALOG = [
     care: "Lavar somente à mão com cuidado. Não torcer o corset para preservar a estrutura.",
     fit: "Corset estruturado que define a cintura. Short de cintura alta modelagem reta." },
   { id: 36, name: "Macacão Listrado", category: "conjuntos", price: 279.00, originalPrice: null, badge: "NOVO",
-    image: "assets/nrl-macacao-listrado-1.jpg",
-    images: ["assets/nrl-macacao-listrado-1.jpg","assets/nrl-macacao-listrado-2.jpg","assets/nrl-macacao-listrado-3.jpg"],
+    image: "assets/nrl-macacao-listrado-1.webp",
+    images: ["assets/nrl-macacao-listrado-1.webp","assets/nrl-macacao-listrado-2.webp","assets/nrl-macacao-listrado-3.webp"],
     colors: [{ name: "Listrado P&B", hex: "#2C2C2C" }], sizes: ["P","M","G"],
     description: "Macacão listrado com caimento elegante e design moderno. As listras verticais alongam a silhueta e garantem sofisticação em cada movimento.",
     material: "Viscose premium com elastano. Listras tecidas no próprio fio.",
     care: "Lavar na máquina em ciclo delicado, água fria. Secar à sombra.",
     fit: "Modelagem fluida e levemente ampla. Cós marcado. Segue tabela padrão." },
   { id: 37, name: "Vestido Onça", category: "vestidos", price: 259.00, originalPrice: null, badge: "NOVO",
-    image: "assets/nrl-vestido-onca-1.jpg",
-    images: ["assets/nrl-vestido-onca-1.jpg","assets/nrl-vestido-onca-2.jpg"],
+    image: "assets/nrl-vestido-onca-1.webp",
+    images: ["assets/nrl-vestido-onca-1.webp","assets/nrl-vestido-onca-2.webp"],
     colors: [{ name: "Animal Print Onça", hex: "#C4956A" }], sizes: ["P","M","G"],
     description: "Vestido com estampa animal print onça que é sinônimo de poder e ousadia. Caimento impecável para quem não tem medo de ser notada.",
     material: "Tecido de alta qualidade com estampa digital exclusiva. Leve elastano.",
     care: "Lavar em ciclo delicado, água fria. Separar de roupas claras. Secar à sombra.",
     fit: "Modelagem ajustada com caimento que valoriza as curvas. Comprimento midi." },
   { id: 38, name: "Vestido Vinho", category: "vestidos", price: 229.00, originalPrice: null, badge: "NOVO",
-    image: "assets/nrl-vestido-vinho-1.jpg",
-    images: ["assets/nrl-vestido-vinho-1.jpg","assets/nrl-vestido-vinho-2.jpg"],
+    image: "assets/nrl-vestido-vinho-1.webp",
+    images: ["assets/nrl-vestido-vinho-1.webp","assets/nrl-vestido-vinho-2.webp"],
     colors: [{ name: "Vinho", hex: "#722F37" }], sizes: ["P","M","G"],
     description: "Vestido vinho com design sofisticado que combina elegância e feminilidade. A cor profunda e o caimento impecável fazem desta peça a escolha perfeita para noites especiais.",
     material: "Tecido premium com leve brilho acetinado.",
@@ -696,7 +698,7 @@ const CATALOG = [
     fit: "Modelagem ajustada que valoriza a silhueta. Comprimento midi. Segue tabela padrão." },
   { id: 99, name: "Produto Teste — R$ 1", category: "Teste", price: 1.00, originalPrice: null, badge: "TESTE",
     active: false,
-    image: "assets/p-blusa-azul.png",
+    image: "assets/p-blusa-azul.webp",
     colors: [{ name: "Rosa", hex: "#D4679A" }], sizes: ["M"],
     description: "Produto de teste para validar o fluxo completo de pagamento. Valor simbólico de R$ 1,00.",
     material: "Produto de teste.", care: "Produto de teste.", fit: "Produto de teste." }
@@ -761,11 +763,107 @@ function applyStockUI() {
     if (!active) { window.location.href = 'index.html'; return; }
     productOutOfStock = !!(o && o.stock !== undefined && Number(o.stock) <= 0);
     applyStockUI();
+    /* O schema Product já foi montado com o estoque otimista; corrige agora */
+    window._atualizarDisponibilidadeSchema?.();
   } catch (e) { /* falha de rede não deve travar a página */ }
 })();
 
-/* ========= PAGE META ========= */
+/* ========= PAGE META =========
+   Title, description, canonical, Open Graph e schema Product são montados aqui
+   porque o produto só é conhecido depois de ler o ?id= da URL.
+   O schema Product é o que dá direito a preço, disponibilidade e foto
+   direto no resultado do Google (rich result) — é o item de SEO que mais
+   rende numa loja. */
 document.title = product.name + ' | COR & FLOR';
+
+(function montarSeoDoProduto() {
+  const URL_BASE  = 'https://coreflor.com.br';
+  const urlAtual  = URL_BASE + '/produto.html?id=' + product.id;
+  const absoluta  = s => (s && s.startsWith('http')) ? s : URL_BASE + '/' + String(s || '').replace(/^\//, '');
+  const fotos     = ((product.images && product.images.length) ? product.images : [product.image]).map(absoluta);
+  const resumo    = (product.description || '')
+    .replace(/\s+/g, ' ').trim().slice(0, 155);
+
+  function meta(attr, chave, valor) {
+    let el = document.head.querySelector(`meta[${attr}="${chave}"]`);
+    if (!el) { el = document.createElement('meta'); el.setAttribute(attr, chave); document.head.appendChild(el); }
+    el.setAttribute('content', valor);
+  }
+
+  document.getElementById('page-title').textContent = product.name + ' | COR & FLOR';
+  meta('name', 'description', resumo);
+  meta('name', 'robots', 'index,follow,max-image-preview:large');
+  meta('property', 'og:type', 'product');
+  meta('property', 'og:site_name', 'COR & FLOR');
+  meta('property', 'og:locale', 'pt_BR');
+  meta('property', 'og:url', urlAtual);
+  meta('property', 'og:title', product.name + ' | COR & FLOR');
+  meta('property', 'og:description', resumo);
+  meta('property', 'og:image', fotos[0]);
+  meta('property', 'product:price:amount', String(product.price));
+  meta('property', 'product:price:currency', 'BRL');
+  meta('name', 'twitter:card', 'summary_large_image');
+  meta('name', 'twitter:title', product.name + ' | COR & FLOR');
+  meta('name', 'twitter:image', fotos[0]);
+
+  let canon = document.head.querySelector('link[rel="canonical"]');
+  if (!canon) { canon = document.createElement('link'); canon.rel = 'canonical'; document.head.appendChild(canon); }
+  canon.href = urlAtual;
+
+  const ld = document.createElement('script');
+  ld.type = 'application/ld+json';
+  ld.id   = 'ld-produto';
+  ld.textContent = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.name,
+    description: product.description || resumo,
+    image: fotos,
+    sku: 'CF-' + product.id,
+    category: product.category,
+    material: product.material || undefined,
+    color: (product.colors || []).map(c => c.name || c).join(', ') || undefined,
+    size: (product.sizes || []).join(', ') || undefined,
+    brand: { '@type': 'Brand', name: 'COR & FLOR' },
+    offers: {
+      '@type': 'Offer',
+      url: urlAtual,
+      priceCurrency: 'BRL',
+      price: Number(product.price).toFixed(2),
+      itemCondition: 'https://schema.org/NewCondition',
+      availability: productOutOfStock
+        ? 'https://schema.org/OutOfStock'
+        : 'https://schema.org/InStock',
+      seller: { '@type': 'Organization', name: 'COR & FLOR', url: URL_BASE + '/' },
+    },
+    isPartOf: { '@type': 'WebSite', name: 'COR & FLOR', url: URL_BASE + '/' },
+  });
+  document.head.appendChild(ld);
+
+  /* Migalha de pão estruturada (Início › Categoria › Produto) */
+  const bc = document.createElement('script');
+  bc.type = 'application/ld+json';
+  bc.textContent = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Início', item: URL_BASE + '/' },
+      { '@type': 'ListItem', position: 2, name: product.category },
+      { '@type': 'ListItem', position: 3, name: product.name },
+    ],
+  });
+  document.head.appendChild(bc);
+
+  /* Se o estoque chegar depois (consulta ao painel), corrige a disponibilidade */
+  window._atualizarDisponibilidadeSchema = function () {
+    try {
+      const dados = JSON.parse(ld.textContent);
+      dados.offers.availability = productOutOfStock
+        ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock';
+      ld.textContent = JSON.stringify(dados);
+    } catch (e) { /* schema é opcional, nunca pode quebrar a página */ }
+  };
+})();
 
 /* ========= BREADCRUMB ========= */
 document.getElementById('bc-cat').textContent = product.category;

@@ -1,8 +1,14 @@
 {
   "name": "cor-e-flor",
   "version": "1.0.0",
-  "engines": { "node": "24.x" },
+  "engines": {
+    "node": "24.x"
+  },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0"
+  },
+  "type": "commonjs",
+  "scripts": {
+    "seo": "node scripts/gerar-seo.mjs"
   }
 }

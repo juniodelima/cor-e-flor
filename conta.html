@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Minha Conta | COR &amp; FLOR</title>
 <meta name="robots" content="noindex">
-<link rel="icon" type="image/png" href="assets/logo-nova.png">
+<link rel="icon" type="image/png" href="assets/logo-nova.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Raleway:wght@300;400;500;600&display=swap" onload="this.rel='stylesheet'">
 <noscript><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet"></noscript>
-<link rel="preload" as="image" href="assets/logo-nova.png">
+<link rel="preload" as="image" href="assets/logo-nova.webp">
 <link rel="stylesheet" href="styles.css?v=5"/>
 <link rel="preload" as="style" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"></noscript>
@@ -40,7 +40,7 @@
 <header id="nav" class="nav is-scrolled">
   <div class="nav__inner">
     <button class="nav__burger" id="burger" aria-label="Abrir menu"><svg width="24" height="24"><use href="#i-menu"/></svg></button>
-    <a class="logo" href="index.html" aria-label="COR & FLOR"><img src="assets/logo-nova.png" class="logo__img" alt="COR &amp; FLOR"></a>
+    <a class="logo" href="index.html" aria-label="COR & FLOR"><img src="assets/logo-nova.webp" class="logo__img" alt="COR &amp; FLOR"></a>
     <nav class="nav__links" aria-label="Principal">
       <a href="index.html#categorias">Coleções</a>
       <a href="index.html#novidades">Novidades</a>
@@ -65,7 +65,7 @@
 <!-- MOBILE MENU -->
 <div class="mmenu" id="mmenu" aria-hidden="true">
   <button class="mmenu__close" id="mmenu-close" aria-label="Fechar"><svg width="22" height="22"><use href="#i-x"/></svg></button>
-  <div class="mmenu__logo"><img src="assets/logo-nova.png" class="mmenu__logo-img" alt="COR &amp; FLOR"></div>
+  <div class="mmenu__logo"><img src="assets/logo-nova.webp" class="mmenu__logo-img" alt="COR &amp; FLOR"></div>
   <nav class="mmenu__links">
     <a href="index.html#categorias">Coleções</a>
     <a href="index.html#novidades">Novidades</a>
@@ -151,7 +151,7 @@
 <footer class="foot">
   <div class="foot__top">
     <a class="logo logo--foot" href="index.html" aria-label="COR & FLOR">
-      <div class="logo-on-dark"><img src="assets/logo-nova.png" class="logo__img" alt="COR &amp; FLOR"></div>
+      <div class="logo-on-dark"><img src="assets/logo-nova.webp" class="logo__img" alt="COR &amp; FLOR"></div>
     </a>
     <p class="foot__tag"><em>Cor porque a vida pede. Flor porque você merece.</em></p>
   </div>
@@ -186,7 +186,7 @@
   </div>
   <div class="foot__bar">
     <span>© 2026 Cor &amp; Flor. Todos os direitos reservados.</span>
-    <span>Feito com ✿ em São Paulo</span>
+    <span>Feito com ✿ em Brasília</span>
   </div>
 </footer>
 
@@ -367,7 +367,7 @@ async function loadPedidos() {
         ${items.slice(0,3).map(it => {
           const p = products.find(x => x.id == it.id || x.name === it.name);
           return `<div class="order-item">
-            <img src="${p ? p.image : 'assets/logo-nova.png'}" alt="${it.name || ''}"/>
+            <img src="${p ? p.image : 'assets/logo-nova.webp'}" alt="${it.name || ''}"/>
             <div>
               <div class="order-item__name">${it.name || (p ? p.name : 'Produto')}</div>
               <div class="order-item__sub">Tam. ${it.size || '-'} · Qtd ${it.qty || 1}</div>
@@ -526,7 +526,7 @@ async function loadAvaliacoes() {
     const card = document.createElement('div');
     card.className = 'review-pending-card';
     card.innerHTML = `
-      <img src="${p ? p.image : 'assets/logo-nova.png'}" alt="${it.name || ''}"/>
+      <img src="${p ? p.image : 'assets/logo-nova.webp'}" alt="${it.name || ''}"/>
       <div class="review-pending-card__info">
         <p class="review-pending-card__name">${it.name || (p ? p.name : 'Produto')}</p>
         <p class="review-pending-card__sub">Tamanho ${it.size || '-'}</p>

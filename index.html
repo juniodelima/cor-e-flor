@@ -3,22 +3,44 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>COR &amp; FLOR | Moda feminina premium</title>
-<meta name="description" content="COR & FLOR, moda feminina premium. Peças que celebram quem você é, com a delicadeza que você merece." />
+<title>COR &amp; FLOR | Moda feminina premium em Brasília</title>
+<meta name="description" content="Loja de moda feminina premium na Asa Norte, Brasília. Vestidos, blusas, conjuntos e blazers. Frete grátis acima de R$ 299 para todo o Brasil." />
+<link rel="canonical" href="https://coreflor.com.br/" />
+<meta name="robots" content="index,follow,max-image-preview:large" />
+<meta name="theme-color" content="#9B3068" />
 
-<link rel="icon" type="image/png" href="assets/logo-nova.png">
+<link rel="icon" type="image/webp" href="assets/logo-nova.webp">
 
-<!-- Preconnect para fontes externas -->
+<!-- Open Graph / redes sociais -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="COR &amp; FLOR" />
+<meta property="og:locale" content="pt_BR" />
+<meta property="og:url" content="https://coreflor.com.br/" />
+<meta property="og:title" content="COR &amp; FLOR | Moda feminina premium em Brasília" />
+<meta property="og:description" content="Vestidos, blusas, conjuntos e blazers. Loja física na Asa Norte, Brasília, e entrega para todo o Brasil." />
+<meta property="og:image" content="https://coreflor.com.br/assets/og-cover.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="COR &amp; FLOR | Moda feminina premium em Brasília" />
+<meta name="twitter:description" content="Vestidos, blusas, conjuntos e blazers. Loja física na Asa Norte, Brasília, e entrega para todo o Brasil." />
+<meta name="twitter:image" content="https://coreflor.com.br/assets/og-cover.jpg" />
+
+<!-- Preconnect: abre a conexão com os servidores externos antes de precisar deles.
+     O catálogo só é montado depois que o Supabase responde, então adiantar o
+     aperto de mão (DNS + TLS) com a CDN e com o banco economiza uns 200-300ms. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://yynukxtyiiuwjcmqiktr.supabase.co" crossorigin>
 
 <!-- Carrega fontes sem bloquear renderização -->
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Raleway:wght@300;400;500;600&display=swap" onload="this.rel='stylesheet'">
 <noscript><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet"></noscript>
 
 <!-- Preload do hero principal (LCP) -->
-<link rel="preload" as="image" href="assets/hero-conjunto.png" fetchpriority="high">
-<link rel="preload" as="image" href="assets/logo-nova.png">
+<link rel="preload" as="image" href="assets/hero-conjunto.webp" fetchpriority="high">
+<link rel="preload" as="image" href="assets/logo-nova.webp">
 
 <link rel="stylesheet" href="styles.css?v=4" />
 <style>
@@ -135,13 +157,73 @@
   .gift-banner__title{font-size:26px}
 }
 </style>
+
+<!-- ═══ SCHEMA JSON-LD ═══
+     É o "currículo estruturado" da loja. O Google e as IAs (ChatGPT, Perplexity,
+     Gemini) leem isto com muito mais confiança do que texto solto, porque não
+     precisam interpretar nada. Os dados aqui têm que bater EXATAMENTE com o que
+     está escrito no rodapé, na seção "Nossa Loja" e no Google Meu Negócio. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "ClothingStore",
+      "@id": "https://coreflor.com.br/#loja",
+      "name": "COR & FLOR",
+      "description": "Loja de moda feminina premium na Asa Norte, em Brasília/DF. Vestidos, blusas, conjuntos, calças e blazers, com loja física e entrega para todo o Brasil.",
+      "url": "https://coreflor.com.br/",
+      "logo": "https://coreflor.com.br/assets/logo-nova.webp",
+      "image": "https://coreflor.com.br/assets/og-cover.jpg",
+      "telephone": "+556139677873",
+      "email": "atelier@coreflor.com.br",
+      "priceRange": "R$ 89 - R$ 379",
+      "currenciesAccepted": "BRL",
+      "paymentAccepted": "Cartão de crédito, Pix, Boleto, Vale presente",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Bloco D, Loja 37 — Asa Norte",
+        "addressLocality": "Brasília",
+        "addressRegion": "DF",
+        "addressCountry": "BR"
+      },
+      "hasMap": "https://maps.app.goo.gl/VtbjoG5acqUdasAJA",
+      "openingHoursSpecification": [
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday"],
+          "opens": "09:00", "closes": "18:00"
+        },
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": ["Saturday"],
+          "opens": "09:00", "closes": "16:00"
+        }
+      ],
+      "areaServed": [
+        { "@type": "City", "name": "Brasília" },
+        { "@type": "Country", "name": "Brasil" }
+      ],
+      "sameAs": ["https://www.instagram.com/coreflorbrasilia"]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://coreflor.com.br/#site",
+      "url": "https://coreflor.com.br/",
+      "name": "COR & FLOR",
+      "inLanguage": "pt-BR",
+      "publisher": { "@id": "https://coreflor.com.br/#loja" }
+    }
+  ]
+}
+</script>
 </head>
 <body>
 
 <!-- ===== PAGE LOAD VEIL ===== -->
 <div id="page-veil" aria-hidden="true">
   <div class="veil__inner">
-    <img src="assets/logo-nova.png" class="veil__logo-img" alt="COR &amp; FLOR">
+    <img src="assets/logo-nova.webp" width="279" height="159" class="veil__logo-img" alt="COR &amp; FLOR">
   </div>
 </div>
 
@@ -250,7 +332,7 @@
     </button>
 
     <a class="logo" href="#top" aria-label="COR & FLOR">
-      <img src="assets/logo-nova.png" class="logo__img" alt="COR &amp; FLOR">
+      <img src="assets/logo-nova.webp" width="279" height="159" class="logo__img" alt="COR &amp; FLOR">
     </a>
 
     <nav class="nav__links" aria-label="Principal">
@@ -282,7 +364,7 @@
     <svg width="22" height="22"><use href="#i-x"/></svg>
   </button>
   <div class="mmenu__logo">
-    <img src="assets/logo-nova.png" class="mmenu__logo-img" alt="COR &amp; FLOR">
+    <img src="assets/logo-nova.webp" width="279" height="159" class="mmenu__logo-img" alt="COR &amp; FLOR">
   </div>
   <nav class="mmenu__links">
     <a href="#categorias">Coleções</a>
@@ -303,19 +385,19 @@
   <!-- ═══ SLIDES DE FUNDO ═══ -->
   <div class="hs-bg active">
     <div class="hs-img" data-parallax="0.3">
-      <img src="assets/hero-conjunto.png" alt="" loading="eager" fetchpriority="high" decoding="async" style="object-position:center top"/>
+      <img src="assets/hero-conjunto.webp" width="1448" height="1086" alt="Conjunto feminino da coleção COR &amp; FLOR" loading="eager" fetchpriority="high" decoding="async" style="object-position:center top"/>
     </div>
     <div class="hs-overlay"></div>
   </div>
   <div class="hs-bg">
     <div class="hs-img">
-      <img src="assets/hero-blusa.png" alt="" loading="lazy" decoding="async" style="object-position:center top"/>
+      <img src="assets/hero-blusa.webp" width="1448" height="1086" alt="Blusa feminina da coleção COR &amp; FLOR" loading="lazy" decoding="async" style="object-position:center top"/>
     </div>
     <div class="hs-overlay"></div>
   </div>
   <div class="hs-bg">
     <div class="hs-img">
-      <img src="assets/hero-vestido.png" alt="" loading="lazy" decoding="async" style="object-position:center top"/>
+      <img src="assets/hero-vestido.webp" width="1448" height="1086" alt="Vestido feminino da coleção COR &amp; FLOR" loading="lazy" decoding="async" style="object-position:center top"/>
     </div>
     <div class="hs-overlay"></div>
   </div>
@@ -350,9 +432,9 @@
   <div class="hs-content">
     <div class="hero__content">
       <div class="hero__eyebrow"><span>✦</span> BLUSAS &amp; TOPS | NOVA COLEÇÃO</div>
-      <h1 class="hero__title hs-title-static">
+      <p class="hero__title hs-title-static">
         Sofisticação<br>em cada <em>detalhe.</em>
-      </h1>
+      </p>
       <p class="hero__sub hs-sub-static">Peças que revelam quem você é,<br>com elegância e personalidade únicas.</p>
       <div class="hero__cta hs-cta-static">
         <a class="btn btn--primary" href="#novidades">Comprar agora</a>
@@ -365,9 +447,9 @@
   <div class="hs-content">
     <div class="hero__content">
       <div class="hero__eyebrow"><span>✦</span> VESTIDOS | PRIMAVERA 2026</div>
-      <h1 class="hero__title hs-title-static">
+      <p class="hero__title hs-title-static">
         Vista-se de<br><em>memórias.</em>
-      </h1>
+      </p>
       <p class="hero__sub hs-sub-static">Vestidos que transformam momentos<br>em histórias inesquecíveis.</p>
       <div class="hero__cta hs-cta-static">
         <a class="btn btn--primary" href="#novidades">Ver vestidos</a>
@@ -424,7 +506,7 @@
   </header>
 
   <div class="cats__grid">
-    <a class="cat cat--big reveal" href="categoria.html?cat=vestidos" style="background-image:url('assets/hero-vestido.png')">
+    <a class="cat cat--big reveal" href="categoria.html?cat=vestidos" style="background-image:url('assets/hero-vestido.webp')">
       <div class="cat__veil"></div>
       <div class="cat__info">
         <span class="cat__label">Vestidos &amp; Saias</span>
@@ -433,7 +515,7 @@
       </div>
     </a>
 
-    <a class="cat reveal" href="categoria.html?cat=blusas" style="background-image:url('assets/hero-blusa.png')">
+    <a class="cat reveal" href="categoria.html?cat=blusas" style="background-image:url('assets/hero-blusa.webp')">
       <div class="cat__veil"></div>
       <div class="cat__info">
         <span class="cat__label">Blusas &amp; Tops</span>
@@ -442,7 +524,7 @@
       </div>
     </a>
 
-    <a class="cat reveal" href="categoria.html?cat=conjuntos" style="background-image:url('assets/hero-conjunto.png')">
+    <a class="cat reveal" href="categoria.html?cat=conjuntos" style="background-image:url('assets/hero-conjunto.webp')">
       <div class="cat__veil"></div>
       <div class="cat__info">
         <span class="cat__label">Conjuntos</span>
@@ -506,7 +588,7 @@
 
   <!-- Foto da loja -->
   <div class="store-section__img">
-    <img src="assets/loja-fisica.jpg" alt="Loja física Cor &amp; Flor, Asa Norte, Brasília" loading="lazy" decoding="async"/>
+    <img src="assets/loja-fisica.webp" width="1600" height="900" alt="Loja física Cor &amp; Flor, Asa Norte, Brasília" loading="lazy" decoding="async"/>
     <div class="store-section__img-overlay"></div>
   </div>
 
@@ -632,31 +714,31 @@
   </div>
   <div class="stories-row reveal">
     <div class="story-phone">
-      <video src="assets/insta-video-esq.mp4?v=2" muted loop playsinline preload="metadata" data-autoplay></video>
+      <video data-src="assets/insta-video-esq.webm" poster="assets/insta-video-esq-poster.webp" muted loop playsinline preload="none" data-autoplay></video>
       <div class="story-overlay"></div>
       <div class="story-bar"><span class="done"></span><span></span><span></span></div>
       <div class="story-header">
-        <div class="story-avatar"><img src="assets/logo-nova.png" alt="Cor e Flor"></div>
+        <div class="story-avatar"><img src="assets/logo-nova.webp" width="279" height="159" alt="Cor e Flor"></div>
         <div><div class="story-user">coreflorbrasilia</div><div class="story-time">Agora</div></div>
       </div>
       <a class="story-cta" href="https://www.instagram.com/coreflorbrasilia?igsh=dzFlZDZrd2lkZG9i" target="_blank" rel="noopener">Ver no Instagram</a>
     </div>
     <div class="story-phone story-phone--center">
-      <video src="assets/insta-video-1.mp4?v=2" muted loop playsinline preload="metadata" data-autoplay></video>
+      <video data-src="assets/insta-video-1.webm" poster="assets/insta-video-1-poster.webp" muted loop playsinline preload="none" data-autoplay></video>
       <div class="story-overlay"></div>
       <div class="story-bar"><span class="done"></span><span class="done"></span><span></span></div>
       <div class="story-header">
-        <div class="story-avatar"><img src="assets/logo-nova.png" alt="Cor e Flor"></div>
+        <div class="story-avatar"><img src="assets/logo-nova.webp" width="279" height="159" alt="Cor e Flor"></div>
         <div><div class="story-user">coreflorbrasilia</div><div class="story-time">1h</div></div>
       </div>
       <a class="story-cta" href="https://www.instagram.com/coreflorbrasilia?igsh=dzFlZDZrd2lkZG9i" target="_blank" rel="noopener">Ver no Instagram</a>
     </div>
     <div class="story-phone">
-      <video src="assets/insta-video-dir.mp4?v=2" muted loop playsinline preload="metadata" data-autoplay></video>
+      <video data-src="assets/insta-video-dir.webm" poster="assets/insta-video-dir-poster.webp" muted loop playsinline preload="none" data-autoplay></video>
       <div class="story-overlay"></div>
       <div class="story-bar"><span class="done"></span><span class="done"></span><span class="done"></span></div>
       <div class="story-header">
-        <div class="story-avatar"><img src="assets/logo-nova.png" alt="Cor e Flor"></div>
+        <div class="story-avatar"><img src="assets/logo-nova.webp" width="279" height="159" alt="Cor e Flor"></div>
         <div><div class="story-user">coreflorbrasilia</div><div class="story-time">3h</div></div>
       </div>
       <a class="story-cta" href="https://www.instagram.com/coreflorbrasilia?igsh=dzFlZDZrd2lkZG9i" target="_blank" rel="noopener">Ver no Instagram</a>
@@ -705,7 +787,7 @@
   <div class="foot__top">
     <a class="logo logo--foot" href="#top" aria-label="COR & FLOR">
       <div class="logo-on-dark">
-        <img src="assets/logo-nova.png" class="logo__img" alt="COR &amp; FLOR">
+        <img src="assets/logo-nova.webp" width="279" height="159" class="logo__img" alt="COR &amp; FLOR">
       </div>
     </a>
     <p class="foot__tag"><em>Cor porque a vida pede. Flor porque você merece.</em></p>
@@ -740,13 +822,13 @@
         <a href="https://www.instagram.com/coreflorbrasilia?igsh=dzFlZDZrd2lkZG9i" target="_blank" rel="noopener" aria-label="Instagram"><svg width="20" height="20"><use href="#s-ig"/></svg></a>
         <a href="#" aria-label="Pinterest"><svg width="20" height="20"><use href="#s-pin"/></svg></a>
         <a href="#" aria-label="TikTok"><svg width="20" height="20"><use href="#s-tt"/></svg></a>
-        <a href="https://wa.me/5561396778731" target="_blank" rel="noopener" aria-label="WhatsApp"><svg width="20" height="20"><use href="#s-wa"/></svg></a>
+        <a href="https://wa.me/556139677873" target="_blank" rel="noopener" aria-label="WhatsApp"><svg width="20" height="20"><use href="#s-wa"/></svg></a>
       </div>
       <p class="foot__small">
   <a href="mailto:atelier@coreflor.com.br">atelier@coreflor.com.br</a><br>
   <a href="tel:+556139677873">(61) 3967-7873</a>
 </p>
-<a class="foot__wa-btn" href="https://wa.me/5561396778731?text=Olá!%20Vim%20pelo%20site%20da%20Cor%20%26%20Flor%20e%20gostaria%20de%20atendimento." target="_blank" rel="noopener">
+<a class="foot__wa-btn" href="https://wa.me/556139677873?text=Olá!%20Vim%20pelo%20site%20da%20Cor%20%26%20Flor%20e%20gostaria%20de%20atendimento." target="_blank" rel="noopener">
   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3.5 20.5 5 16a8 8 0 1 1 3 3l-4.5 1.5Zm6.3-5.8c.3.6 1.1 1.4 2 1.7s1.5.2 2-.2c.4-.3.6-.7.6-1l-.3-.4-1.7-.8c-.2 0-.4 0-.5.2l-.4.5c-.2.2-.4.2-.6.1-.7-.3-1.4-.9-1.9-1.7-.1-.2 0-.4.1-.5l.4-.4c.2-.2.2-.3.1-.5L8.9 9.5c-.1-.3-.3-.3-.5-.3-.6 0-1.2.3-1.4.7-.4.6-.4 1.4 0 2.4.4.8 1 1.7 1.8 2.4Z"/></svg>
   Suporte via WhatsApp
 </a>
@@ -755,7 +837,7 @@
 
   <div class="foot__bar">
     <span>© 2026 Cor &amp; Flor. Todos os direitos reservados.</span>
-    <span>Feito com ✿ em São Paulo</span>
+    <span>Feito com ✿ em Brasília</span>
   </div>
 </footer>
 

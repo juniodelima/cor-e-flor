@@ -1,0 +1,50 @@
+# COR & FLOR — Moda feminina premium — Asa Norte, Brasília/DF
+# https://coreflor.com.br
+
+User-agent: *
+Allow: /
+
+# Áreas administrativas e de conta não devem ser indexadas
+Disallow: /admin.html
+Disallow: /admin-login.html
+Disallow: /admin-register.html
+Disallow: /conta.html
+Disallow: /checkout.html
+Disallow: /api/
+Disallow: /uploads/
+
+# ── Robôs de IA: liberados de propósito ──
+# Queremos que a Cor & Flor seja citada nas respostas do ChatGPT,
+# Claude, Perplexity e Gemini. Bloquear aqui nos tiraria dessas respostas.
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+Sitemap: https://coreflor.com.br/sitemap.xml

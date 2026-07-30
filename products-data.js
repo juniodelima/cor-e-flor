@@ -1,6 +1,6 @@
 ﻿const products = [
   { id: 1, name: "Blusa Drapeado Sereno", category: "Blusa", price: 129, originalPrice: 199.90, badge: "SALE",
-    image: "assets/p-blusa-azul.png",
+    image: "assets/p-blusa-azul.webp",
     colors: [{ name: "Azul Sereno", hex: "#9CAEB8" }],
     sizes: ["36","42"],
     description: "Blusa de tecido fluido com drapeado assimétrico que valoriza o corpo com suavidade. Ideal para compor looks do dia a dia com elegância descomplicada.",
@@ -9,7 +9,7 @@
     fit: "Modelagem solta com queda suave. Veste bem nos tamanhos 34 ao 42. A modelo usa tamanho 36."
   },
   { id: 2, name: "Vestido Citrus", category: "Vestido Midi", price: 149, originalPrice: null, badge: "NOVO",
-    image: "assets/p-vestido-laranja.png",
+    image: "assets/p-vestido-laranja.webp",
     colors: [{ name: "Laranja Citrus", hex: "#F4A05B" }, { name: "Rosa Claro", hex: "#F4C9D8" }],
     sizes: ["P","M","G"],
     description: "Vestido midi vibrante em tom citrus, com caimento elegante e corte que valoriza a silhueta. Uma peça que transforma qualquer dia em celebração.",
@@ -18,7 +18,7 @@
     fit: "Modelagem ajustada no busto com saia evazê. Para um caimento soltinho, suba um tamanho."
   },
   { id: 3, name: "Conjunto Rosé", category: "Conjunto Cropped", price: 259, originalPrice: null, badge: "NOVO",
-    image: "assets/p-conjunto-rosa.png",
+    image: "assets/p-conjunto-rosa.webp",
     colors: [{ name: "Rosé", hex: "#E29AB0" }, { name: "Nude", hex: "#F9EFF0" }],
     sizes: ["36","38","40","42"],
     description: "Conjunto cropped + calça pantalona em tecido de malha rosé. Peças vendidas juntas que combinam conforto e sofisticação em harmonia perfeita.",
@@ -27,7 +27,7 @@
     fit: "Cropped com ajuste abaixo do busto. Calça modelagem slim de cintura alta. Segue tabela padrão."
   },
   { id: 4, name: "Body Bronze", category: "Body Drapeado", price: 199, originalPrice: null, badge: "EXCLUSIVO",
-    image: "assets/p-body-marrom.png",
+    image: "assets/p-body-marrom.webp",
     colors: [{ name: "Bronze Escuro", hex: "#7A4234" }, { name: "Caramelo", hex: "#C4956A" }],
     sizes: ["P"],
     description: "Body drapeado em tom bronze com abertura profunda nas costas. Peça exclusiva que exige atitude, para noites que ficam na memória.",
@@ -36,7 +36,7 @@
     fit: "Modelagem colada ao corpo. Recomendamos medir busto e quadril antes de escolher. Disponível em tamanho P."
   },
   { id: 5, name: "Saia Cetim Lua", category: "Saia Longa", price: 239, originalPrice: null, badge: null,
-    image: "assets/p-saia-cetim.png",
+    image: "assets/p-saia-cetim.webp",
     colors: [{ name: "Prata Lua", hex: "#C9CACE" }, { name: "Preto", hex: "#1C1414" }],
     sizes: ["36","38","40"],
     description: "Saia longa de cetim com reflexos suaves que evocam o brilho da lua. Fluida, elegante e atemporal, a peça-chave de um guarda-roupa consciente.",
@@ -45,7 +45,7 @@
     fit: "Cós elástico para conforto máximo. Comprimento midi até o tornozelo (aprox. 90cm). Para corpos mais altos, considere um tamanho acima."
   },
   { id: 6, name: "Blazer Camélia", category: "Blazer", price: 379, originalPrice: null, badge: "NOVO",
-    image: "assets/p-blazer-caqui.png",
+    image: "assets/p-blazer-caqui.webp",
     colors: [{ name: "Caqui Camélia", hex: "#8C7350" }, { name: "Preto", hex: "#1C1414" }],
     sizes: ["38","40","42"],
     description: "Blazer estruturado em tweed misto com botões dourados e lapela clássica. Transita do trabalho à noite com elegância natural e sem esforço.",
@@ -54,7 +54,7 @@
     fit: "Modelagem slim com ombros levemente estruturados. Caimento alinhado ao corpo. Comprimento no quadril."
   },
   { id: 7, name: "Regata Pérola", category: "Regata Cetim", price: 89, originalPrice: 139.90, badge: "SALE",
-    image: "assets/p-regata-branca.png",
+    image: "assets/p-regata-branca.webp",
     colors: [{ name: "Pérola", hex: "#F5F2EC" }, { name: "Bege", hex: "#E8DDD0" }],
     sizes: ["P","M","G","GG"],
     description: "Regata de cetim leve com alças finas e bojo removível. Uma peça versátil que funciona sozinha ou por baixo de sobreposições com charme discreto.",
@@ -63,7 +63,7 @@
     fit: "Modelagem ajustada com bojo leve. Para usar por baixo de blazers e sobreposições, suba um tamanho."
   },
   { id: 8, name: "Conjunto Cargo Azul", category: "conjuntos", price: 199.90, originalPrice: null, badge: "NOVO",
-    image: "assets/lj-cargo-azul.png",
+    image: "assets/lj-cargo-azul.webp",
     colors: [{ name: "Azul Claro", hex: "#8FA8C0" }, { name: "Preto", hex: "#1C1414" }],
     sizes: ["P","M","G"],
     description: "Conjunto urbano com calça cargo azul de cintura alta e body preto gola alta. Combinação arrojada que une estilo despojado e feminilidade com muita personalidade.",
@@ -72,7 +72,7 @@
     fit: "Calça de cintura alta modelagem ampla. Body ajustado ao corpo. Segue tabela padrão."
   },
   { id: 9, name: "Conjunto Linho Bege", category: "conjuntos", price: 179.90, originalPrice: null, badge: "NOVO",
-    image: "assets/lj-conj-bege.png",
+    image: "assets/lj-conj-bege.webp",
     colors: [{ name: "Bege Off-White", hex: "#E8DDD0" }],
     sizes: ["P","M","G","GG"],
     description: "Conjunto elegante em linho bege com short de cintura alta e blusa estruturada. Perfeito para almoços e eventos ao ar livre com toda a sofisticação que você merece.",
@@ -81,7 +81,7 @@
     fit: "Short de cintura alta com cós largo. Blusa com modelagem reta e levemente ampla."
   },
   { id: 10, name: "Macacão Glamour Nude", category: "conjuntos", price: 239.90, originalPrice: null, badge: "NOVO",
-    image: "assets/lj-macacao-nude.png",
+    image: "assets/lj-macacao-nude.webp",
     colors: [{ name: "Nude", hex: "#C4956A" }, { name: "Bege", hex: "#E8DDD0" }],
     sizes: ["P","M","G"],
     description: "Macacão curto em tom nude com cinto dourado que valoriza a silhueta. Peça versátil que passa do trabalho à balada com elegância e praticidade únicos.",
@@ -90,7 +90,7 @@
     fit: "Modelagem ajustada com decote em V. Cinto removível. Segue tabela padrão."
   },
   { id: 11, name: "Conjunto Preto Refinado", category: "conjuntos", price: 199.90, originalPrice: null, badge: "NOVO",
-    image: "assets/lj-conj-preto.png",
+    image: "assets/lj-conj-preto.webp",
     colors: [{ name: "Preto", hex: "#1C1414" }],
     sizes: ["P","M","G","GG"],
     description: "Conjunto preto atemporal com short de alfaiataria e blusa sem mangas estruturada. O cinto dourado completa o look com sofisticação que nunca sai de moda.",
@@ -99,7 +99,7 @@
     fit: "Short de cintura alta com abertura lateral. Blusa com alças largas. Segue tabela padrão."
   },
   { id: 12, name: "Tricot Rosê Manguinha", category: "blusas", price: 159.90, originalPrice: null, badge: "NOVO",
-    image: "assets/lj-tricot-rose.png",
+    image: "assets/lj-tricot-rose.webp",
     colors: [{ name: "Rosê", hex: "#C4826A" }, { name: "Caramelo", hex: "#C4956A" }],
     sizes: ["P","M","G"],
     description: "Blusa tricot rosê one-shoulder com manga fina e textura canelada. Combina elegância casual com o conforto do tricot para um visual sofisticado no dia a dia.",
@@ -108,7 +108,7 @@
     fit: "Modelagem ajustada. One-shoulder com alça única. Recomendamos verificar a tabela de medidas."
   },
   { id: 13, name: "Tricot Marrom Gola Alta", category: "blusas", price: 189.90, originalPrice: null, badge: "NOVO",
-    image: "assets/lj-tricot-marrom.png",
+    image: "assets/lj-tricot-marrom.webp",
     colors: [{ name: "Marrom Chocolate", hex: "#4A2F1A" }, { name: "Caramelo", hex: "#C4956A" }],
     sizes: ["P","M","G","GG"],
     description: "Tricot de gola alta em marrom chocolate com textura torcida que aquece com estilo. Uma peça de inverno que não abre mão da elegância em nenhum momento.",
@@ -117,7 +117,7 @@
     fit: "Modelagem solta e confortável. Gola alta que pode ser dobrada. Manga longa."
   },
   { id: 14, name: "Look Tricot Cinza + Short Saia", category: "conjuntos", price: 189.90, originalPrice: null, badge: "NOVO",
-    image: "assets/lj-look-cinza.png",
+    image: "assets/lj-look-cinza.webp",
     colors: [{ name: "Cinza", hex: "#9A9A9A" }, { name: "Marrom", hex: "#6B4226" }],
     sizes: ["P","M","G"],
     description: "Look poderoso com tricot cropped cinza e short saia de couro marrom. Contraste de texturas que cria um visual editorial cheio de atitude e feminilidade.",
@@ -126,7 +126,7 @@
     fit: "Tricot cropped com barra assimétrica. Short saia de cintura alta com botões laterais."
   },
   { id: 15, name: "Look Tricot Azul + Calça Couro", category: "conjuntos", price: 189.90, originalPrice: null, badge: "NOVO",
-    image: "assets/lj-look-azul.png",
+    image: "assets/lj-look-azul.webp",
     colors: [{ name: "Azul Marinho", hex: "#1A2744" }, { name: "Preto", hex: "#1C1414" }],
     sizes: ["P","M","G"],
     description: "Combinação sofisticada de tricot azul marinho com calça de couro preta. Look poderoso para ocasiões especiais que pede confiança e estilo.",
@@ -135,7 +135,7 @@
     fit: "Tricot cropped one-shoulder. Calça slim de cintura alta com fechamento lateral."
   },
   { id: 16, name: "Macacão Estampa Zebra", category: "conjuntos", price: 299.90, originalPrice: null, badge: "EXCLUSIVO",
-    image: "assets/lj-macacao-zebra.png",
+    image: "assets/lj-macacao-zebra.webp",
     colors: [{ name: "Animal Print", hex: "#F5F0E8" }],
     sizes: ["P","M","G"],
     description: "Macacão pantalona em estampa zebra com ombro único e lenço coordenado. Uma declaração de moda para quem não tem medo de ser notada e adora tendências.",
@@ -144,7 +144,7 @@
     fit: "Modelagem ampla pantalona. Ombro único com lenço decorativo incluso. Cinto incluso."
   },
   { id: 17, name: "Conjunto Off-White Drapeado", category: "conjuntos", price: 229.90, originalPrice: null, badge: "NOVO",
-    image: "assets/lj-conj-offwhite.png",
+    image: "assets/lj-conj-offwhite.webp",
     colors: [{ name: "Off-White", hex: "#F5F0E8" }, { name: "Bege", hex: "#E8DDD0" }],
     sizes: ["P","M","G"],
     description: "Conjunto refinado com top drapeado assimétrico e short saia off-white. A combinação perfeita de elegância e leveza para eventos e jantares sofisticados.",
@@ -153,7 +153,7 @@
     fit: "Top com drapeado frontal e amarração nas costas. Short saia com cós elástico."
   },
   { id: 18, name: "Corset Preto", category: "blusas", price: 129.90, originalPrice: null, badge: "NOVO",
-    image: "assets/lj-corset-preto.png",
+    image: "assets/lj-corset-preto.webp",
     colors: [{ name: "Preto", hex: "#1C1414" }],
     sizes: ["P","M","G"],
     description: "Corset preto estruturado que define a silhueta com elegância. Versátil para usar por dentro da calça ou saia, transforma qualquer look em um statement de moda.",
@@ -162,7 +162,7 @@
     fit: "Corset com modelagem estruturada. Consulte tabela de medidas de busto para escolher o tamanho."
   },
   { id: 19, name: "Vestido Verde Longo Renda", category: "vestidos", price: 299.90, originalPrice: null, badge: "NOVO",
-    image: "assets/lj-vestido-verde.png",
+    image: "assets/lj-vestido-verde.webp",
     colors: [{ name: "Verde Esmeralda", hex: "#2E7D4F" }],
     sizes: ["P","M","G"],
     description: "Vestido longo verde esmeralda com renda bordada e recorte lateral. Uma peça deslumbrante para ocasiões especiais que pede toda a atenção para você.",
@@ -171,7 +171,7 @@
     fit: "Modelagem ajustada no busto e quadril com saia fluida. Recorte lateral com elástico."
   },
   { id: 20, name: "Vestido Preto Paetê", category: "vestidos", price: 249.90, originalPrice: null, badge: "EXCLUSIVO",
-    image: "assets/lj-vestido-paete.png",
+    image: "assets/lj-vestido-paete.webp",
     colors: [{ name: "Preto", hex: "#1C1414" }],
     sizes: ["P","M","G"],
     description: "Vestido curto preto com saia em paetê brilhante e top recortado. A pedida certeira para noites inesquecíveis que merecem uma peça à altura da ocasião.",
@@ -180,7 +180,7 @@
     fit: "Top ajustado com recorte frontal. Saia rodada acima do joelho. Modelagem estruturada."
   },
   { id: 21, name: "Colete Vermelho", category: "blazers", price: 99.90, originalPrice: null, badge: "NOVO",
-    image: "assets/lj-colete-vermelho.png",
+    image: "assets/lj-colete-vermelho.webp",
     colors: [{ name: "Vermelho", hex: "#C0392B" }, { name: "Preto", hex: "#1C1414" }],
     sizes: ["P","M","G","GG"],
     description: "Colete vermelho com botões dourados para compor looks poderosos. Peça coringa que transforma qualquer produção em um visual elegante e marcante.",
@@ -189,7 +189,7 @@
     fit: "Modelagem ajustada com botões na frente. Sem mangas. Comprimento na cintura."
   },
   { id: 22, name: "Macacão Branco One-Shoulder", category: "conjuntos", price: 389.90, originalPrice: null, badge: "EXCLUSIVO",
-    image: "assets/lj-macacao-branco.png",
+    image: "assets/lj-macacao-branco.webp",
     colors: [{ name: "Branco", hex: "#FAFAFA" }, { name: "Off-White", hex: "#F5F0E8" }],
     sizes: ["38","40","42"],
     description: "Macacão pantalona branco one-shoulder com drapeado sofisticado. Uma peça de luxo para eventos formais, casamentos e festas que exigem elegância impecável.",
@@ -198,7 +198,7 @@
     fit: "Modelagem pantalona de cintura alta. Ombro único estruturado. Disponível nos números 38, 40 e 42."
   },
   { id: 23, name: "Cropped Couro Caramelo", category: "blusas", price: 189.00, originalPrice: null, badge: "NOVO",
-    image: "assets/lj-cropped-caramelo.png",
+    image: "assets/lj-cropped-caramelo.webp",
     colors: [{ name: "Caramelo", hex: "#C4956A" }, { name: "Preto", hex: "#1C1414" }],
     sizes: ["P","G"],
     description: "Cropped em couro ecológico caramelo com bojo embutido e barra reta. Peça versátil que eleva qualquer look com um toque de atitude e feminilidade sofisticada.",
@@ -207,7 +207,7 @@
     fit: "Modelagem ajustada com bojo embutido. Disponível em P e G. Consulte tabela de medidas."
   },
   { id: 24, name: "Short Couro Preto", category: "calcas", price: 69.90, originalPrice: 99.90, badge: "SALE",
-    image: "assets/lj-short-couro.png",
+    image: "assets/lj-short-couro.webp",
     colors: [{ name: "Preto", hex: "#1C1414" }],
     sizes: ["P","M","G"],
     description: "Short de couro ecológico preto com cinto de argolas e cintura alta. Uma peça statement que combina rock e feminilidade para looks ousados e cheios de estilo.",
@@ -216,7 +216,7 @@
     fit: "Cintura alta com cós largo. Modelagem reta. Disponível em P, M e G."
   },
   { id: 25, name: "Calça Jeans Reta", category: "calcas", price: 279.00, originalPrice: null, badge: "NOVO",
-    image: "assets/lj-calca-jeans.png",
+    image: "assets/lj-calca-jeans.webp",
     colors: [{ name: "Azul Médio", hex: "#4A6FA5" }, { name: "Azul Escuro", hex: "#2C3E6B" }],
     sizes: ["38","40","42"],
     description: "Calça jeans reta de cintura alta com caimento impecável e tecido premium. Uma peça essencial no guarda-roupa feminino que combina com absolutamente tudo.",
@@ -225,7 +225,7 @@
     fit: "Modelagem reta de cintura alta. Disponível nos números 38, 40 e 42."
   },
   { id: 26, name: "Vestido Vermelho Midi", category: "vestidos", price: 189.00, originalPrice: 299.00, badge: "SALE",
-    image: "assets/lj-vestido-vermelho.png",
+    image: "assets/lj-vestido-vermelho.webp",
     colors: [{ name: "Vermelho", hex: "#C0392B" }],
     sizes: ["P","GG"],
     description: "Vestido midi vermelho com franzido lateral que valoriza cada curva com elegância. Para ocasiões especiais onde você quer ser a protagonista da noite.",
@@ -234,7 +234,7 @@
     fit: "Modelagem ajustada com franzido no quadril. Disponível em P e GG. Comprimento midi."
   },
   { id: 27, name: "Regata Tule Preta", category: "blusas", price: 89.00, originalPrice: 139.90, badge: "SALE",
-    image: "assets/lj-regata-preta.png",
+    image: "assets/lj-regata-preta.webp",
     colors: [{ name: "Preto", hex: "#1C1414" }, { name: "Branco", hex: "#FAFAFA" }],
     sizes: ["38","40","42"],
     description: "Regata preta com sobreposição em tule transparente e alças estruturadas. Peça sofisticada que transita entre o dia e a noite com charme e elegância incomparáveis.",
@@ -243,7 +243,7 @@
     fit: "Modelagem ajustada. Alças reguláveis. Disponível nos números 38, 40 e 42."
   },
   { id: 28, name: "Cropped Floral Rosa", category: "blusas", price: 79.00, originalPrice: 129.90, badge: "SALE",
-    image: "assets/lj-cropped-floral.png",
+    image: "assets/lj-cropped-floral.webp",
     colors: [{ name: "Rosa Floral", hex: "#E8708A" }, { name: "Branco", hex: "#FAFAFA" }],
     sizes: ["P","M","G"],
     description: "Cropped com estampa floral vibrante em rosa e branco. Peça alegre e cheia de personalidade perfeita para dias ensolarados e looks despojados e femininos.",
@@ -252,7 +252,7 @@
     fit: "Cropped com barra reta. Decote na frente. Modelagem ajustada. Segue tabela padrão."
   },
   { id: 29, name: "Body One-Shoulder Nude", category: "blusas", price: 199.00, originalPrice: null, badge: "NOVO",
-    image: "assets/lj-body-nude.png",
+    image: "assets/lj-body-nude.webp",
     colors: [{ name: "Nude", hex: "#D4A882" }, { name: "Marrom", hex: "#7A4234" }],
     sizes: ["P","M","G"],
     description: "Body one-shoulder nude com drapeado suave no decote e tecido de segunda pele. Uma peça elegante e sensual que combina com qualquer saia ou calça.",
@@ -261,9 +261,9 @@
     fit: "Modelagem ajustada ao corpo. One-shoulder com alça única. Fecho com colchetes na entreperna."
   },
   { id: 30, name: "Blazer Xadrez", category: "blazers", price: 349.00, originalPrice: null, badge: "NOVO",
-    image: "assets/nrl-blazer-xadrez-1.jpg",
-    images: ["assets/nrl-blazer-xadrez-1.jpg","assets/nrl-blazer-xadrez-2.jpg","assets/nrl-blazer-xadrez-3.jpg","assets/nrl-blazer-xadrez-4.jpg"],
-    video: "assets/nrl-blazer-xadrez.mp4",
+    image: "assets/nrl-blazer-xadrez-1.webp",
+    images: ["assets/nrl-blazer-xadrez-1.webp","assets/nrl-blazer-xadrez-2.webp","assets/nrl-blazer-xadrez-3.webp","assets/nrl-blazer-xadrez-4.webp"],
+    video: "assets/nrl-blazer-xadrez.webm",
     colors: [{ name: "Xadrez Clássico", hex: "#4A4040" }],
     sizes: ["P","M","G"],
     description: "Blazer xadrez estruturado com caimento impecável e estampa clássica que nunca sai de moda. Peça versátil que transita do casual ao formal com atitude e elegância.",
@@ -272,7 +272,7 @@
     fit: "Modelagem slim com ombros estruturados. Comprimento no quadril. Segue tabela padrão."
   },
   { id: 31, name: "Blusa Tule Floral", category: "blusas", price: 119.00, originalPrice: null, badge: "NOVO",
-    image: "assets/nrl-blusa-tule.jpg",
+    image: "assets/nrl-blusa-tule.webp",
     colors: [{ name: "Natural", hex: "#F5EFE6" }],
     sizes: ["P","M","G"],
     description: "Blusa em tule delicado com bordado floral artesanal que traz leveza e romantismo a qualquer look. Uma peça que celebra a feminilidade com suavidade e charme.",
@@ -281,8 +281,8 @@
     fit: "Modelagem ampla e fluida. Manga longa ou 3/4. Veste folgado, considere um tamanho abaixo se preferir mais ajustado."
   },
   { id: 32, name: "Conjunto Crochê", category: "conjuntos", price: 319.00, originalPrice: null, badge: "NOVO",
-    image: "assets/nrl-colete-croche.jpg",
-    images: ["assets/nrl-colete-croche.jpg","assets/nrl-calca-croche.jpg"],
+    image: "assets/nrl-colete-croche.webp",
+    images: ["assets/nrl-colete-croche.webp","assets/nrl-calca-croche.webp"],
     colors: [{ name: "Natural", hex: "#D4C5A9" }],
     sizes: ["P","M","G"],
     pieceOptions: [
@@ -296,8 +296,8 @@
     fit: "Colete com modelagem cropped. Calça de cintura alta com caimento fluido. Ambas seguem tabela padrão."
   },
   { id: 33, name: "Conjunto Jeans", category: "conjuntos", price: 259.00, originalPrice: null, badge: "NOVO",
-    image: "assets/nrl-conjunto-jeans-1.jpg",
-    images: ["assets/nrl-conjunto-jeans-1.jpg"],
+    image: "assets/nrl-conjunto-jeans-1.webp",
+    images: ["assets/nrl-conjunto-jeans-1.webp"],
     colors: [{ name: "Azul Médio", hex: "#4A6FA5" }],
     sizes: ["P","M","G"],
     pieceOptions: [
@@ -311,8 +311,8 @@
     fit: "Top ajustado com barra reta. Calça reta de cintura alta. Segue tabela padrão de tamanhos."
   },
   { id: 34, name: "Conjunto Tweed", category: "conjuntos", price: 329.00, originalPrice: null, badge: "NOVO",
-    image: "assets/nrl-conjunto-tweed-1.jpg",
-    images: ["assets/nrl-conjunto-tweed-1.jpg","assets/nrl-conjunto-tweed-2.jpg"],
+    image: "assets/nrl-conjunto-tweed-1.webp",
+    images: ["assets/nrl-conjunto-tweed-1.webp","assets/nrl-conjunto-tweed-2.webp"],
     colors: [{ name: "Tweed Multicolor", hex: "#8C7E6A" }],
     sizes: ["P","M","G"],
     pieceOptions: [
@@ -326,8 +326,8 @@
     fit: "Blazer modelagem slim com ombros marcados. Saia midi de cintura alta com forro interno."
   },
   { id: 35, name: "Conjunto Corset + Short", category: "conjuntos", price: 229.00, originalPrice: null, badge: "NOVO",
-    image: "assets/nrl-corset-short.jpg",
-    images: ["assets/nrl-corset-short.jpg"],
+    image: "assets/nrl-corset-short.webp",
+    images: ["assets/nrl-corset-short.webp"],
     colors: [{ name: "Preto", hex: "#1C1414" }],
     sizes: ["P","M","G"],
     pieceOptions: [
@@ -341,8 +341,8 @@
     fit: "Corset com modelagem estruturada que define a cintura. Short de cintura alta modelagem reta. Consulte tabela de medidas."
   },
   { id: 36, name: "Macacão Listrado", category: "conjuntos", price: 279.00, originalPrice: null, badge: "NOVO",
-    image: "assets/nrl-macacao-listrado-1.jpg",
-    images: ["assets/nrl-macacao-listrado-1.jpg","assets/nrl-macacao-listrado-2.jpg","assets/nrl-macacao-listrado-3.jpg"],
+    image: "assets/nrl-macacao-listrado-1.webp",
+    images: ["assets/nrl-macacao-listrado-1.webp","assets/nrl-macacao-listrado-2.webp","assets/nrl-macacao-listrado-3.webp"],
     colors: [{ name: "Listrado P&B", hex: "#2C2C2C" }],
     sizes: ["P","M","G"],
     description: "Macacão listrado com caimento elegante e design moderno. As listras verticais alongam a silhueta e a modelagem fluida garante conforto e sofisticação em cada movimento.",
@@ -351,8 +351,8 @@
     fit: "Modelagem fluida e levemente ampla. Cós marcado. Para um caimento mais justo, suba um tamanho abaixo."
   },
   { id: 37, name: "Vestido Onça", category: "vestidos", price: 259.00, originalPrice: null, badge: "NOVO",
-    image: "assets/nrl-vestido-onca-1.jpg",
-    images: ["assets/nrl-vestido-onca-1.jpg","assets/nrl-vestido-onca-2.jpg"],
+    image: "assets/nrl-vestido-onca-1.webp",
+    images: ["assets/nrl-vestido-onca-1.webp","assets/nrl-vestido-onca-2.webp"],
     colors: [{ name: "Animal Print Onça", hex: "#C4956A" }],
     sizes: ["P","M","G"],
     description: "Vestido com estampa animal print onça que é sinônimo de poder e ousadia. Caimento impecável que valoriza a silhueta para quem não tem medo de ser notada.",
@@ -361,8 +361,8 @@
     fit: "Modelagem ajustada com caimento que valoriza as curvas. Comprimento midi. Segue tabela padrão."
   },
   { id: 38, name: "Vestido Vinho", category: "vestidos", price: 229.00, originalPrice: null, badge: "NOVO",
-    image: "assets/nrl-vestido-vinho-1.jpg",
-    images: ["assets/nrl-vestido-vinho-1.jpg","assets/nrl-vestido-vinho-2.jpg"],
+    image: "assets/nrl-vestido-vinho-1.webp",
+    images: ["assets/nrl-vestido-vinho-1.webp","assets/nrl-vestido-vinho-2.webp"],
     colors: [{ name: "Vinho", hex: "#722F37" }],
     sizes: ["P","M","G"],
     description: "Vestido vinho com design sofisticado que combina elegância e feminilidade. A cor profunda e o caimento impecável fazem desta peça a escolha perfeita para noites especiais.",
@@ -372,7 +372,7 @@
   },
   { id: 99, name: "Produto Teste — R$ 1", category: "blusas", price: 1.00, originalPrice: null, badge: "TESTE",
     active: false,
-    image: "assets/p-blusa-azul.png",
+    image: "assets/p-blusa-azul.webp",
     colors: [{ name: "Rosa", hex: "#D4679A" }],
     sizes: ["M"],
     description: "Produto de teste para validar o fluxo completo de pagamento. Valor simbólico de R$ 1,00.",
