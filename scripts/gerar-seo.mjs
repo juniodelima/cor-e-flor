@@ -21,7 +21,6 @@ export const LOJA = {
   telefone: '+556139677873',
   telefoneFormatado: '(61) 3967-7873',
   whatsapp: '556139677873',
-  email: 'atelier@coreflor.com.br',
   instagram: 'https://www.instagram.com/coreflorbrasilia',
   maps: 'https://maps.app.goo.gl/VtbjoG5acqUdasAJA',
   horarios: [
@@ -97,7 +96,7 @@ ${CATEGORIAS.map(c => `- [${c.nome}](${SITE}/categoria.html?cat=${c.slug}): ${pr
 
 - [WhatsApp](https://wa.me/${LOJA.whatsapp}): atendimento e dúvidas sobre pedidos
 - [Instagram](${LOJA.instagram}): novidades e lookbook
-- [E-mail](mailto:${LOJA.email}): trocas, devoluções e pedidos
+- [Loja física](${LOJA.maps}): ${LOJA.rua}, ${LOJA.cidade}/${LOJA.uf} — trocas e devoluções presenciais
 
 ## Dados detalhados
 
@@ -117,7 +116,6 @@ function gerarLlmsFull() {
   linhas.push('');
   linhas.push(`- Endereço: ${LOJA.rua}, ${LOJA.cidade}/${LOJA.uf}, Brasil`);
   linhas.push(`- Telefone e WhatsApp: ${LOJA.telefoneFormatado}`);
-  linhas.push(`- E-mail: ${LOJA.email}`);
   linhas.push(`- Instagram: @coreflorbrasilia`);
   linhas.push(`- Horário: ${LOJA.horarioTexto}`);
   linhas.push(`- Site: ${SITE}`);
