@@ -5,6 +5,7 @@
 ## Páginas principais
 
 - [Página inicial](https://coreflor.com.br/): catálogo completo, ofertas da semana e informações da loja física
+- [Visite a loja / cupom de boas-vindas](https://coreflor.com.br/visite.html): cupom de boas-vindas, consultoria de estilo gratuita no WhatsApp e informações da loja física
 - [Vale presente](https://coreflor.com.br/vale-presente.html): vale presente a partir de R$ 100, enviado por e-mail
 - [Como chegar na loja](https://maps.app.goo.gl/VtbjoG5acqUdasAJA): Bloco D, Loja 37 — Asa Norte, Brasília/DF
 

@@ -57,6 +57,7 @@ const brl = n => 'R$ ' + Number(n).toFixed(2).replace('.', ',');
 function gerarSitemap() {
   const urls = [
     { loc: `${SITE}/`, pri: '1.0', freq: 'daily' },
+    { loc: `${SITE}/visite.html`, pri: '0.9', freq: 'monthly' },
     { loc: `${SITE}/vale-presente.html`, pri: '0.6', freq: 'monthly' },
     ...CATEGORIAS.map(c => ({ loc: `${SITE}/categoria.html?cat=${c.slug}`, pri: '0.8', freq: 'weekly' })),
     ...produtos.map(p => ({ loc: `${SITE}/produto.html?id=${p.id}`, pri: '0.7', freq: 'weekly' })),
@@ -84,6 +85,7 @@ function gerarLlms() {
 ## Páginas principais
 
 - [Página inicial](${SITE}/): catálogo completo, ofertas da semana e informações da loja física
+- [Visite a loja / cupom de boas-vindas](${SITE}/visite.html): cupom de boas-vindas, consultoria de estilo gratuita no WhatsApp e informações da loja física
 - [Vale presente](${SITE}/vale-presente.html): vale presente a partir de R$ 100, enviado por e-mail
 - [Como chegar na loja](${LOJA.maps}): ${LOJA.rua}, ${LOJA.cidade}/${LOJA.uf}
 
