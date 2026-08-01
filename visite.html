@@ -197,11 +197,10 @@ em{font-style:italic}
 /* CTA principal: o único caminho da página é a conversa no WhatsApp */
 .lp-hero__cta{margin:32px 0 0;display:flex;flex-direction:column;align-items:center;gap:12px}
 .btn--xl{padding:20px 44px;font-size:17px;border-radius:60px}
-.lp-hero__micro{font-size:12.5px;color:rgba(255,255,255,.6);display:inline-flex;align-items:center;gap:7px}
-.lp-hero__micro i{width:7px;height:7px;border-radius:50%;background:var(--wa);display:block;font-style:normal;animation:blip 2s infinite}
-.lp-hero__proof{margin:34px 0 0;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
-.lp-hero__stars{color:#F3C969;font-size:16px;letter-spacing:2px}
-.lp-hero__proof p{margin:0;font-size:12.5px;color:rgba(255,255,255,.65);line-height:1.5}
+.lp-hero__micro{font-size:12.5px;font-weight:600;letter-spacing:.4px;color:rgba(255,255,255,.7);display:inline-flex;align-items:center;gap:8px}
+.lp-hero__micro i{width:8px;height:8px;border-radius:50%;background:var(--wa);display:block;font-style:normal;animation:blip 1.8s infinite;box-shadow:0 0 0 3px rgba(37,211,102,.22)}
+.lp-hero__local{margin:34px 0 0;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:14px;font-weight:500;letter-spacing:.3px;color:rgba(255,255,255,.82)}
+.lp-hero__local svg{color:var(--rose-soft);flex:0 0 auto}
 
 @media(max-width:520px){
   .btn--xl{padding:18px 26px;font-size:15.5px;width:100%}
@@ -221,7 +220,8 @@ em{font-style:italic}
    CARROSSEL DE PEÇAS
 ========================================================= */
 .lp-pieces{padding:clamp(56px,7vw,88px) 0 clamp(48px,6vw,72px);background:var(--cream)}
-.lp-pieces__head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:30px}
+.lp-pieces__head{margin-bottom:30px}
+.lp-pieces__head .sec-title{margin:0}
 .lp-carousel{position:relative}
 .lp-track{display:flex;gap:18px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;padding:4px 4px 20px;margin:0 -4px;scrollbar-width:none;-ms-overflow-style:none}
 .lp-track::-webkit-scrollbar{display:none}
@@ -353,10 +353,18 @@ em{font-style:italic}
 /* =========================================================
    WHATSAPP FLUTUANTE + BARRA MOBILE
 ========================================================= */
-.wa-float{position:fixed;right:20px;bottom:24px;z-index:90;width:58px;height:58px;border-radius:50%;background:var(--wa);color:#fff;display:grid;place-items:center;box-shadow:0 16px 34px -12px rgba(37,211,102,.75);transition:transform .25s var(--ease)}
-.wa-float:hover{transform:scale(1.09)}
-.wa-float::after{content:'';position:absolute;inset:0;border-radius:50%;border:2px solid var(--wa);animation:waPing 2.4s ease-out infinite}
-@keyframes waPing{0%{transform:scale(1);opacity:.7}100%{transform:scale(1.5);opacity:0}}
+/* Botão flutuante: gradiente do próprio WhatsApp, sombra difusa e um pulso
+   suave feito com box-shadow (o anel de borda anterior ficava duro sobre o
+   fundo claro). */
+.wa-float{position:fixed;right:22px;bottom:26px;z-index:90;width:60px;height:60px;border-radius:50%;background:linear-gradient(145deg,#4ade80 0%,#25D366 45%,#12a44f 100%);color:#fff;display:grid;place-items:center;box-shadow:0 10px 26px -6px rgba(18,164,79,.55),0 2px 6px rgba(0,0,0,.14);transition:transform .25s var(--ease),box-shadow .25s var(--ease);animation:waPulse 2.8s ease-out infinite}
+.wa-float svg{width:31px;height:31px;filter:drop-shadow(0 1px 1px rgba(0,0,0,.15))}
+.wa-float:hover{transform:translateY(-3px) scale(1.06);box-shadow:0 16px 34px -8px rgba(18,164,79,.6),0 3px 8px rgba(0,0,0,.16);animation:none}
+@keyframes waPulse{
+  0%   {box-shadow:0 10px 26px -6px rgba(18,164,79,.55),0 2px 6px rgba(0,0,0,.14),0 0 0 0 rgba(37,211,102,.45)}
+  70%  {box-shadow:0 10px 26px -6px rgba(18,164,79,.55),0 2px 6px rgba(0,0,0,.14),0 0 0 16px rgba(37,211,102,0)}
+  100% {box-shadow:0 10px 26px -6px rgba(18,164,79,.55),0 2px 6px rgba(0,0,0,.14),0 0 0 0 rgba(37,211,102,0)}
+}
+@media(prefers-reduced-motion:reduce){.wa-float{animation:none}}
 .wa-float__tip{position:absolute;right:70px;background:#fff;color:var(--ink);font-size:12.5px;font-weight:600;padding:9px 14px;border-radius:12px;box-shadow:0 12px 30px -14px rgba(0,0,0,.5);white-space:nowrap;opacity:0;transform:translateX(8px);transition:opacity .2s,transform .2s;pointer-events:none}
 .wa-float:hover .wa-float__tip{opacity:1;transform:none}
 
@@ -375,7 +383,9 @@ em{font-style:italic}
 <!-- ícones reutilizados -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-  <symbol id="i-wa" viewBox="0 0 24 24"><path d="M3.5 20.5 5 16a8 8 0 1 1 3 3l-4.5 1.5Zm6.3-5.8c.3.6 1.1 1.4 2 1.7s1.5.2 2-.2c.4-.3.6-.7.6-1l-.3-.4-1.7-.8c-.2 0-.4 0-.5.2l-.4.5c-.2.2-.4.2-.6.1-.7-.3-1.4-.9-1.9-1.7-.1-.2 0-.4.1-.5l.4-.4c.2-.2.2-.3.1-.5L8.9 9.5c-.1-.3-.3-.3-.5-.3-.6 0-1.2.3-1.4.7-.4.6-.4 1.4 0 2.4.4.8 1 1.7 1.8 2.4Z" fill="currentColor"/></symbol>
+  <!-- Logo oficial do WhatsApp (o desenho simplificado anterior ficava tosco
+       nos botões maiores) -->
+  <symbol id="i-wa" viewBox="0 0 24 24"><path fill="currentColor" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413"/></symbol>
   <symbol id="i-pin" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7Z"/><circle cx="12" cy="9" r="2.5"/></g></symbol>
   <symbol id="i-clock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></g></symbol>
   <symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.72 19a19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 3.09 4.18 2 2 0 0 1 5.06 2h3a2 2 0 0 1 2 1.72c.13 1 .37 1.97.72 2.9a2 2 0 0 1-.45 2.11L9.16 9.91a16 16 0 0 0 6 6l1.18-1.18a2 2 0 0 1 2.11-.45c.93.35 1.9.59 2.9.72A2 2 0 0 1 22 16.92Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
@@ -412,13 +422,12 @@ em{font-style:italic}
       <a class="btn btn--wa btn--xl" data-wa data-wa-msg="Olá! Vim pela página da Cor &amp; Flor e quero conhecer a coleção e receber meu cupom de desconto ✿" href="#" target="_blank" rel="noopener">
         <svg width="22" height="22"><use href="#i-wa"/></svg> Quero meu cupom de desconto
       </a>
-      <span class="lp-hero__micro"><i></i> Atendimento de gente de verdade, no seu WhatsApp</span>
+      <span class="lp-hero__micro"><i></i> Online</span>
     </div>
 
-    <div class="lp-hero__proof">
-      <span class="lp-hero__stars" aria-label="5 estrelas">★★★★★</span>
-      <p>Clientes que voltam sempre — aqui em Brasília.</p>
-    </div>
+    <p class="lp-hero__local">
+      <svg width="17" height="17"><use href="#i-pin"/></svg> Asa Norte, Brasília — DF
+    </p>
   </div>
 </section>
 
@@ -442,11 +451,7 @@ em{font-style:italic}
 <section class="lp-pieces" id="pecas">
   <div class="wrap">
     <div class="lp-pieces__head reveal">
-      <div>
-        <span class="eyebrow">✦ Algumas das nossas peças</span>
-        <h2 class="sec-title">Selecionadas <em>uma a uma</em> pra você.</h2>
-        <p class="sec-sub">Uma amostra do que acabou de chegar na loja. Arraste para o lado e, se alguma peça chamar sua atenção, é só chamar a gente no WhatsApp — mostramos tudo com calma, junto com o seu cupom.</p>
-      </div>
+      <h2 class="sec-title">Algumas das nossas <em>peças</em></h2>
     </div>
 
     <div class="lp-carousel reveal d1">
