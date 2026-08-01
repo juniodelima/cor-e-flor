@@ -654,7 +654,7 @@ async function finalizeOrder(paymentId, paymentStatus, serverOrderId) {
   const waBtn = document.getElementById('co-wa-btn');
   if (waBtn) {
     const msg = `Olá! Acabei de fazer o pedido #${shortId} no site da Cor & Flor e gostaria de tirar uma dúvida.`;
-    waBtn.href = `https://wa.me/556139677873?text=${encodeURIComponent(msg)}`;
+    waBtn.href = `https://wa.me/5561999219841?text=${encodeURIComponent(msg)}`;
   }
 
   setStep(3);

@@ -18,9 +18,9 @@ export const LOJA = {
   cidade: 'Brasília',
   uf: 'DF',
   pais: 'BR',
-  telefone: '+556139677873',
-  telefoneFormatado: '(61) 3967-7873',
-  whatsapp: '556139677873',
+  telefone: '+5561999219841',
+  telefoneFormatado: '(61) 99921-9841',
+  whatsapp: '5561999219841',
   instagram: 'https://www.instagram.com/coreflorbrasilia',
   maps: 'https://maps.app.goo.gl/VtbjoG5acqUdasAJA',
   horarios: [
@@ -84,7 +84,7 @@ function gerarLlms() {
 ## Páginas principais
 
 - [Página inicial](${SITE}/): catálogo completo, ofertas da semana e informações da loja física
-- [Visite a loja / cupom de boas-vindas](${SITE}/visite.html): cupom de boas-vindas, consultoria de estilo gratuita no WhatsApp e informações da loja física
+- [Conheça a coleção / cupom de desconto](${SITE}/visite.html): cupom de desconto pelo WhatsApp, amostra das peças e informações da loja física
 - [Vale presente](${SITE}/vale-presente.html): vale presente a partir de R$ 100, enviado por e-mail
 - [Como chegar na loja](${LOJA.maps}): ${LOJA.rua}, ${LOJA.cidade}/${LOJA.uf}
 
