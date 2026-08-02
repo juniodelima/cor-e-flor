@@ -29,10 +29,29 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://yynukxtyiiuwjcmqiktr.supabase.co" crossorigin>
+<link rel="preconnect" href="https://connect.facebook.net" crossorigin>
 <link rel="preload" as="image" href="assets/loja-fisica.webp" fetchpriority="high">
 
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Raleway:wght@300;400;500;600;700&display=swap" onload="this.rel='stylesheet'">
 <noscript><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet"></noscript>
+
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '4632831693595917');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=4632831693595917&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
 
 <!-- ═══ SCHEMA JSON-LD ═══
      Mesmos dados da home (endereço, horário, telefone) para o Google não ver
@@ -710,6 +729,28 @@ em{font-style:italic}
   $$('[data-wa]').forEach(function (a) {
     a.href = waLink(a.getAttribute('data-wa-msg') || WA_BASE);
   });
+
+  /* ---------- Meta Pixel: clique no WhatsApp conta como conversão ----------
+     A página não tem formulário — abrir a conversa é a única conversão
+     possível. Sem este evento o anúncio teria só PageView para otimizar.
+     O content_name diz qual botão converteu, para comparar no Gerenciador. */
+  document.addEventListener('click', function (ev) {
+    var el = ev.target;
+    while (el && el !== document && !(el.tagName === 'A' && el.href && el.href.indexOf('wa.me') > -1)) {
+      el = el.parentNode;
+    }
+    if (!el || el === document || typeof window.fbq !== 'function') return;
+    var onde =
+      el.className && String(el.className).indexOf('piece__btn') > -1 ? 'card-peca' :
+      el.className && String(el.className).indexOf('wa-float')   > -1 ? 'botao-flutuante' :
+      el.closest('.mbar')            ? 'barra-mobile' :
+      el.closest('.lp-hero')         ? 'hero' :
+      el.closest('.lp-pieces__foot') ? 'colecao-completa' :
+      el.closest('.lp-store')        ? 'agendar-visita' :
+      el.closest('.lp-final')        ? 'cta-final' :
+      el.closest('.lp-top')          ? 'topo' : 'outro';
+    window.fbq('track', 'Lead', { content_name: 'whatsapp-' + onde });
+  }, true);
 
   /* ---------- Reveal on scroll ---------- */
   var io = new IntersectionObserver(function (entries) {
