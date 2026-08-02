@@ -135,15 +135,26 @@ function _normCat(cat) {
   return 'blusas'; // blusa, body, regata, cropped, top, tule, corset, tricot
 }
 
+// Fotos do catálogo são arquivos da pasta assets/ — só products-data.js sabe o
+// caminho certo. O admin só consegue criar foto por upload (data:) ou IA (http),
+// então qualquer 'assets/...' guardado no localStorage é cópia velha e deve ser
+// relida do catálogo (senão uma troca de arquivo quebra todas as miniaturas).
+function _isUploadedImage(src) {
+  return typeof src === 'string' && /^(data:|https?:|blob:)/.test(src);
+}
+
 function _normProduct(p, existing) {
+  const catalogImages = p.images ?? (p.image ? [p.image] : []);
+  const keepUploaded  = _isUploadedImage(existing?.image);
   return {
     id:            String(p.id),
     name:          existing?.name          ?? p.name          ?? '',
     category:      existing?.category      ?? _normCat(p.category),
     price:         existing?.price         ?? Number(p.price)         ?? 0,
     originalPrice: existing?.originalPrice ?? Number(p.originalPrice) ?? 0,
-    image:         existing?.image         ?? p.image  ?? '',
-    images:        existing?.images        ?? p.images ?? (p.image ? [p.image] : []),
+    image:         keepUploaded ? existing.image  : (p.image ?? ''),
+    images:        keepUploaded ? (existing.images?.length ? existing.images : [existing.image])
+                                : catalogImages,
     description:   existing?.description   ?? p.description ?? '',
     colors: existing?.colors ?? (Array.isArray(p.colors)
       ? p.colors.map(c => (typeof c === 'string' ? c : c.name))
