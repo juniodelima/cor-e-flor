@@ -1799,9 +1799,17 @@ em{ font-style: italic; }
   /* Always-visible add for touch */
   .card__add{ display: none; }
   .card__fav{ opacity: 1; transform: translateY(0); }
-  /* Carousel mobile */
-  .carousel-track .card { flex: 0 0 72vw; }
-  .carousel-track[data-pending] { min-height: calc(72vw * 1.3333 + 152px); }
+  /* Carrossel mobile: duas peças inteiras na tela, nenhuma cortada.
+     A faixa mede exatamente a largura útil do container, então cada card
+     ocupa metade dela menos o respiro do meio — a conta sempre fecha. */
+  .carousel-track { gap: 14px; }
+  .carousel-track .card { flex: 0 0 calc((100% - 14px) / 2); }
+  .carousel-track[data-pending] { min-height: calc(46vw * 1.3333 + 150px); }
+  .card__badge { top: 8px; left: 8px; padding: 4px 9px; font-size: 9px; }
+  .card__fav { width: 32px; height: 32px; top: 8px; right: 8px; }
+  .card__body { padding-top: 12px; }
+  .card__name { font-size: 16px; margin: 2px 0 4px; }
+  .card__price-now { font-size: 14px; }
   .car-btn { width: 34px; height: 34px; }
   #categories-root { gap: 56px; }
 
@@ -1832,6 +1840,15 @@ em{ font-style: italic; }
   .foot__cols{ grid-template-columns: 1fr; }
   .hero__cta{ flex-direction: column; align-items: stretch; }
   .hero__cta .btn{ justify-content: center; }
+}
+
+/* Celulares bem estreitos (iPhone SE e afins): duas peças lado a lado ficariam
+   pequenas demais, então a vitrine passa a mostrar uma peça inteira por tela. */
+@media (max-width: 359px){
+  .carousel-track .card{ flex: 0 0 100%; }
+  .carousel-track[data-pending]{ min-height: calc(88vw * 1.3333 + 160px); }
+  .card__name{ font-size: 19px; }
+  .card__price-now{ font-size: 15px; }
 }
 
 /* ========= PRODUTO ========= */

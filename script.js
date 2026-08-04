@@ -98,7 +98,14 @@ function initCarousel(block) {
   const track = block.querySelector('.carousel-track');
   const prev  = block.querySelector('.car-btn--prev');
   const next  = block.querySelector('.car-btn--next');
-  const step  = () => (track.querySelector('.card')?.offsetWidth ?? 280) + 20;
+  /* Um clique nas setas avança exatamente um card. A distância é medida entre
+     dois cards reais (largura + espaçamento), então continua certa em qualquer
+     tela, mesmo com o gap mudando no mobile. */
+  const step = () => {
+    const cards = track.querySelectorAll('.card');
+    if (cards.length > 1) return cards[1].offsetLeft - cards[0].offsetLeft;
+    return (cards[0]?.offsetWidth ?? 280) + 20;
+  };
 
   prev.addEventListener('click', () => track.scrollBy({ left: -step(), behavior: 'smooth' }));
   next.addEventListener('click', () => track.scrollBy({ left:  step(), behavior: 'smooth' }));
@@ -122,13 +129,9 @@ function initCarousel(block) {
   window.addEventListener('mousemove', e => { if (!dragging) return; track.scrollLeft = ss - (e.clientX - sx); });
   window.addEventListener('mouseup',   () => { dragging = false; track.style.cursor = ''; });
 
-  // swipe touch
-  let tx = 0;
-  track.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
-  track.addEventListener('touchend',   e => {
-    const d = tx - e.changedTouches[0].clientX;
-    if (Math.abs(d) > 40) track.scrollBy({ left: d > 0 ? step() : -step(), behavior: 'smooth' });
-  }, { passive: true });
+  /* No celular quem cuida do swipe é o próprio navegador: o `scroll-snap`
+     da faixa já para sempre com os cards inteiros na tela. Um empurrão extra
+     em JS aqui brigava com esse encaixe e deixava as peças cortadas. */
 }
 
 const catRoot = document.getElementById('categories-root');
