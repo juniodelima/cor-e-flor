@@ -33,7 +33,17 @@ let adminUser = sessionStorage.getItem('cf_admin_user') || 'Admin';
 // ── Storage helper ────────────────────────────────────────────
 const DB = {
   get: k  => JSON.parse(localStorage.getItem(`cf_${k}`) || 'null'),
-  set: (k,v) => localStorage.setItem(`cf_${k}`, JSON.stringify(v)),
+  // O navegador reserva um espaço limitado por site. Com várias fotos por
+  // produto dá para encher — nesse caso avisa em vez de falhar em silêncio.
+  set: (k,v) => {
+    try {
+      localStorage.setItem(`cf_${k}`, JSON.stringify(v));
+      return true;
+    } catch (e) {
+      toast('Espaço do navegador cheio — remova algumas fotos de produtos antigos e tente de novo.', 'error');
+      return false;
+    }
+  },
 };
 
 // ── AI Studio state ───────────────────────────────────────────
@@ -589,7 +599,7 @@ function printShippingLabel(supabaseId) {
 function closeModal(e) {
   if (!e || e.target === document.getElementById('modal-overlay') || e.currentTarget.classList?.contains('modal-close')) {
     document.getElementById('modal-overlay').classList.remove('open');
-    window._pendingImgBase64 = null;
+    window._pfImages = [];
   }
 }
 
@@ -620,10 +630,12 @@ function renderProducts() {
   document.getElementById('products-grid').innerHTML = filtered.length ? filtered.map(p => {
     const stock = p.stock || {};
     const totalStock = Object.values(stock).reduce((a,b) => a + Number(b), 0);
+    const photoCount = p.images?.length || (p.image ? 1 : 0);
     return `
       <div class="prod-card">
         <div class="prod-card__img">
           <img src="${p.image}" alt="${p.name}" loading="lazy" onerror="this.style.opacity='.3'">
+          ${photoCount > 1 ? `<span class="prod-card__photos"><i class="bi bi-images"></i> ${photoCount}</span>` : ''}
           <span class="prod-card__status badge badge--${p.status==='active'?'active':'inactive'}"
                 style="cursor:pointer" onclick="toggleProductActive('${p.id}')"
                 title="Clique para ativar/desativar este produto na loja">${p.status==='active'?'Ativo':'Inativo'}</span>
@@ -658,35 +670,27 @@ const LETTER_SIZES = ['PP','P','M','G','GG','U'];
 const NUMBER_SIZES = ['34','35','36','37','38','39','40','41','42','43','44','45','46'];
 
 function openProductModal(id) {
-  window._pendingImgBase64 = null;
   resetAIStudio();
   const products = DB.get('products') || [];
   const p = id ? products.find(x=>x.id===id) : null;
   const pSizeType = p?.sizeType || (p?.sizes?.some(sz=>/^\d+$/.test(sz)) ? 'number' : 'letter');
   window._pfExistingStock = p?.stock || {};
 
-  const imgAreaHtml = p?.image
-    ? `<img src="${p.image}" class="img-upload-preview" id="img-preview">
-       <p style="font-size:11px;color:var(--rose-deep);margin-top:8px">Clique para trocar a foto</p>`
-    : `<i class="bi bi-cloud-upload" style="font-size:36px;color:var(--rose-soft)"></i>
-       <p style="font-size:13px;color:var(--warm-gray);margin:8px 0 2px">Clique ou arraste a foto aqui</p>
-       <p style="font-size:11px;color:rgba(74,64,64,.35)">PNG, JPG, WEBP — Máx. 5MB</p>`;
+  // Galeria do produto: várias fotos, a primeira é a que aparece na loja.
+  window._pfImages = p ? (p.images?.length ? [...p.images] : (p.image ? [p.image] : [])) : [];
 
   document.getElementById('modal-body').innerHTML = `
     <h3 class="modal-title"><i class="bi bi-${p?'pencil':'plus-circle'}"></i> ${p?'Editar':'Novo'} Produto</h3>
     <form id="prod-form" onsubmit="saveProduct(event,'${id||''}')">
 
       <p class="modal-section-label"><i class="bi bi-images"></i> Fotos do Produto</p>
-      <div class="img-upload-area" id="img-upload-area"
-           onclick="document.getElementById('pf-img-file').click()"
+      <div id="pf-img-gallery"
            ondragover="event.preventDefault();this.classList.add('drag-over')"
            ondragleave="this.classList.remove('drag-over')"
-           ondrop="event.preventDefault();this.classList.remove('drag-over');handleImgDrop(event)">
-        ${imgAreaHtml}
-      </div>
+           ondrop="handleImgDrop(event)"></div>
+      <p class="img-gallery-hint" id="pf-img-hint"></p>
       <input type="file" id="pf-img-file" accept="image/png,image/jpeg,image/webp,image/gif"
-             style="display:none" onchange="onImageUpload(event)">
-      <input type="hidden" id="pf-img-current" value="${p?.image||''}">
+             multiple style="display:none" onchange="onImageUpload(event)">
 
       <div class="ai-studio-bar">
         <button type="button" class="ai-studio-bar__btn" onclick="toggleAIStudio()">
@@ -725,7 +729,7 @@ function openProductModal(id) {
             <small style="font-weight:400;color:rgba(74,64,64,.6)"> — ordene com as setas</small>
           </p>
           <div class="ai-final-list" id="ai-final-list"></div>
-          <p class="ai-final-note">A 1ª foto será a principal exibida na loja.</p>
+          <p class="ai-final-note">Estas fotos entram na galeria do produto, depois das que você enviou.</p>
         </div>
       </div>
 
@@ -828,6 +832,7 @@ function openProductModal(id) {
     </form>
   `;
   document.getElementById('modal-overlay').classList.add('open');
+  renderProductImages();
   renderAISlots();
   renderProductSizeStock();
 }
@@ -856,40 +861,127 @@ function renderProductSizeStock() {
   `).join('') : `<p style="font-size:12px;color:rgba(74,64,64,.5)">Selecione ao menos um tamanho acima.</p>`;
 }
 
+// ── GALERIA DE FOTOS DO PRODUTO ───────────────────────────────
+// Cada produto guarda uma lista de fotos: a primeira é a que aparece na
+// vitrine da loja, as demais entram nas miniaturas da página do produto.
+const PF_MAX_IMAGES  = 8;
+const PF_MAX_FILE_MB = 5;
+const PF_MAX_EDGE    = 1400; // px — foto maior que isso é reduzida antes de salvar
+
+function pickProductImages() {
+  document.getElementById('pf-img-file')?.click();
+}
+
+function renderProductImages() {
+  const box  = document.getElementById('pf-img-gallery');
+  const hint = document.getElementById('pf-img-hint');
+  if (!box) return;
+  const imgs = window._pfImages || [];
+
+  if (!imgs.length) {
+    box.className = 'img-upload-area';
+    box.onclick = pickProductImages;
+    box.innerHTML = `
+      <i class="bi bi-cloud-upload" style="font-size:36px;color:var(--rose-soft)"></i>
+      <p style="font-size:13px;color:var(--warm-gray);margin:8px 0 2px">Clique ou arraste as fotos aqui</p>
+      <p style="font-size:11px;color:rgba(74,64,64,.35)">Pode enviar várias de uma vez — PNG, JPG, WEBP, até ${PF_MAX_FILE_MB}MB cada</p>`;
+    if (hint) hint.textContent = '';
+    return;
+  }
+
+  box.className = 'img-gallery';
+  box.onclick = null;
+  box.innerHTML = imgs.map((src, i) => `
+    <div class="img-thumb${i === 0 ? ' is-main' : ''}">
+      <img src="${src}" alt="Foto ${i+1}" onerror="this.style.opacity='.25'">
+      ${i === 0 ? '<span class="img-thumb__tag">Principal</span>' : ''}
+      <div class="img-thumb__tools">
+        <button type="button" title="Mover para a esquerda" onclick="moveProductImage(${i},-1)" ${i === 0 ? 'disabled' : ''}><i class="bi bi-chevron-left"></i></button>
+        <button type="button" title="Mover para a direita"  onclick="moveProductImage(${i},1)"  ${i === imgs.length-1 ? 'disabled' : ''}><i class="bi bi-chevron-right"></i></button>
+        <button type="button" class="img-thumb__del" title="Remover foto" onclick="removeProductImage(${i})"><i class="bi bi-trash"></i></button>
+      </div>
+    </div>`).join('') +
+    (imgs.length < PF_MAX_IMAGES ? `
+    <button type="button" class="img-thumb-add" onclick="pickProductImages()">
+      <i class="bi bi-plus-lg"></i><span>Adicionar</span>
+    </button>` : '');
+
+  if (hint) hint.textContent = imgs.length === 1
+    ? '1 foto — adicione outras para o cliente ver a peça de vários ângulos.'
+    : `${imgs.length} fotos — a 1ª é a que aparece na vitrine. Use as setas para reordenar.`;
+}
+
 function onImageUpload(e) {
-  const file = e.target.files[0];
-  if (file) processImageFile(file);
+  addProductImages(e.target.files);
+  e.target.value = '';
 }
 function handleImgDrop(e) {
-  const file = e.dataTransfer.files[0];
-  if (file && file.type.startsWith('image/')) processImageFile(file);
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  addProductImages(e.dataTransfer.files);
 }
-function processImageFile(file) {
-  if (file.size > 5 * 1024 * 1024) { toast('Imagem muito grande. Máx. 5MB.', 'error'); return; }
-  const reader = new FileReader();
-  reader.onload = ev => {
-    window._pendingImgBase64 = ev.target.result;
-    const area = document.getElementById('img-upload-area');
-    if (area) area.innerHTML = `
-      <img src="${ev.target.result}" class="img-upload-preview" id="img-preview">
-      <p style="font-size:11px;color:var(--rose-deep);margin-top:8px;cursor:pointer"
-         onclick="event.stopPropagation();clearImageUpload()">
-        <i class="bi bi-arrow-repeat"></i> Trocar foto
-      </p>`;
-  };
-  reader.readAsDataURL(file);
+
+async function addProductImages(fileList) {
+  const files = [...(fileList || [])].filter(f => f.type.startsWith('image/'));
+  if (!files.length) return;
+  window._pfImages = window._pfImages || [];
+
+  const room = PF_MAX_IMAGES - window._pfImages.length;
+  if (room <= 0) { toast(`Este produto já tem o máximo de ${PF_MAX_IMAGES} fotos.`, 'error'); return; }
+  if (files.length > room) toast(`Cabem mais ${room} foto(s) neste produto — o resto foi ignorado.`, 'info');
+
+  for (const file of files.slice(0, room)) {
+    if (file.size > PF_MAX_FILE_MB * 1024 * 1024) {
+      toast(`"${file.name}" passa de ${PF_MAX_FILE_MB}MB e foi ignorada.`, 'error');
+      continue;
+    }
+    try {
+      window._pfImages.push(await _readImageResized(file));
+      renderProductImages();
+    } catch {
+      toast(`Não foi possível ler "${file.name}".`, 'error');
+    }
+  }
 }
-function clearImageUpload() {
-  window._pendingImgBase64 = null;
-  const area = document.getElementById('img-upload-area');
-  if (area) area.innerHTML = `
-    <i class="bi bi-cloud-upload" style="font-size:36px;color:var(--rose-soft)"></i>
-    <p style="font-size:13px;color:var(--warm-gray);margin:8px 0 2px">Clique ou arraste a foto aqui</p>
-    <p style="font-size:11px;color:rgba(74,64,64,.35)">PNG, JPG, WEBP — Máx. 5MB</p>`;
-  const fi = document.getElementById('pf-img-file');
-  if (fi) fi.value = '';
-  const hi = document.getElementById('pf-img-current');
-  if (hi) hi.value = '';
+
+/* As fotos ficam salvas no navegador, que tem espaço limitado. Foto de celular
+   tem uns 4000px de largura sem necessidade nenhuma — reduzir antes de guardar
+   é o que permite ter várias fotos por produto sem estourar o armazenamento. */
+function _readImageResized(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = ev => {
+      const original = ev.target.result;
+      const img = new Image();
+      img.onerror = () => resolve(original); // formato exótico: guarda como veio
+      img.onload  = () => {
+        const scale = Math.min(1, PF_MAX_EDGE / Math.max(img.width, img.height));
+        if (scale === 1 && original.length < 400000) return resolve(original);
+        const cv = document.createElement('canvas');
+        cv.width  = Math.round(img.width  * scale);
+        cv.height = Math.round(img.height * scale);
+        cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+        const webp = cv.toDataURL('image/webp', 0.85);
+        resolve(webp.startsWith('data:image/webp') ? webp : cv.toDataURL('image/jpeg', 0.85));
+      };
+      img.src = original;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function moveProductImage(i, dir) {
+  const arr = window._pfImages || [];
+  const t = i + dir;
+  if (t < 0 || t >= arr.length) return;
+  [arr[i], arr[t]] = [arr[t], arr[i]];
+  renderProductImages();
+}
+
+function removeProductImage(i) {
+  (window._pfImages || []).splice(i, 1);
+  renderProductImages();
 }
 
 // ── AI STUDIO FUNCTIONS ───────────────────────────────────────
@@ -1202,10 +1294,9 @@ async function generateProductText() {
   const key = getOpenAIKey();
   if (!key) { toast('Configure a chave API OpenAI em Configurações → Estúdio IA.', 'error'); return; }
 
-  const imageCtx = aiStudioState.selectedImages[0]
+  const imageCtx = window._pfImages?.[0]
+    || aiStudioState.selectedImages[0]
     || aiStudioState.referenceImages[0]?.dataUrl
-    || window._pendingImgBase64
-    || document.getElementById('pf-img-current')?.value
     || '';
 
   const userContext = (document.getElementById('ai-product-context')?.value || '').trim();
@@ -1265,19 +1356,19 @@ function _saveProductFromForm(id) {
   const sizeType = document.querySelector('input[name="pf-sizetype"]:checked')?.value || 'letter';
   const stock = {};
   document.querySelectorAll('.pf-stock-input').forEach(inp => { stock[inp.dataset.size] = parseInt(inp.value) || 0; });
-  const currentImg = document.getElementById('pf-img-current')?.value || '';
+  /* Galeria final = fotos enviadas na ordem escolhida + as geradas pela IA que
+     ainda não estejam lá. A primeira é a capa do produto na vitrine. */
+  const gallery = [...(window._pfImages || [])];
+  aiStudioState.selectedImages.forEach(url => { if (!gallery.includes(url)) gallery.push(url); });
+
   const prod = {
     id: id || 'P' + uid(),
     name:          document.getElementById('pf-name').value.trim(),
     category:      document.getElementById('pf-cat').value,
     price:         parseFloat(document.getElementById('pf-price').value) || 0,
     originalPrice: parseFloat(document.getElementById('pf-orig').value)  || 0,
-    images:        aiStudioState.selectedImages.length > 0
-                     ? aiStudioState.selectedImages
-                     : (window._pendingImgBase64
-                         ? [window._pendingImgBase64]
-                         : (existing?.images || (currentImg ? [currentImg] : []))),
-    image:         aiStudioState.selectedImages[0] || window._pendingImgBase64 || currentImg,
+    images:        gallery,
+    image:         gallery[0] || '',
     description:   document.getElementById('pf-desc').value.trim(),
     colors:        document.getElementById('pf-colors').value.split(',').map(s=>s.trim()).filter(Boolean),
     sizes,

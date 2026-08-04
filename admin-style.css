@@ -511,6 +511,14 @@ textarea.form-input { min-height: 80px; }
 .prod-card__status {
   position: absolute; top: 8px; left: 8px;
 }
+.prod-card__photos {
+  position: absolute; top: 8px; right: 8px;
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 8px; border-radius: 999px;
+  background: rgba(28,20,20,.62); color: #fff;
+  font-size: 10px; font-weight: 600; letter-spacing: .3px;
+  backdrop-filter: blur(4px);
+}
 .prod-card__actions {
   position: absolute; bottom: 8px; right: 8px;
   display: flex; gap: 5px;
@@ -675,6 +683,81 @@ textarea.form-input { min-height: 80px; }
   max-width: 100%; max-height: 160px;
   object-fit: contain; border-radius: 8px;
   box-shadow: 0 4px 16px -4px rgba(28,20,20,.18);
+}
+
+/* Galeria — várias fotos por produto */
+.img-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 10px;
+  padding: 12px;
+  border: 2px dashed rgba(212,103,154,.3);
+  border-radius: 12px;
+  background: var(--cream);
+  transition: border-color .25s var(--ease), background .25s var(--ease);
+}
+.img-gallery.drag-over { border-color: var(--rose); background: rgba(212,103,154,.08); }
+
+.img-thumb {
+  position: relative;
+  aspect-ratio: 3/4;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--nude);
+  box-shadow: 0 4px 14px -6px rgba(28,20,20,.25);
+}
+.img-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.img-thumb.is-main { box-shadow: 0 0 0 2px var(--rose), 0 4px 14px -6px rgba(28,20,20,.3); }
+.img-thumb__tag {
+  position: absolute; top: 6px; left: 6px;
+  padding: 3px 8px; border-radius: 999px;
+  background: var(--rose); color: #fff;
+  font-size: 9px; letter-spacing: .8px; text-transform: uppercase; font-weight: 600;
+}
+.img-thumb__tools {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  display: flex; gap: 4px; justify-content: center;
+  padding: 6px 4px;
+  background: linear-gradient(to top, rgba(28,20,20,.72), transparent);
+  opacity: 0; transition: opacity .22s var(--ease);
+}
+.img-thumb:hover .img-thumb__tools { opacity: 1; }
+.img-thumb__tools button {
+  width: 26px; height: 26px;
+  border: 0; border-radius: 7px;
+  background: rgba(255,255,255,.92); color: var(--ink);
+  cursor: pointer; font-size: 12px;
+  display: grid; place-items: center;
+  transition: background .2s, color .2s;
+}
+.img-thumb__tools button:hover:not(:disabled) { background: var(--rose); color: #fff; }
+.img-thumb__tools button:disabled { opacity: .35; cursor: not-allowed; }
+.img-thumb__del:hover { background: #d9534f !important; color: #fff !important; }
+
+.img-thumb-add {
+  aspect-ratio: 3/4;
+  border: 2px dashed rgba(212,103,154,.35);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--rose-deep);
+  cursor: pointer;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 6px;
+  font-size: 11px; font-weight: 600; letter-spacing: .4px;
+  transition: border-color .2s, background .2s, transform .2s var(--ease);
+}
+.img-thumb-add i { font-size: 20px; }
+.img-thumb-add:hover { border-color: var(--rose); background: rgba(212,103,154,.06); transform: translateY(-2px); }
+
+.img-gallery-hint {
+  font-size: 11px; color: rgba(74,64,64,.55);
+  margin: 8px 2px 0;
+}
+
+/* No celular as miniaturas ficam sempre com os controles à mostra — não há hover */
+@media (max-width: 640px) {
+  .img-gallery { grid-template-columns: repeat(3, 1fr); }
+  .img-thumb__tools { opacity: 1; }
 }
 
 /* Logo PNG — sidebar */
