@@ -30,21 +30,156 @@ let adminUser = sessionStorage.getItem('cf_admin_user') || 'Admin';
   } catch(e) { /* session check failed silently */ }
 })();
 
-// ── Storage helper ────────────────────────────────────────────
+/* ── Storage helper ────────────────────────────────────────────
+   'products' e 'settings' moram no Supabase: são os dados que precisam
+   valer para todos os administradores e para a loja. Ficam em memória
+   durante a sessão (por isso o get continua síncrono, como o resto do
+   painel espera) e cada gravação é espelhada no banco.
+
+   'notifications' e a chave da OpenAI seguem no navegador — são coisas
+   de quem está usando o painel naquele computador. */
+const _mem = { products: null, settings: null };
+let _nuvemPronta = false;   // trava gravações até a primeira leitura do banco
+
 const DB = {
-  get: k  => JSON.parse(localStorage.getItem(`cf_${k}`) || 'null'),
-  // O navegador reserva um espaço limitado por site. Com várias fotos por
-  // produto dá para encher — nesse caso avisa em vez de falhar em silêncio.
-  set: (k,v) => {
-    try {
-      localStorage.setItem(`cf_${k}`, JSON.stringify(v));
+  get(k) {
+    if (k === 'products') return _mem.products;
+    if (k === 'settings') return _mem.settings;
+    return JSON.parse(localStorage.getItem(`cf_${k}`) || 'null');
+  },
+  set(k, v) {
+    if (k === 'products') {
+      _mem.products = v;
+      // Sem a tabela no banco, o painel volta a guardar no navegador
+      if (!CatalogDB.disponivel) return _gravarLocal('products', v);
+      if (_nuvemPronta) salvarProdutosNaNuvem(v);
       return true;
-    } catch (e) {
-      toast('Espaço do navegador cheio — remova algumas fotos de produtos antigos e tente de novo.', 'error');
-      return false;
     }
+    if (k === 'settings') {
+      _mem.settings = v;
+      if (_nuvemPronta) salvarConfigNaNuvem(v);
+      return true;
+    }
+    return _gravarLocal(k, v);
   },
 };
+
+// O navegador reserva um espaço limitado por site. Com várias fotos por
+// produto dá para encher — nesse caso avisa em vez de falhar em silêncio.
+function _gravarLocal(k, v) {
+  try {
+    localStorage.setItem(`cf_${k}`, JSON.stringify(v));
+    return true;
+  } catch (e) {
+    toast('Espaço do navegador cheio — remova algumas fotos de produtos antigos e tente de novo.', 'error');
+    return false;
+  }
+}
+
+/* Cópia do que está no banco, para gravar só o que mudou de verdade */
+let _snapshotNuvem = {};
+
+function _assinatura(p) {
+  const row = CatalogDB.toRow(p);
+  delete row.updated_at;          // muda a cada gravação, não serve para comparar
+  return JSON.stringify(row);
+}
+
+async function salvarProdutosNaNuvem(lista) {
+  if (!CatalogDB.disponivel) return;
+  const alterados = [];
+  const idsAgora = new Set();
+
+  for (const p of lista || []) {
+    const id = String(p.id);
+    idsAgora.add(id);
+    const assin = _assinatura(p);
+    if (_snapshotNuvem[id] !== assin) { alterados.push(p); _snapshotNuvem[id] = assin; }
+  }
+  const removidos = Object.keys(_snapshotNuvem).filter(id => !idsAgora.has(id));
+  removidos.forEach(id => delete _snapshotNuvem[id]);
+
+  try {
+    if (alterados.length) {
+      const { error } = await CatalogDB.upsert(alterados);
+      if (error) throw error;
+    }
+    if (removidos.length) {
+      const { error } = await CatalogDB.remove(removidos);
+      if (error) throw error;
+    }
+  } catch (e) {
+    // Snapshot volta ao estado anterior para tentar de novo na próxima gravação
+    alterados.forEach(p => { delete _snapshotNuvem[String(p.id)]; });
+    toast('Não foi possível salvar no servidor: ' + (e.message || 'erro de conexão'), 'error');
+  }
+}
+
+/* A chave da OpenAI não vai para o banco público — fica só neste navegador. */
+const CHAVES_LOCAIS = ['openaiKey', 'adminPass'];
+
+async function salvarConfigNaNuvem(cfg) {
+  const publico = {}, local = {};
+  for (const [k, v] of Object.entries(cfg || {})) {
+    (CHAVES_LOCAIS.includes(k) ? local : publico)[k] = v;
+  }
+  try { localStorage.setItem('cf_settings_local', JSON.stringify(local)); } catch {}
+  const { error } = await SiteSettings.set('store_settings', publico);
+  if (error) toast('Configurações salvas aqui, mas não no servidor: ' + error.message, 'error');
+}
+
+/* Primeira carga: traz produtos e configurações do banco. Se a tabela ainda
+   não existe (SQL do painel não rodado), avisa e continua com o navegador. */
+async function carregarPainelDaNuvem() {
+  const [produtos, cfgRemota] = await Promise.all([
+    CatalogDB.getAll(),
+    SiteSettings.get('store_settings').catch(() => null),
+  ]);
+
+  /* ── Configurações da loja (site_settings já existe, não depende do SQL novo) */
+  const local  = JSON.parse(localStorage.getItem('cf_settings_local') || 'null') || {};
+  const legado = JSON.parse(localStorage.getItem('cf_settings')       || 'null') || {};
+  if (cfgRemota && Object.keys(cfgRemota).length) {
+    _mem.settings = { ...cfgRemota, ...local };
+  } else {
+    // Primeira vez: leva para o banco o que estiver salvo neste navegador
+    _mem.settings = { ...legado, ...local };
+    if (Object.keys(legado).length) await salvarConfigNaNuvem(_mem.settings);
+  }
+
+  /* ── Produtos (dependem da tabela criada por schema-painel.sql) */
+  if (!CatalogDB.disponivel) {
+    _mem.products = JSON.parse(localStorage.getItem('cf_products') || 'null');
+    avisarBancoPendente();
+    return;
+  }
+
+  /* Migração: banco vazio + edições antigas neste navegador = sobe o que existe
+     aqui para não perder o trabalho já feito. */
+  const antigos = JSON.parse(localStorage.getItem('cf_products') || 'null');
+  if (!produtos.length && Array.isArray(antigos) && antigos.length) {
+    _mem.products = antigos;
+    await CatalogDB.upsert(antigos);
+    antigos.forEach(p => { _snapshotNuvem[String(p.id)] = _assinatura(p); });
+    toast('Produtos deste navegador foram enviados para o servidor.', 'info');
+  } else {
+    _mem.products = produtos;
+    produtos.forEach(p => { _snapshotNuvem[String(p.id)] = _assinatura(p); });
+  }
+}
+
+function avisarBancoPendente() {
+  if (document.getElementById('db-warning')) return;
+  const bar = document.createElement('div');
+  bar.id = 'db-warning';
+  bar.className = 'db-warning';
+  bar.innerHTML =
+    '<i class="bi bi-exclamation-triangle-fill"></i>' +
+    '<span><strong>Produtos e configurações ainda estão salvos só neste navegador.</strong> ' +
+    'Rode o arquivo <code>schema-painel.sql</code> no Supabase (SQL Editor) para que as edições ' +
+    'valham para todos os administradores e apareçam na loja.</span>';
+  document.querySelector('.admin-content')?.prepend(bar);
+}
 
 // ── AI Studio state ───────────────────────────────────────────
 let aiStudioState = { open:false, referenceImages:[], generatedImages:[], selectedImages:[], generationSlots:[{type:'flatlay',count:1}] };
@@ -190,6 +325,7 @@ function _normProduct(p, existing) {
       ? p.colors.map(c => (typeof c === 'string' ? c : c.name))
       : []),
     sizes:     existing?.sizes  ?? p.sizes  ?? [],
+    sizeType:  existing?.sizeType ?? ((p.sizes || []).some(sz => /^\d+$/.test(sz)) ? 'number' : 'letter'),
     stock:     existing?.stock  ?? p.stock  ?? { P:0, M:0, G:0, GG:0 },
     pieceOptions: existing?.pieceOptions ?? p.pieceOptions ?? [],
     status:    existing?.status ?? p.status ?? 'active',
@@ -217,7 +353,8 @@ function initData() {
   }
   if (!DB.get('notifications')) DB.set('notifications', []);
 }
-initData();
+/* initData() roda só depois da carga da nuvem (ver "Init page", no fim do
+   arquivo) — senão o catálogo estático sobrescreveria as edições salvas. */
 
 // ── Header setup ──────────────────────────────────────────────
 document.getElementById('header-name').textContent = adminUser;
@@ -492,16 +629,25 @@ function restoreStockForOrder(order) {
   }
 }
 
-// Foto do item do pedido: usa a que foi gravada na compra e, se o pedido for
-// antigo (sem foto), procura o produto no catálogo pelo id ou pelo nome.
+/* Foto do item do pedido. A foto gravada no pedido é uma cópia do momento da
+   compra — pode estar cortada (o servidor limita o tamanho do campo) ou apontar
+   para um arquivo que já mudou de nome. Por isso a foto do catálogo vem
+   primeiro, e a do pedido fica como reserva. */
+const _ORDER_ITEM_FALLBACK_IMG =
+  'data:image/svg+xml;utf8,' + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="52" height="66">' +
+    '<rect width="52" height="66" fill="%23FBF3F5"/>' +
+    '<path d="M14 24h24l-2 24H16z" fill="none" stroke="%23D4679A" stroke-opacity=".45" stroke-width="1.6"/>' +
+    '<path d="M21 24v-3a5 5 0 0 1 10 0v3" fill="none" stroke="%23D4679A" stroke-opacity=".45" stroke-width="1.6"/></svg>');
+
 function _orderItemImage(item) {
-  // data: URI gravado no pedido vem cortado (o servidor limita o tamanho),
-  // então nesse caso vale mais procurar a foto no catálogo.
-  if (item.image && !item.image.startsWith('data:')) return item.image;
   const catalog = (typeof products !== 'undefined' ? products : []);
   const p = catalog.find(x => String(x.id) === String(item.id))
          || catalog.find(x => esc(x.name) === item.name);
-  return p ? esc(p.image || '') : '';
+  if (p && p.image) return esc(p.image);
+  // Foto gravada no pedido: só serve se for caminho ou URL inteira
+  if (item.image && !item.image.startsWith('data:')) return item.image;
+  return '';
 }
 
 function openOrderDetail(supabaseId) {
@@ -537,9 +683,9 @@ function openOrderDetail(supabaseId) {
             return `
             <div class="order-detail__item">
               <div class="order-detail__item-info">
-                ${img
-                  ? `<img class="order-detail__item-img" src="${img}" alt="${i.name}" loading="lazy" onerror="this.classList.add('is-broken')">`
-                  : `<span class="order-detail__item-img order-detail__item-img--empty"><i class="bi bi-image"></i></span>`}
+                <img class="order-detail__item-img" src="${img || _ORDER_ITEM_FALLBACK_IMG}"
+                     alt="${i.name}" loading="lazy"
+                     onerror="this.onerror=null;this.src='${_ORDER_ITEM_FALLBACK_IMG}'">
                 <div>
                   <strong>${i.name}</strong><br>
                   <small style="color:var(--warm-gray)">Tam.: ${i.size||'—'} — Qtd: ${i.qty||1}</small>
@@ -2620,4 +2766,21 @@ function clearNotifications() {
 
 
 // ── Init page ─────────────────────────────────────────────────
-goTo('dashboard');
+/* Ordem importa: primeiro o que está salvo no banco, depois o merge com o
+   catálogo estático e só então as gravações são liberadas. */
+(async function iniciarPainel() {
+  try {
+    await carregarPainelDaNuvem();
+  } catch (e) {
+    toast('Não foi possível carregar os dados do servidor. Usando o que está neste navegador.', 'error');
+    CatalogDB.disponivel = false;
+    _mem.products = JSON.parse(localStorage.getItem('cf_products') || 'null');
+    _mem.settings = JSON.parse(localStorage.getItem('cf_settings')  || 'null') || {};
+  }
+  initData();
+  _nuvemPronta = true;
+  /* initData pode ter criado/atualizado produtos do catálogo — grava agora */
+  if (CatalogDB.disponivel) salvarProdutosNaNuvem(DB.get('products'));
+  else                      _gravarLocal('products', DB.get('products'));
+  goTo('dashboard');
+})();

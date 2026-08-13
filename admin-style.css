@@ -653,6 +653,25 @@ textarea.form-input { min-height: 80px; }
 
 
 /* ============================================================
+   AVISO — banco do painel ainda não configurado
+============================================================ */
+.db-warning {
+  display: flex; align-items: flex-start; gap: 12px;
+  margin-bottom: 22px; padding: 14px 18px;
+  border-radius: 12px;
+  background: rgba(251,191,36,.12);
+  border: 1.5px solid rgba(217,119,6,.35);
+  border-left: 4px solid #d97706;
+  font-size: 13px; line-height: 1.6; color: var(--ink);
+}
+.db-warning i { color: #d97706; font-size: 17px; margin-top: 1px; }
+.db-warning code {
+  background: rgba(74,64,64,.08); padding: 1px 6px; border-radius: 5px;
+  font-size: 12px;
+}
+
+
+/* ============================================================
    PRODUTO — peças vendidas separadamente
 ============================================================ */
 .pf-pieces-switch {
@@ -1065,12 +1084,6 @@ textarea.form-input { min-height: 80px; }
   border-radius: 7px; background: #fff;
   border: 1px solid rgba(212,103,154,.18);
 }
-.order-detail__item-img--empty,
-.order-detail__item-img.is-broken {
-  display: flex; align-items: center; justify-content: center;
-  color: rgba(212,103,154,.35); font-size: 18px;
-}
-.order-detail__item-img.is-broken { object-fit: none; }
 
 .status-select {
   padding: 7px 12px; border-radius: 8px;

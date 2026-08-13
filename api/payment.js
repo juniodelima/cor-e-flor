@@ -24,9 +24,10 @@ module.exports = async function handler(req, res) {
     process.env.SUPABASE_SERVICE_ROLE_KEY
   );
 
-  // ── Preços definidos no painel (promoção e peças avulsas) ────────────────
-  // site_settings só é gravável por admin, então esses valores são confiáveis.
-  let promoPrices = {}, adminPieces = {};
+  // ── Preços definidos no painel ───────────────────────────────────────────
+  // A tabela `products` e site_settings só são graváveis por administrador,
+  // então servem como fonte de preço tanto quanto lib/prices.js.
+  let promoPrices = {}, adminPieces = {}, painel = {};
   try {
     const { data: cfg } = await sbAdmin
       .from('site_settings').select('key,value').in('key', ['promo_prices', 'product_pieces']);
@@ -37,27 +38,46 @@ module.exports = async function handler(req, res) {
   } catch (e) {
     console.warn('[payment] não foi possível ler site_settings:', e.message);
   }
+  try {
+    const ids = [...new Set(items.map(i => String(i.id)))];
+    const { data: rows } = await sbAdmin
+      .from('products').select('id,price,piece_options,status,stock').in('id', ids);
+    for (const row of rows || []) painel[String(row.id)] = row;
+  } catch (e) {
+    console.warn('[payment] não foi possível ler products:', e.message);
+  }
 
   // ── Calcula subtotal com preços do servidor ──────────────────────────────
   let subtotal = 0;
   const orderItems = [];
   for (const item of items) {
+    const row     = painel[String(item.id)];
     const catalog = PRICES[Number(item.id)];
-    if (!catalog) {
+
+    /* Preço de tabela: o do painel quando o produto foi editado lá, senão o
+       de lib/prices.js. Sem nenhum dos dois, o produto não existe. */
+    const rowPrice = row ? Number(row.price) : 0;
+    const basePrice = rowPrice > 0 ? rowPrice : (catalog ? catalog.price : 0);
+    if (!basePrice) {
       return res.status(400).json({ error: `Produto ${item.id} não encontrado` });
+    }
+    if (row && row.status && row.status !== 'active') {
+      return res.status(400).json({ error: `Produto ${item.id} não está mais à venda` });
     }
 
     // Promoção só vale se for mais barata que o preço de tabela
     const promoRaw = Number(promoPrices[String(item.id)]);
-    const promo = (promoRaw > 0 && promoRaw < catalog.price) ? promoRaw : null;
+    const promo = (promoRaw > 0 && promoRaw < basePrice) ? promoRaw : null;
 
     // Peças avulsas cadastradas no painel valem junto com as do catálogo fixo
-    const painelPieces = (Array.isArray(adminPieces[String(item.id)]) ? adminPieces[String(item.id)] : [])
-      .map(pc => Number(pc && pc.price)).filter(n => n > 0);
+    const pecasDoPainel = [
+      ...(Array.isArray(row?.piece_options) ? row.piece_options : []),
+      ...(Array.isArray(adminPieces[String(item.id)]) ? adminPieces[String(item.id)] : []),
+    ].map(pc => Number(pc && pc.price)).filter(n => n > 0);
 
     let unitPrice;
     if (item.piecePrice != null) {
-      const allowed = [...(catalog.pieces || [catalog.price]), ...painelPieces];
+      const allowed = [...(catalog?.pieces || []), basePrice, ...pecasDoPainel];
       if (promo) allowed.push(promo);
       const valid   = allowed.some(p => Math.abs(p - Number(item.piecePrice)) < 0.02);
       if (!valid) {
@@ -66,13 +86,14 @@ module.exports = async function handler(req, res) {
       }
       unitPrice = Number(item.piecePrice);
     } else {
-      unitPrice = promo ?? catalog.price;
+      unitPrice = promo ?? basePrice;
     }
 
     const qty = Math.max(1, Math.min(Number(item.qty) || 1, 99));
     subtotal += unitPrice * qty;
     orderItems.push({
-      id:    Number(item.id),
+      // produtos criados no painel têm id em texto ("P8F3K2QA")
+      id:    Number.isFinite(Number(item.id)) ? Number(item.id) : String(item.id),
       name:  String(item.name  || `Produto ${item.id}`).slice(0, 160),
       image: String(item.image || '').slice(0, 400),
       size:  String(item.size  || '').slice(0, 20),

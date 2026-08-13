@@ -440,7 +440,7 @@
 
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-client.js?v=5"></script>
+<script src="supabase-client.js?v=6"></script>
 <script>
 'use strict';
 
@@ -710,9 +710,10 @@ const FRETE_FREE_MIN = 299;
 
 /* ========= CART STATE ========= */
 let cartState = JSON.parse(localStorage.getItem('cf_cart') || '[]');
-const adminProds = JSON.parse(localStorage.getItem('cf_products') || '[]');
 
-/* ========= FIND PRODUCT ========= */
+/* ========= FIND PRODUCT =========
+   O produto vem do catálogo. Se o id não estiver aqui, é uma peça cadastrada
+   no painel: nesse caso a página busca no banco antes de desistir. */
 const params = new URLSearchParams(window.location.search);
 const rawId = params.get('id');
 let product = null;
@@ -720,14 +721,43 @@ const numId = parseInt(rawId, 10);
 if (!isNaN(numId)) {
   product = CATALOG.find(p => p.id === numId);
 }
+/* Peça criada no painel: veio do banco na primeira passagem e ficou guardada
+   aqui para a página se montar já com ela (o resto do script é síncrono). */
 if (!product) {
-  product = adminProds.find(p => String(p.id) === String(rawId));
+  const guardado = sessionStorage.getItem('cf_produto_painel');
+  sessionStorage.removeItem('cf_produto_painel');
+  try {
+    const p = JSON.parse(guardado || 'null');
+    if (p && String(p.id) === String(rawId)) product = p;
+  } catch (e) { /* json inválido: cai na busca abaixo */ }
 }
-if (!product && adminProds.length > 0) {
-  product = adminProds[0];
-}
+
+/* Ainda sem produto: procura no banco uma única vez e recarrega com ele.
+   O contador evita qualquer chance de a página ficar recarregando à toa. */
 if (!product) {
-  window.location.href = 'index.html';
+  const jaTentou = sessionStorage.getItem('cf_produto_busca') === String(rawId);
+  if (jaTentou) {
+    sessionStorage.removeItem('cf_produto_busca');
+    window.location.href = 'index.html';
+  } else {
+    sessionStorage.setItem('cf_produto_busca', String(rawId));
+    (async function () {
+      try {
+        const { data, error } = await sb.from('products')
+          .select('*').eq('id', String(rawId)).eq('status', 'active').maybeSingle();
+        if (error || !data) throw new Error('não encontrado');
+        sessionStorage.setItem('cf_produto_painel', JSON.stringify(CatalogDB.fromRow(data)));
+        sessionStorage.removeItem('cf_produto_busca');
+        window.location.reload();
+      } catch (e) {
+        window.location.href = 'index.html';
+      }
+    })();
+  }
+  /* Objeto vazio só para o script não quebrar enquanto a busca acontece */
+  product = { id: rawId, name: '', category: '', price: 0, colors: [], sizes: [], images: [], image: '' };
+} else {
+  sessionStorage.removeItem('cf_produto_busca');
 }
 
 /* Normalise admin product format */
@@ -799,24 +829,65 @@ function aplicarOverridesNosRelacionados(overrides, promoPrices) {
   });
 }
 
+/* Nome, preço, descrição, fotos e tamanhos editados no painel valem sobre
+   o catálogo desta página. Devolve true quando alguma foto mudou. */
+function aplicarEdicaoDoPainel(edit) {
+  if (!edit) return false;
+  const fotosAntes = JSON.stringify(product.images || [product.image]);
+
+  if (edit.name)  product.name  = edit.name;
+  if (edit.price) product.price = edit.price;
+  product.originalPrice = edit.originalPrice > 0 ? edit.originalPrice : null;
+  if (edit.description) product.description = edit.description;
+  if (edit.sizes && edit.sizes.length)  product.sizes  = edit.sizes;
+  if (edit.colors && edit.colors.length && typeof _corParaObjeto === 'function') {
+    product.colors = edit.colors.map(_corParaObjeto);
+  }
+  if (edit.images && edit.images.length) { product.images = edit.images; product.image = edit.images[0]; }
+  else if (edit.image) { product.image = edit.image; product.images = [edit.image]; }
+  if (edit.pieceOptions && edit.pieceOptions.length) product.pieceOptions = edit.pieceOptions;
+
+  /* Textos que já estão na tela */
+  document.getElementById('prod-name').textContent = product.name;
+  document.getElementById('bc-name').textContent   = product.name;
+  document.getElementById('prod-desc').textContent = product.description || '';
+  document.title = product.name + ' | COR & FLOR';
+  mainImg.alt = product.name;
+
+  return JSON.stringify(product.images || [product.image]) !== fotosAntes;
+}
+
 (async function () {
   try {
     if (typeof ProductStatus === 'undefined') return;
-    const [overrides, promoPrices, piecesMap] = await Promise.all([
+    const [overrides, promoPrices, piecesMap, painel] = await Promise.all([
       ProductStatus.getAll(),
       typeof PromoPrices   !== 'undefined' ? PromoPrices.getAll()   : {},
       typeof ProductPieces !== 'undefined' ? ProductPieces.getAll() : {},
+      sb.from('products').select('*').eq('id', String(product.id)).maybeSingle()
+        .then(function (r) { return r.data ? CatalogDB.fromRow(r.data) : null; })
+        .catch(function () { return null; }),
     ]);
     const o = overrides[String(product.id)];
-    const active = o && o.active !== undefined ? o.active : (product.active !== false);
-    if (!active) { window.location.href = 'index.html'; return; }
-    productOutOfStock = !!(o && o.stock !== undefined && Number(o.stock) <= 0);
 
-    /* Promoção e peças definidas no painel valem sobre o catálogo */
+    /* Ativo/inativo e estoque: a tabela do painel manda; sem linha lá, vale
+       o product_status antigo. */
+    const active = painel ? painel.status === 'active'
+                 : (o && o.active !== undefined ? o.active : (product.active !== false));
+    if (!active) { window.location.href = 'index.html'; return; }
+
+    productOutOfStock = painel
+      ? Object.values(painel.stock || {}).reduce(function (a, b) { return a + (Number(b) || 0); }, 0) <= 0
+      : !!(o && o.stock !== undefined && Number(o.stock) <= 0);
+
+    const fotosMudaram = aplicarEdicaoDoPainel(painel);
+
+    /* Promoção por último: o preço riscado é o preço cheio do painel */
     if (typeof applyPromoPrice === 'function') applyPromoPrice(product, promoPrices[String(product.id)]);
     const pecas = piecesMap[String(product.id)];
-    if (Array.isArray(pecas) && pecas.length) product.pieceOptions = pecas;
+    if (!painel?.pieceOptions?.length && Array.isArray(pecas) && pecas.length) product.pieceOptions = pecas;
 
+    if (fotosMudaram) renderGaleria();
     renderPieceOptions();   /* redesenha peças, tamanhos e preço */
     applyStockUI();
     aplicarOverridesNosRelacionados(overrides, promoPrices);
@@ -968,12 +1039,18 @@ const thumbsEl  = document.getElementById('prod-thumbs');
 
 mainImg.alt = product.name;
 
-/* Monta lista de mídias: imagens + vídeo opcional */
-const rawImages = (product.images && product.images.length > 0) ? product.images : [product.image];
-const mediaList = rawImages.map(function(src) { return { type: 'image', src: src }; });
-if (product.video) {
-  mediaList.push({ type: 'video', src: product.video, poster: rawImages[0] });
+/* Lista de mídias: imagens + vídeo opcional. Fica em função porque as fotos
+   podem ser trocadas no painel e chegarem depois. */
+let mediaList = [];
+function montarMediaList() {
+  const rawImages = (product.images && product.images.length > 0) ? product.images : [product.image];
+  mediaList = rawImages.filter(Boolean).map(function(src) { return { type: 'image', src: src }; });
+  if (product.video) {
+    mediaList.push({ type: 'video', src: product.video, poster: rawImages[0] });
+  }
+  if (!mediaList.length) mediaList = [{ type: 'image', src: '' }];
 }
+montarMediaList();
 
 function showMedia(media, thumbDiv) {
   thumbsEl.querySelectorAll('.prod-thumb').forEach(function(t) { t.classList.remove('active'); });
@@ -993,34 +1070,37 @@ function showMedia(media, thumbDiv) {
   }
 }
 
-/* Exibe primeira mídia */
-showMedia(mediaList[0], null);
+function renderGaleria() {
+  montarMediaList();
+  thumbsEl.innerHTML = '';
+  showMedia(mediaList[0], null);
 
-/* Thumbnails */
-mediaList.forEach(function(media, i) {
-  const div = document.createElement('div');
-  div.className = 'prod-thumb' + (i === 0 ? ' active' : '');
+  mediaList.forEach(function(media, i) {
+    const div = document.createElement('div');
+    div.className = 'prod-thumb' + (i === 0 ? ' active' : '');
 
-  if (media.type === 'video') {
-    div.className += ' prod-thumb--video';
-    const img = document.createElement('img');
-    img.src = media.poster || '';
-    img.alt = 'Vídeo';
-    const icon = document.createElement('span');
-    icon.className = 'prod-thumb-play';
-    icon.innerHTML = '&#9654;';
-    div.appendChild(img);
-    div.appendChild(icon);
-  } else {
-    const img = document.createElement('img');
-    img.src = media.src;
-    img.alt = product.name;
-    div.appendChild(img);
-  }
+    if (media.type === 'video') {
+      div.className += ' prod-thumb--video';
+      const img = document.createElement('img');
+      img.src = media.poster || '';
+      img.alt = 'Vídeo';
+      const icon = document.createElement('span');
+      icon.className = 'prod-thumb-play';
+      icon.innerHTML = '&#9654;';
+      div.appendChild(img);
+      div.appendChild(icon);
+    } else {
+      const img = document.createElement('img');
+      img.src = media.src;
+      img.alt = product.name;
+      div.appendChild(img);
+    }
 
-  div.addEventListener('click', function() { showMedia(media, div); });
-  thumbsEl.appendChild(div);
-});
+    div.addEventListener('click', function() { showMedia(media, div); });
+    thumbsEl.appendChild(div);
+  });
+}
+renderGaleria();
 
 /* ========= OPÇÕES DE PEÇAS (conjuntos vendidos separadamente) =========
    As peças podem vir do catálogo ou do painel (site_settings.product_pieces),
