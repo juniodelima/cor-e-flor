@@ -29,7 +29,7 @@
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Raleway:wght@300;400;500;600&display=swap" onload="this.rel='stylesheet'">
 <noscript><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet"></noscript>
 
-<link rel="stylesheet" href="styles.css?v=4" />
+<link rel="stylesheet" href="styles.css?v=6" />
 <style>
   .cat-page { padding: clamp(100px,12vw,160px) 0 clamp(80px,10vw,120px); background: var(--cream); }
   .cat-page__head {
@@ -159,7 +159,10 @@
       <a href="categoria.html?cat=vestidos">Vestidos &amp; Saias</a>
       <a href="categoria.html?cat=blusas">Blusas &amp; Tops</a>
       <a href="categoria.html?cat=conjuntos">Conjuntos</a>
-      <a href="categoria.html?cat=calcas">Calças &amp; Shorts</a>
+      <a href="categoria.html?cat=calcas">Calças</a>
+      <a href="categoria.html?cat=shorts">Shorts</a>
+      <a href="categoria.html?cat=macacoes">Macacões</a>
+      <a href="categoria.html?cat=macaquinhos">Macaquinhos</a>
       <a href="categoria.html?cat=blazers">Blazers &amp; Coletes</a>
     </div>
     <div class="foot__col">
@@ -200,16 +203,19 @@
 </aside>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-client.js?v=4"></script>
+<script src="supabase-client.js?v=5"></script>
 <script src="products-data.js?v=4"></script>
 <script>
 /* ---- Config de categorias ---- */
 const CAT_CONFIG = {
-  conjuntos: { label: 'Conjuntos',        eyebrow: 'CONJUNTOS & MACACÕES', test: p => /conjuntos|conjunto/i.test(p.category) },
-  blusas:    { label: 'Blusas & Tops',    eyebrow: 'BLUSAS & TOPS',        test: p => /blusas|blusa|regata|body/i.test(p.category) },
-  vestidos:  { label: 'Vestidos & Saias', eyebrow: 'VESTIDOS & SAIAS',     test: p => /vestidos|vestido|saia/i.test(p.category) },
-  calcas:    { label: 'Calças & Shorts',  eyebrow: 'CALÇAS & SHORTS',      test: p => /calcas|calça/i.test(p.category) },
-  blazers:   { label: 'Blazers & Coletes',eyebrow: 'BLAZERS & COLETES',    test: p => /blazers|blazer/i.test(p.category) },
+  conjuntos:    { label: 'Conjuntos',        eyebrow: 'CONJUNTOS',         test: p => /conjuntos|conjunto/i.test(p.category) },
+  blusas:       { label: 'Blusas & Tops',    eyebrow: 'BLUSAS & TOPS',     test: p => /blusas|blusa|regata|body/i.test(p.category) },
+  vestidos:     { label: 'Vestidos & Saias', eyebrow: 'VESTIDOS & SAIAS',  test: p => /vestidos|vestido|saia/i.test(p.category) },
+  calcas:       { label: 'Calças',           eyebrow: 'CALÇAS',            test: p => /calcas|calça/i.test(p.category) },
+  shorts:       { label: 'Shorts',           eyebrow: 'SHORTS',            test: p => /shorts|short/i.test(p.category) },
+  macacoes:     { label: 'Macacões',         eyebrow: 'MACACÕES',          test: p => /macacoes|macacão|macacao/i.test(p.category) },
+  macaquinhos:  { label: 'Macaquinhos',      eyebrow: 'MACAQUINHOS',       test: p => /macaquinhos|macaquinho/i.test(p.category) },
+  blazers:      { label: 'Blazers & Coletes',eyebrow: 'BLAZERS & COLETES', test: p => /blazers|blazer/i.test(p.category) },
 };
 
 const BRL = n => 'R$ ' + Number(n).toFixed(2).replace('.', ',');

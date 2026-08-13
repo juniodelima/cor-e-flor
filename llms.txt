@@ -13,8 +13,8 @@
 
 - [Vestidos & Saias](https://coreflor.com.br/categoria.html?cat=vestidos): 7 peças
 - [Blusas & Tops](https://coreflor.com.br/categoria.html?cat=blusas): 11 peças
-- [Conjuntos & Macacões](https://coreflor.com.br/categoria.html?cat=conjuntos): 15 peças
-- [Calças & Shorts](https://coreflor.com.br/categoria.html?cat=calcas): 2 peças
+- [Conjuntos](https://coreflor.com.br/categoria.html?cat=conjuntos): 15 peças
+- [Calças](https://coreflor.com.br/categoria.html?cat=calcas): 2 peças
 - [Blazers & Coletes](https://coreflor.com.br/categoria.html?cat=blazers): 3 peças
 
 ## Atendimento

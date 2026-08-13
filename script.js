@@ -29,14 +29,20 @@ const productOverridesReady = (typeof applyProductOverrides === 'function')
 
 /* ---------- CATEGORY CAROUSELS ---------- */
 const DISPLAY_CATS = [
-  { key: 'conjuntos', label: 'Conjuntos',       eyebrow: 'CONJUNTOS & MACACÕES',
+  { key: 'conjuntos', label: 'Conjuntos',       eyebrow: 'CONJUNTOS',
     test: p => /conjuntos|conjunto/i.test(p.category) },
   { key: 'blusas',    label: 'Blusas & Tops',   eyebrow: 'BLUSAS & TOPS',
     test: p => /blusas|blusa|regata|body/i.test(p.category) },
   { key: 'vestidos',  label: 'Vestidos & Saias', eyebrow: 'VESTIDOS & SAIAS',
     test: p => /vestidos|vestido|saia/i.test(p.category) },
-  { key: 'calcas',    label: 'Calças & Shorts',  eyebrow: 'CALÇAS & SHORTS',
+  { key: 'calcas',    label: 'Calças',           eyebrow: 'CALÇAS',
     test: p => /calcas|calça/i.test(p.category) },
+  { key: 'shorts',    label: 'Shorts',           eyebrow: 'SHORTS',
+    test: p => /shorts|short/i.test(p.category) },
+  { key: 'macacoes',  label: 'Macacões',         eyebrow: 'MACACÕES',
+    test: p => /macacoes|macacão|macacao/i.test(p.category) },
+  { key: 'macaquinhos', label: 'Macaquinhos',    eyebrow: 'MACAQUINHOS',
+    test: p => /macaquinhos|macaquinho/i.test(p.category) },
   { key: 'blazers',   label: 'Blazers & Coletes', eyebrow: 'BLAZERS & COLETES',
     test: p => /blazers|blazer/i.test(p.category) },
 ];
@@ -421,11 +427,12 @@ function renderCart() {
   cartState.forEach((it, idx) => {
     const p = products.find(x => x.id === it.id);
     if (!p) return;
-    subtotal += p.price * it.qty;
+    const preco = it.piecePrice ?? p.price;
+    subtotal += preco * it.qty;
     count += it.qty;
 
     const li = document.createElement("li");
-    li.className = "cart__item";
+    li.className = "cart__item" + (p.outOfStock ? " is-soldout" : "");
     li.innerHTML = `
       <div class="cart__item-img">
         <button class="cart__item-img-x" data-remove="${idx}" aria-label="Remover">×</button>
@@ -434,13 +441,14 @@ function renderCart() {
       <div class="cart__item-body">
         <h4 class="cart__item-name">${p.name}</h4>
         <span class="cart__item-size">Tamanho ${it.size}</span>
+        ${p.outOfStock ? '<span class="cart__item-soldout">Esgotado — remova para finalizar</span>' : ''}
         <div class="cart__qty">
           <button data-q="-1" data-i="${idx}" aria-label="Diminuir"><svg width="14" height="14"><use href="#i-minus"/></svg></button>
           <span>${it.qty}</span>
           <button data-q="1" data-i="${idx}" aria-label="Aumentar"><svg width="14" height="14"><use href="#i-plus"/></svg></button>
         </div>
       </div>
-      <div class="cart__item-price">${BRL(p.price * it.qty)}</div>
+      <div class="cart__item-price">${BRL(preco * it.qty)}</div>
     `;
     cartList.appendChild(li);
   });
@@ -505,6 +513,8 @@ document.getElementById('cart-coupons')?.addEventListener('click', e => {
 });
 
 renderCart();
+/* Quando o painel responde (esgotado/promoção), o carrinho se atualiza */
+productOverridesReady.then(renderCart);
 
 document.getElementById("open-cart").addEventListener("click", openCart);
 document.getElementById("close-cart").addEventListener("click", closeCart);
@@ -533,7 +543,7 @@ cartList.addEventListener("click", e => {
 function addToCart(id){
   const p = products.find(x => x.id === id);
   if (!p) return;
-  if (p.outOfStock) { toast('Sem estoque no momento'); return; }
+  if (p.outOfStock) { toast('Produto esgotado — avisamos quando voltar ✿'); return; }
   const existing = cartState.find(x => x.id === id);
   if (existing) existing.qty += 1;
   else cartState.push({ id, qty: 1, size: p.sizes[0] || 'Único', color: p.colors[0]?.hex || p.colors[0] || '' });
@@ -758,6 +768,13 @@ function closeCheckout() {
 
 document.querySelector('.cart__cta')?.addEventListener('click', () => {
   if (!cartState.length) { toast('Seu carrinho está vazio ✿'); return; }
+  // Peça esgotada não passa para o checkout
+  const esgotada = cartState.find(it => products.find(p => p.id === it.id)?.outOfStock);
+  if (esgotada) {
+    const nome = products.find(p => p.id === esgotada.id)?.name || 'Uma peça';
+    toast(`${nome} está esgotada — remova do carrinho para continuar`);
+    return;
+  }
   window.location.href = 'checkout.html';
 });
 document.getElementById('checkout-close')?.addEventListener('click', closeCheckout);

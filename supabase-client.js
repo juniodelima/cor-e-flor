@@ -144,18 +144,64 @@ const ProductStatus = {
   }
 };
 
+/* ---- Preço promocional das Promos do Dia ----
+   site_settings.promo_prices = { [productId]: novoPreço }. O preço antigo
+   vira o "de" riscado. O servidor (api/payment.js) lê a mesma chave, então
+   o valor cobrado no cartão é sempre o daqui. */
+const PromoPrices = {
+  async getAll() {
+    try { return (await SiteSettings.get('promo_prices')) || {}; }
+    catch { return {}; }
+  },
+  async set(map) { return SiteSettings.set('promo_prices', map || {}); }
+};
+
+/* ---- Peças vendidas separadamente (conjuntos) ----
+   site_settings.product_pieces = { [productId]: [{ name, price, sizes[] }] } */
+const ProductPieces = {
+  async getAll() {
+    try { return (await SiteSettings.get('product_pieces')) || {}; }
+    catch { return {}; }
+  },
+  async setOne(id, pieces) {
+    const all = await ProductPieces.getAll();
+    if (pieces && pieces.length) all[String(id)] = pieces;
+    else delete all[String(id)];
+    return SiteSettings.set('product_pieces', all);
+  }
+};
+
+/* Aplica um preço promocional sobre um produto, guardando o preço cheio
+   como "originalPrice" para a loja mostrar o valor riscado. */
+function applyPromoPrice(p, promoValue) {
+  const promo = Number(promoValue);
+  if (!promo || promo <= 0 || promo >= Number(p.price)) return p;
+  if (!p.originalPrice || Number(p.originalPrice) < Number(p.price)) p.originalPrice = p.price;
+  p.price      = promo;
+  p.promoPrice = promo;
+  return p;
+}
+
 /* Aplica os overrides do painel sobre uma lista de produtos: remove os
-   desativados e marca `outOfStock` nos que estão sem estoque. Muta o array
-   recebido (splice) para que referências existentes (const products = [...])
+   desativados, marca `outOfStock` nos que estão sem estoque, aplica o preço
+   promocional e as peças vendidas separadamente. Muta o array recebido
+   (splice) para que referências existentes (const products = [...])
    continuem válidas. */
 async function applyProductOverrides(list) {
-  const overrides = await ProductStatus.getAll();
+  const [overrides, promoPrices, piecesMap] = await Promise.all([
+    ProductStatus.getAll(),
+    PromoPrices.getAll(),
+    ProductPieces.getAll(),
+  ]);
   for (let i = list.length - 1; i >= 0; i--) {
     const p = list[i];
     const o = overrides[String(p.id)];
     const active = o && o.active !== undefined ? o.active : (p.active !== false);
     if (!active) { list.splice(i, 1); continue; }
     p.outOfStock = !!(o && o.stock !== undefined && Number(o.stock) <= 0);
+    applyPromoPrice(p, promoPrices[String(p.id)]);
+    const pieces = piecesMap[String(p.id)];
+    if (Array.isArray(pieces) && pieces.length) p.pieceOptions = pieces;
   }
   return list;
 }

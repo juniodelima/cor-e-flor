@@ -24,6 +24,20 @@ module.exports = async function handler(req, res) {
     process.env.SUPABASE_SERVICE_ROLE_KEY
   );
 
+  // ── Preços definidos no painel (promoção e peças avulsas) ────────────────
+  // site_settings só é gravável por admin, então esses valores são confiáveis.
+  let promoPrices = {}, adminPieces = {};
+  try {
+    const { data: cfg } = await sbAdmin
+      .from('site_settings').select('key,value').in('key', ['promo_prices', 'product_pieces']);
+    for (const row of cfg || []) {
+      if (row.key === 'promo_prices')   promoPrices = row.value || {};
+      if (row.key === 'product_pieces') adminPieces = row.value || {};
+    }
+  } catch (e) {
+    console.warn('[payment] não foi possível ler site_settings:', e.message);
+  }
+
   // ── Calcula subtotal com preços do servidor ──────────────────────────────
   let subtotal = 0;
   const orderItems = [];
@@ -33,9 +47,18 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ error: `Produto ${item.id} não encontrado` });
     }
 
+    // Promoção só vale se for mais barata que o preço de tabela
+    const promoRaw = Number(promoPrices[String(item.id)]);
+    const promo = (promoRaw > 0 && promoRaw < catalog.price) ? promoRaw : null;
+
+    // Peças avulsas cadastradas no painel valem junto com as do catálogo fixo
+    const painelPieces = (Array.isArray(adminPieces[String(item.id)]) ? adminPieces[String(item.id)] : [])
+      .map(pc => Number(pc && pc.price)).filter(n => n > 0);
+
     let unitPrice;
     if (item.piecePrice != null) {
-      const allowed = catalog.pieces || [catalog.price];
+      const allowed = [...(catalog.pieces || [catalog.price]), ...painelPieces];
+      if (promo) allowed.push(promo);
       const valid   = allowed.some(p => Math.abs(p - Number(item.piecePrice)) < 0.02);
       if (!valid) {
         console.warn(`[payment] preço inválido produto ${item.id}: ${item.piecePrice}`);
@@ -43,7 +66,7 @@ module.exports = async function handler(req, res) {
       }
       unitPrice = Number(item.piecePrice);
     } else {
-      unitPrice = catalog.price;
+      unitPrice = promo ?? catalog.price;
     }
 
     const qty = Math.max(1, Math.min(Number(item.qty) || 1, 99));

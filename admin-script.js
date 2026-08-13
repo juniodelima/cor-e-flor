@@ -107,7 +107,10 @@ function _normOrder(o) {
         state: esc(o.address?.estado), zip: esc(o.address?.cep),
       },
     },
-    items: (o.items||[]).map(i=>({name:esc(i.name||'—'),qty:i.qty||1,price:i.price||0,size:esc(i.size)})),
+    items: (o.items||[]).map(i=>({
+      id: i.id, name:esc(i.name||'—'), qty:i.qty||1, price:i.price||0,
+      size:esc(i.size), image: esc(i.image||''),
+    })),
     total: Number(o.total)||0, payment: 'credit_card',
     status: o.status||'novo', notes: esc(o.notes), createdAt: o.created_at,
   };
@@ -137,13 +140,30 @@ async function loadPhysical() {
 function _normCat(cat) {
   if (!cat) return 'outros';
   const c = cat.toLowerCase();
-  if (['vestidos','blusas','conjuntos','calcas','blazers','acessorios'].includes(c)) return c;
+  if (['vestidos','blusas','conjuntos','calcas','shorts','macacoes','macaquinhos','blazers','acessorios'].includes(c)) return c;
   if (c.includes('vest') || c.includes('saia')) return 'vestidos';
   if (c.includes('blazer') || c.includes('colete')) return 'blazers';
-  if (c.includes('calç') || c.includes('calc') || c.includes('short') || c.includes('jeans')) return 'calcas';
-  if (c.includes('conj') || c.includes('macac') || c.includes('look')) return 'conjuntos';
+  if (c.includes('macaquinho')) return 'macaquinhos';
+  if (c.includes('macac')) return 'macacoes';          // macacão / macacao
+  if (c.includes('short')) return 'shorts';
+  if (c.includes('calç') || c.includes('calc') || c.includes('jeans')) return 'calcas';
+  if (c.includes('conj') || c.includes('look')) return 'conjuntos';
   return 'blusas'; // blusa, body, regata, cropped, top, tule, corset, tricot
 }
+
+// Categorias usadas nos selects do painel (mesmos slugs da loja)
+const ADMIN_CATEGORIES = [
+  ['vestidos',    'Vestidos & Saias'],
+  ['blusas',      'Blusas & Tops'],
+  ['conjuntos',   'Conjuntos'],
+  ['calcas',      'Calças'],
+  ['shorts',      'Shorts'],
+  ['macacoes',    'Macacões'],
+  ['macaquinhos', 'Macaquinhos'],
+  ['blazers',     'Blazers'],
+  ['acessorios',  'Acessórios'],
+];
+const CAT_LABELS = Object.fromEntries(ADMIN_CATEGORIES);
 
 // Fotos do catálogo são arquivos da pasta assets/ — só products-data.js sabe o
 // caminho certo. O admin só consegue criar foto por upload (data:) ou IA (http),
@@ -171,6 +191,7 @@ function _normProduct(p, existing) {
       : []),
     sizes:     existing?.sizes  ?? p.sizes  ?? [],
     stock:     existing?.stock  ?? p.stock  ?? { P:0, M:0, G:0, GG:0 },
+    pieceOptions: existing?.pieceOptions ?? p.pieceOptions ?? [],
     status:    existing?.status ?? p.status ?? 'active',
     createdAt: existing?.createdAt ?? p.createdAt ?? now(),
   };
@@ -228,7 +249,7 @@ function goTo(sec) {
   if (sec === 'dashboard') Promise.all([loadOrders(), loadPhysical()]).then(renderDashboard);
   if (sec === 'orders')    loadOrders().then(renderOrders);
   if (sec === 'products')  renderProducts();
-  if (sec === 'physical')  loadPhysical().then(() => { populateCatalogSelect(); renderPhysicalSales(); updateSalePreview(); });
+  if (sec === 'physical')  loadPhysical().then(() => { renderPhysicalForm(); renderPhysicalSales(); updateSalePreview(); });
   if (sec === 'metrics')   Promise.all([loadOrders(), loadPhysical()]).then(() => setTimeout(renderMetrics, 50));
   if (sec === 'customers') loadOrders().then(renderCustomers);
   if (sec === 'inventory') renderInventory();
@@ -394,7 +415,7 @@ function renderOrders() {
   const sorted  = [...filtered].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
 
   document.getElementById('orders-tbody').innerHTML = sorted.length ? sorted.map(o => `
-    <tr>
+    <tr class="row-clickable" onclick="openOrderDetail('${o._id}')" title="Clique para ver o pedido completo">
       <td><strong>${o.id}</strong></td>
       <td>
         <div style="font-weight:500">${o.customer.name}</div>
@@ -411,7 +432,7 @@ function renderOrders() {
       <td><span class="badge badge--${STATUS_CSS[o.status]||o.status}"><span class="status-dot status-dot--${STATUS_CSS[o.status]||o.status}"></span> ${STATUS_LABELS[o.status]||o.status}</span></td>
       <td style="white-space:nowrap;font-size:12px">${fmtDateTime(o.createdAt)}</td>
       <td>
-        <div class="td-actions">
+        <div class="td-actions" onclick="event.stopPropagation()">
           <button class="btn-icon" title="Ver detalhes" onclick="openOrderDetail('${o._id}')"><i class="bi bi-eye"></i></button>
           <select class="status-select" onchange="updateOrderStatus('${o._id}',this.value)" title="Alterar status">
             ${STATUSES.map(s=>`<option value="${s}"${o.status===s?' selected':''}>${STATUS_LABELS[s]}</option>`).join('')}
@@ -471,6 +492,18 @@ function restoreStockForOrder(order) {
   }
 }
 
+// Foto do item do pedido: usa a que foi gravada na compra e, se o pedido for
+// antigo (sem foto), procura o produto no catálogo pelo id ou pelo nome.
+function _orderItemImage(item) {
+  // data: URI gravado no pedido vem cortado (o servidor limita o tamanho),
+  // então nesse caso vale mais procurar a foto no catálogo.
+  if (item.image && !item.image.startsWith('data:')) return item.image;
+  const catalog = (typeof products !== 'undefined' ? products : []);
+  const p = catalog.find(x => String(x.id) === String(item.id))
+         || catalog.find(x => esc(x.name) === item.name);
+  return p ? esc(p.image || '') : '';
+}
+
 function openOrderDetail(supabaseId) {
   const o = _cache.orders.find(o=>o._id===supabaseId);
   if (!o) return;
@@ -499,12 +532,22 @@ function openOrderDetail(supabaseId) {
       <div class="order-detail__section">
         <h5>🛍️ Itens do Pedido</h5>
         <div class="order-detail__items">
-          ${o.items.map(i=>`
+          ${o.items.map(i=>{
+            const img = _orderItemImage(i);
+            return `
             <div class="order-detail__item">
-              <div><strong>${i.name}</strong><br><small style="color:var(--warm-gray)">Tam.: ${i.size||'—'} — Qtd: ${i.qty||1}</small></div>
+              <div class="order-detail__item-info">
+                ${img
+                  ? `<img class="order-detail__item-img" src="${img}" alt="${i.name}" loading="lazy" onerror="this.classList.add('is-broken')">`
+                  : `<span class="order-detail__item-img order-detail__item-img--empty"><i class="bi bi-image"></i></span>`}
+                <div>
+                  <strong>${i.name}</strong><br>
+                  <small style="color:var(--warm-gray)">Tam.: ${i.size||'—'} — Qtd: ${i.qty||1}</small>
+                </div>
+              </div>
               <strong style="color:var(--rose-deep)">${fmtBRL(i.price*(i.qty||1))}</strong>
-            </div>
-          `).join('')}
+            </div>`;
+          }).join('')}
         </div>
         <div style="display:flex;justify-content:space-between;padding:14px 14px 0;font-weight:600;font-family:var(--serif);font-size:16px">
           <span>Total</span><span style="color:var(--rose-deep)">${fmtBRL(o.total)}</span>
@@ -624,8 +667,6 @@ function renderProducts() {
     const matchStatus = !status || p.status === status;
     return matchSearch && matchCat && matchStatus;
   });
-
-  const CAT_LABELS = {vestidos:'Vestidos',blusas:'Blusas',conjuntos:'Conjuntos',calcas:'Calças',blazers:'Blazers',acessorios:'Acessórios'};
 
   document.getElementById('products-grid').innerHTML = filtered.length ? filtered.map(p => {
     const stock = p.stock || {};
@@ -754,8 +795,8 @@ function openProductModal(id) {
         </div>
         <div class="form-group">
           <label class="form-label">Categoria *</label>
-          <select class="form-select" id="pf-cat">
-            ${[['vestidos','Vestidos & Saias'],['blusas','Blusas & Tops'],['conjuntos','Conjuntos'],['calcas','Calças'],['blazers','Blazers'],['acessorios','Acessórios']].map(([v,l])=>`<option value="${v}"${p?.category===v?' selected':''}>${l}</option>`).join('')}
+          <select class="form-select" id="pf-cat" onchange="onProductCategoryChange()">
+            ${ADMIN_CATEGORIES.map(([v,l])=>`<option value="${v}"${p?.category===v?' selected':''}>${l}</option>`).join('')}
           </select>
         </div>
       </div>
@@ -810,6 +851,27 @@ function openProductModal(id) {
       </div>
       <p class="form-label" style="margin-bottom:10px">Estoque por Tamanho</p>
       <div class="form-row" id="pf-stock-container" style="flex-wrap:wrap;gap:10px"></div>
+
+      <div class="modal-section-divider"><span>Peças vendidas separadamente</span></div>
+      <label class="pf-pieces-switch">
+        <input type="checkbox" id="pf-has-pieces" ${p?.pieceOptions?.length ? 'checked' : ''} onchange="togglePieceSection()">
+        <span>Vender as peças deste conjunto separadamente</span>
+      </label>
+      <p class="pf-pieces-note" id="pf-pieces-hint" style="display:${p?.category === 'conjuntos' ? '' : 'none'}">
+        <i class="bi bi-lightbulb"></i> Conjunto costuma ser vendido também peça a peça — cadastre cada peça com o preço e os tamanhos dela.
+      </p>
+      <div id="pf-pieces-wrap" style="display:${p?.pieceOptions?.length ? '' : 'none'}">
+        <div id="pf-pieces-list"></div>
+        <button type="button" class="btn-outline" style="width:100%;justify-content:center;margin-top:8px;border-style:dashed;padding:9px"
+                onclick="addPieceRow()">
+          <i class="bi bi-plus-lg"></i> Adicionar peça
+        </button>
+        <p class="pf-pieces-note">
+          A primeira opção é a que aparece marcada na loja. Deixe o conjunto completo em primeiro
+          lugar para quem quiser levar tudo.
+        </p>
+      </div>
+
       <div class="form-group">
         <label class="form-label">Status</label>
         <select class="form-select" id="pf-status">
@@ -831,10 +893,98 @@ function openProductModal(id) {
       </p>`}
     </form>
   `;
+  window._pfPieces = (p?.pieceOptions || []).map(pc => ({
+    name:  pc.name  || '',
+    price: pc.price ?? '',
+    sizes: Array.isArray(pc.sizes) ? [...pc.sizes] : [],
+  }));
+
   document.getElementById('modal-overlay').classList.add('open');
   renderProductImages();
   renderAISlots();
   renderProductSizeStock();
+  renderPieceRows();
+}
+
+/* ── PEÇAS SEPARADAS (conjuntos) ───────────────────────────────
+   Cada peça tem nome, preço e tamanhos próprios: dá para vender o
+   conjunto completo e também só a calça, só o top, etc. */
+function onProductCategoryChange() {
+  const cat  = document.getElementById('pf-cat')?.value;
+  const hint = document.getElementById('pf-pieces-hint');
+  if (hint) hint.style.display = (cat === 'conjuntos') ? '' : 'none';
+}
+
+function togglePieceSection() {
+  const chk  = document.getElementById('pf-has-pieces');
+  const wrap = document.getElementById('pf-pieces-wrap');
+  if (!chk || !wrap) return;
+  wrap.style.display = chk.checked ? '' : 'none';
+  if (chk.checked && !(window._pfPieces || []).length) {
+    const price = parseFloat(document.getElementById('pf-price')?.value) || '';
+    window._pfPieces = [
+      { name: 'Conjunto completo', price, sizes: _pfCheckedSizes() },
+      { name: '', price: '', sizes: [] },
+    ];
+  }
+  renderPieceRows();
+}
+
+function _pfCheckedSizes() {
+  return [...document.querySelectorAll('.pf-size:checked')].map(c => c.value);
+}
+
+function addPieceRow() {
+  window._pfPieces = window._pfPieces || [];
+  window._pfPieces.push({ name: '', price: '', sizes: [] });
+  renderPieceRows();
+}
+
+function removePieceRow(i) {
+  window._pfPieces.splice(i, 1);
+  renderPieceRows();
+}
+
+function updatePieceField(i, field, value) {
+  if (!window._pfPieces?.[i]) return;
+  window._pfPieces[i][field] = value;
+}
+
+function togglePieceSize(i, size) {
+  const piece = window._pfPieces?.[i];
+  if (!piece) return;
+  const idx = piece.sizes.indexOf(size);
+  if (idx >= 0) piece.sizes.splice(idx, 1); else piece.sizes.push(size);
+  renderPieceRows();
+}
+
+function renderPieceRows() {
+  const list = document.getElementById('pf-pieces-list');
+  if (!list) return;
+  const pieces = window._pfPieces || [];
+  const sizes  = _pfCheckedSizes();
+
+  list.innerHTML = pieces.map((pc, i) => `
+    <div class="pf-piece-row">
+      <div class="pf-piece-row__top">
+        <input type="text" class="form-input" placeholder="Nome da peça (ex.: Somente a calça)"
+               value="${esc(pc.name)}" oninput="updatePieceField(${i},'name',this.value)">
+        <input type="number" class="form-input pf-piece-row__price" placeholder="Preço" step="0.01" min="0"
+               value="${pc.price === '' || pc.price == null ? '' : pc.price}"
+               oninput="updatePieceField(${i},'price',this.value)">
+        <button type="button" class="btn-icon btn-icon--danger" title="Remover peça"
+                onclick="removePieceRow(${i})"><i class="bi bi-trash"></i></button>
+      </div>
+      <div class="pf-piece-row__sizes">
+        ${sizes.length
+          ? sizes.map(sz => `
+              <button type="button" class="ps-chip${pc.sizes.includes(sz) ? ' is-active' : ''}"
+                      onclick="togglePieceSize(${i},'${sz}')">${sz}</button>`).join('') +
+            `<span class="pf-piece-row__hint">${pc.sizes.length ? 'tamanhos desta peça' : 'nenhum tamanho marcado — a peça usa os tamanhos do produto'}</span>`
+          : '<span class="pf-piece-row__hint">Marque os tamanhos do produto acima para escolher os desta peça.</span>'}
+      </div>
+    </div>`).join('') ||
+    '<p class="pf-pieces-note">Nenhuma peça cadastrada ainda.</p>';
 }
 
 function toggleSizeType() {
@@ -859,6 +1009,12 @@ function renderProductSizeStock() {
              value="${current[sz] ?? (existing[sz] ?? 0)}">
     </div>
   `).join('') : `<p style="font-size:12px;color:rgba(74,64,64,.5)">Selecione ao menos um tamanho acima.</p>`;
+
+  // Tamanho desmarcado no produto some também das peças separadas
+  (window._pfPieces || []).forEach(pc => {
+    pc.sizes = (pc.sizes || []).filter(sz => checked.includes(sz));
+  });
+  renderPieceRows();
 }
 
 // ── GALERIA DE FOTOS DO PRODUTO ───────────────────────────────
@@ -1361,6 +1517,18 @@ function _saveProductFromForm(id) {
   const gallery = [...(window._pfImages || [])];
   aiStudioState.selectedImages.forEach(url => { if (!gallery.includes(url)) gallery.push(url); });
 
+  /* Peças separadas: entram no produto só se tiverem nome e preço.
+     Sem tamanho marcado, a peça herda os tamanhos do produto. */
+  const wantsPieces = document.getElementById('pf-has-pieces')?.checked;
+  const pieceOptions = !wantsPieces ? [] : (window._pfPieces || [])
+    .map(pc => ({
+      name:  String(pc.name || '').trim(),
+      price: parseFloat(pc.price) || 0,
+      sizes: (pc.sizes || []).filter(sz => sizes.includes(sz)),
+    }))
+    .filter(pc => pc.name && pc.price > 0)
+    .map(pc => (pc.sizes.length ? pc : { name: pc.name, price: pc.price, sizes: [...sizes] }));
+
   const prod = {
     id: id || 'P' + uid(),
     name:          document.getElementById('pf-name').value.trim(),
@@ -1374,6 +1542,7 @@ function _saveProductFromForm(id) {
     sizes,
     sizeType,
     stock,
+    pieceOptions,
     status: document.getElementById('pf-status').value,
     createdAt: existing?.createdAt || now(),
   };
@@ -1390,12 +1559,18 @@ function _saveProductFromForm(id) {
   return prod;
 }
 
-// Envia status (ativo/inativo) e estoque total para o Supabase, para valerem na loja real.
+// Envia status (ativo/inativo), estoque total e peças avulsas para o Supabase,
+// que é de onde a loja e o servidor de pagamento leem esses dados.
 function _syncProductStatus(prod) {
   const stockTotal = Object.values(prod.stock || {}).reduce((a, b) => a + (Number(b) || 0), 0);
   ProductStatus.setOne(prod.id, { active: prod.status === 'active', stock: stockTotal }).catch(() => {
     toast('Produto salvo aqui, mas não foi possível sincronizar com a loja online.', 'error');
   });
+  if (prod.pieceOptions !== undefined) {
+    ProductPieces.setOne(prod.id, prod.pieceOptions).catch(() => {
+      toast('As peças separadas não foram sincronizadas com a loja online.', 'error');
+    });
+  }
 }
 
 // Ativa/desativa um produto direto no card, sem abrir o formulário completo.
@@ -1450,8 +1625,9 @@ async function openPromosModal() {
   const catalog = typeof products !== 'undefined' ? products : [];
   if (!catalog.length) { toast('Catálogo da loja não carregado.', 'error'); return; }
 
-  let selected = [];
+  let selected = [], promoPrices = {};
   try { selected = (await SiteSettings.get('promo_products')) || []; } catch {}
+  try { promoPrices = await PromoPrices.getAll(); } catch {}
   selected = selected.map(Number);
 
   document.getElementById('modal-body').innerHTML = `
@@ -1461,44 +1637,110 @@ async function openPromosModal() {
     </p>
     <p style="font-size:12px;color:rgba(74,64,64,.55);margin:0 0 16px;line-height:1.6">
       <i class="bi bi-magic"></i> Se nenhum produto for escolhido, a seleção fica <strong>automática</strong>:
-      o site sorteia entre os produtos em oferta e troca a cada 24 horas.
+      o site sorteia entre os produtos em oferta e troca a cada 24 horas.<br>
+      <i class="bi bi-tag"></i> O <strong>preço promocional</strong> é opcional — preenchido, passa a valer na loja
+      inteira (vitrine, página do produto e checkout) e o preço antigo aparece riscado. Em branco, o produto entra na
+      vitrine pelo preço normal.
     </p>
-    <div id="promo-pick-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;max-height:46vh;overflow-y:auto;padding:2px">
-      ${catalog.map(p => `
-        <label style="border:1.5px solid rgba(212,103,154,.25);border-radius:12px;padding:8px;cursor:pointer;display:flex;flex-direction:column;gap:6px;align-items:center;text-align:center;background:${selected.includes(Number(p.id))?'rgba(212,103,154,.07)':'#fff'}">
-          <input type="checkbox" class="promo-pick" value="${p.id}" ${selected.includes(Number(p.id))?'checked':''}
-                 onchange="limitPromoPicks(this)" style="accent-color:var(--rose);width:16px;height:16px">
-          <img src="${p.image}" style="width:100%;height:105px;object-fit:cover;border-radius:8px;background:var(--nude)" onerror="this.style.opacity='.3'">
-          <span style="font-size:12px;font-weight:500;line-height:1.3">${p.name}</span>
-          <span style="font-size:11px;color:var(--rose-deep);font-weight:600">${fmtBRL(p.price)}</span>
-        </label>`).join('')}
+    <div id="promo-pick-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;max-height:46vh;overflow-y:auto;padding:2px">
+      ${catalog.map(p => {
+        const isSel = selected.includes(Number(p.id));
+        const promo = promoPrices[String(p.id)];
+        return `
+        <div class="promo-pick-card${isSel ? ' is-selected' : ''}" id="promo-card-${p.id}">
+          <label style="cursor:pointer;display:flex;flex-direction:column;gap:6px;align-items:center;text-align:center">
+            <input type="checkbox" class="promo-pick" value="${p.id}" ${isSel ? 'checked' : ''}
+                   onchange="onPromoPickToggle(this)" style="accent-color:var(--rose);width:16px;height:16px">
+            <img src="${p.image}" style="width:100%;height:105px;object-fit:cover;border-radius:8px;background:var(--nude)" onerror="this.style.opacity='.3'">
+            <span style="font-size:12px;font-weight:500;line-height:1.3">${esc(p.name)}</span>
+            <span style="font-size:11px;color:var(--warm-gray)">de ${fmtBRL(p.price)}</span>
+          </label>
+          <div class="promo-price-field">
+            <span>R$</span>
+            <input type="number" class="promo-price" data-id="${p.id}" step="0.01" min="0"
+                   value="${promo != null ? promo : ''}" placeholder="promo"
+                   ${isSel ? '' : 'disabled'} oninput="previewPromoPrice(this, ${p.price})">
+          </div>
+          <span class="promo-price-hint" id="promo-hint-${p.id}"></span>
+        </div>`;
+      }).join('')}
     </div>
     <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
       <button class="btn-primary" style="flex:1;justify-content:center;min-width:150px" onclick="savePromoPicks(false)">
         <i class="bi bi-check-lg"></i> Salvar Promos
       </button>
-      <button class="btn-outline" onclick="savePromoPicks(true)" title="Limpa a seleção e volta ao sorteio automático diário">
+      <button class="btn-outline" onclick="savePromoPicks(true)" title="Limpa a seleção e os preços promocionais, voltando ao sorteio automático diário">
         <i class="bi bi-magic"></i> Modo automático
       </button>
       <button class="btn-outline" onclick="closeModal()">Cancelar</button>
     </div>`;
   document.getElementById('modal-overlay').classList.add('open');
+  // Mostra o desconto já calculado nos preços que vieram salvos
+  document.querySelectorAll('.promo-price').forEach(inp => {
+    const p = catalog.find(x => String(x.id) === inp.dataset.id);
+    if (p) previewPromoPrice(inp, p.price);
+  });
 }
 
-function limitPromoPicks(chk) {
+function onPromoPickToggle(chk) {
   if (document.querySelectorAll('.promo-pick:checked').length > 4) {
     chk.checked = false;
     toast('Máximo de 4 produtos nas Promos do Dia.', 'error');
   }
+  const card  = document.getElementById('promo-card-' + chk.value);
+  const price = card?.querySelector('.promo-price');
+  if (price) {
+    price.disabled = !chk.checked;
+    if (!chk.checked) { price.value = ''; previewPromoPrice(price, 0); }
+  }
+  card?.classList.toggle('is-selected', chk.checked);
+}
+
+// Mostra o % de desconto e avisa quando o valor digitado não é promoção
+function previewPromoPrice(input, fullPrice) {
+  const hint = document.getElementById('promo-hint-' + input.dataset.id);
+  if (!hint) return;
+  const v = parseFloat(input.value);
+  if (!v) { hint.textContent = ''; hint.className = 'promo-price-hint'; return; }
+  if (v >= fullPrice) {
+    hint.textContent = 'precisa ser menor que o preço atual';
+    hint.className = 'promo-price-hint is-error';
+    return;
+  }
+  hint.textContent = `-${Math.round((1 - v / fullPrice) * 100)}% na loja`;
+  hint.className = 'promo-price-hint is-ok';
 }
 
 async function savePromoPicks(autoMode) {
+  const catalog = typeof products !== 'undefined' ? products : [];
   const ids = autoMode ? [] : [...document.querySelectorAll('.promo-pick:checked')].map(c => Number(c.value));
-  const { error } = await SiteSettings.set('promo_products', ids);
-  if (error) { toast('Erro ao salvar: ' + error.message, 'error'); return; }
+
+  // Preços promocionais: só os produtos marcados, e só se realmente baratearem
+  const prices = {};
+  if (!autoMode) {
+    for (const inp of document.querySelectorAll('.promo-price')) {
+      const id = inp.dataset.id;
+      if (!ids.includes(Number(id)) || !inp.value) continue;
+      const v = parseFloat(inp.value);
+      const p = catalog.find(x => String(x.id) === id);
+      if (!v || v <= 0) continue;
+      if (p && v >= p.price) {
+        toast(`O preço promocional de "${p.name}" precisa ser menor que ${fmtBRL(p.price)}.`, 'error');
+        return;
+      }
+      prices[id] = v;
+    }
+  }
+
+  const r1 = await SiteSettings.set('promo_products', ids);
+  if (r1.error) { toast('Erro ao salvar: ' + r1.error.message, 'error'); return; }
+  const r2 = await PromoPrices.set(prices);
+  if (r2.error) { toast('Promos salvas, mas os preços não: ' + r2.error.message, 'error'); return; }
+
   closeModal();
+  const comPreco = Object.keys(prices).length;
   toast(ids.length
-    ? `${ids.length} produto(s) definidos como Promos do Dia!`
+    ? `${ids.length} produto(s) nas Promos do Dia${comPreco ? ` — ${comPreco} com preço promocional` : ''}!`
     : 'Promos do Dia em modo automático — troca a cada 24h.', 'success');
 }
 
@@ -1520,17 +1762,16 @@ async function submitPhysicalSale(e) {
     return;
   }
 
-  let productName, categoryVal, catalogProductId = null, saleSize = '';
+  let productName, categoryVal, catalogProductId = null, saleSize = _psSelection.size || '';
 
   if (isCatalog) {
     const sel = document.getElementById('ps-catalog-select');
     if (!sel.value) { toast('Selecione um produto do catálogo.', 'error'); if (btn) { btn.disabled = false; btn.textContent = 'Registrar Venda'; } return; }
-    const p = products.find(x => x.id === Number(sel.value));
+    const p = products.find(x => String(x.id) === String(sel.value));
     if (!p) { toast('Produto não encontrado.', 'error'); if (btn) { btn.disabled = false; btn.textContent = 'Registrar Venda'; } return; }
     productName      = p.name;
     categoryVal      = p.category;
     catalogProductId = String(p.id);
-    saleSize         = document.getElementById('ps-size-select')?.value || '';
   } else {
     productName = document.getElementById('ps-product-new')?.value.trim();
     categoryVal = document.getElementById('ps-category')?.value || 'outros';
@@ -1549,9 +1790,9 @@ async function submitPhysicalSale(e) {
     discount:           disc,
     total,
     payment:  document.getElementById('ps-payment').value,
-    seller:   document.getElementById('ps-seller').value.trim() || null,
+    seller:   null,
     customer: document.getElementById('ps-customer').value.trim() || null,
-    details:  document.getElementById('ps-details').value.trim() || null,
+    details:  [_psSelection.size, _psSelection.color].filter(Boolean).join(' / ') || null,
     notes:    document.getElementById('ps-notes').value.trim() || null,
   };
 
@@ -1562,8 +1803,9 @@ async function submitPhysicalSale(e) {
   e.target.reset();
   document.getElementById('ps-qty').value = 1;
   document.getElementById('ps-discount').value = 0;
+  _psSelection = { productId: '', size: '', color: '' };
   togglePsType('catalog');
-  populateCatalogSelect();
+  renderPhysicalForm();
   updateSalePreview();
   await loadPhysical();
   renderPhysicalSales();
@@ -1586,46 +1828,199 @@ function togglePsType(type) {
   if (type === 'new') {
     const priceInput = document.getElementById('ps-price');
     if (priceInput) priceInput.value = '';
+    _psSelection.productId = '';
+    const hidden = document.getElementById('ps-catalog-select');
+    if (hidden) hidden.value = '';
+    closePsPicker();
     updateSalePreview();
   }
+  renderPsSizeChips();
+  renderPsColorChips();
+  updatePsStockInfo();
 }
 
-function populateCatalogSelect() {
-  const sel = document.getElementById('ps-catalog-select');
-  if (!sel) return;
-  sel.innerHTML = '<option value="">— Selecione um produto —</option>' +
-    products.map(p =>
-      `<option value="${p.id}">${p.name} — ${fmtBRL(p.price)}</option>`
-    ).join('');
+/* ── Seleção da venda física ───────────────────────────────────
+   Produto escolhido num seletor com foto e tamanho/cor em botões,
+   para o balcão registrar a venda sem digitar nada. */
+let _psSelection = { productId: '', size: '', color: '' };
+
+const PS_LETTER_SIZES   = ['PP','P','M','G','GG','U'];
+const PS_NUMBER_SIZES   = ['34','36','38','40','42','44','46'];
+const PS_GENERIC_COLORS = ['Preto','Branco','Bege','Nude','Rosa','Vermelho','Azul','Verde','Marrom','Estampado'];
+
+const _psIsCatalogMode = () =>
+  document.querySelector('input[name="ps-prod-type"]:checked')?.value !== 'new';
+
+// Produto do catálogo da loja (nome, foto, preço)
+function _psCatalogProduct(id) {
+  return (typeof products !== 'undefined' ? products : [])
+    .find(p => String(p.id) === String(id));
+}
+// Mesmo produto no painel — é aqui que mora o estoque por tamanho
+function _psAdminProduct(id) {
+  return (DB.get('products') || []).find(p => String(p.id) === String(id));
 }
 
-function onCatalogSelect() {
-  const id = document.getElementById('ps-catalog-select').value;
-  const p  = products.find(x => x.id === Number(id));
-  const sizeSelect = document.getElementById('ps-size-select');
-  const stockInfo  = document.getElementById('ps-stock-info');
+function renderPhysicalForm() {
+  renderPsCatalogButton();
+  renderPsPickerList();
+  renderPsSizeChips();
+  renderPsColorChips();
+  updatePsStockInfo();
+}
+
+function renderPsCatalogButton() {
+  const btn = document.getElementById('ps-picker-btn');
+  if (!btn) return;
+  const p = _psCatalogProduct(_psSelection.productId);
+  btn.innerHTML = p
+    ? `<img class="ps-picker-btn__img" src="${p.image}" alt="" onerror="this.style.visibility='hidden'">
+       <span class="ps-picker-btn__name">${esc(p.name)}</span>
+       <span class="ps-picker-btn__price">${fmtBRL(p.price)}</span>
+       <i class="bi bi-chevron-down"></i>`
+    : `<span class="ps-picker-btn__placeholder">— Selecione um produto —</span>
+       <i class="bi bi-chevron-down"></i>`;
+}
+
+function togglePsPicker() {
+  const box = document.getElementById('ps-picker');
+  if (!box) return;
+  if (box.hidden) {
+    box.hidden = false;
+    renderPsPickerList();
+    document.getElementById('ps-picker-search')?.focus();
+  } else {
+    closePsPicker();
+  }
+}
+function closePsPicker() {
+  const box = document.getElementById('ps-picker');
+  if (box) box.hidden = true;
+}
+
+function renderPsPickerList() {
+  const list = document.getElementById('ps-picker-list');
+  if (!list) return;
+  const term = (document.getElementById('ps-picker-search')?.value || '').toLowerCase().trim();
+  const all  = (typeof products !== 'undefined' ? products : []);
+  const shown = term ? all.filter(p => p.name.toLowerCase().includes(term)) : all;
+
+  list.innerHTML = shown.length ? shown.map(p => `
+    <button type="button" class="ps-picker-item${String(p.id) === String(_psSelection.productId) ? ' is-selected' : ''}"
+            onclick="selectPsProduct('${p.id}')">
+      <img src="${p.image}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">
+      <span class="ps-picker-item__info">
+        <span class="ps-picker-item__name">${esc(p.name)}</span>
+        <span class="ps-picker-item__meta">${fmtBRL(p.price)}${_psStockBadge(p.id)}</span>
+      </span>
+    </button>`).join('')
+    : `<p class="ps-picker__empty">Nenhum produto com esse nome.</p>`;
+}
+
+function _psStockBadge(id) {
+  const adm = _psAdminProduct(id);
+  if (!adm) return '';
+  const total = Object.values(adm.stock || {}).reduce((a, b) => a + (Number(b) || 0), 0);
+  return total > 0 ? ` · ${total} em estoque` : ' · sem estoque';
+}
+
+function selectPsProduct(id) {
+  _psSelection.productId = String(id);
+  _psSelection.size  = '';
+  _psSelection.color = '';
+  const hidden = document.getElementById('ps-catalog-select');
+  if (hidden) hidden.value = String(id);
+
+  const p = _psCatalogProduct(id);
   const priceInput = document.getElementById('ps-price');
+  if (p && priceInput) priceInput.value = p.price;
 
-  if (!p) {
-    sizeSelect.innerHTML  = '<option value="">Todos / Único</option>';
-    if (stockInfo) stockInfo.textContent = 'Selecione um produto';
-    if (priceInput) priceInput.value = '';
-    updateSalePreview();
-    return;
-  }
-
-  sizeSelect.innerHTML = '<option value="">Todos / Único</option>' +
-    (p.sizes || []).map(sz => `<option value="${sz}">${sz}</option>`).join('');
-
-  if (priceInput) priceInput.value = p.price;
-  if (stockInfo) stockInfo.textContent = p.category || '';
-
+  closePsPicker();
+  const search = document.getElementById('ps-picker-search');
+  if (search) search.value = '';
+  renderPhysicalForm();
   updateSalePreview();
 }
 
-function onSizeSelect() {
-  // Stock data not tracked for site products
+// Tamanhos: do produto escolhido; no produto novo, a tabela padrão da loja
+function renderPsSizeChips() {
+  const box = document.getElementById('ps-size-chips');
+  if (!box) return;
+  const p = _psIsCatalogMode() ? _psCatalogProduct(_psSelection.productId) : null;
+  const sizes = p?.sizes?.length ? p.sizes
+              : (_psIsCatalogMode() && !p ? [] : [...PS_LETTER_SIZES, ...PS_NUMBER_SIZES]);
+
+  if (!sizes.length) {
+    box.innerHTML = '<span class="ps-chips__hint">Escolha um produto para ver os tamanhos.</span>';
+    return;
+  }
+  box.innerHTML = ['Único', ...sizes].map(sz => `
+    <button type="button" class="ps-chip${_psSelection.size === sz ? ' is-active' : ''}"
+            onclick="selectPsSize('${esc(sz)}')">${esc(sz)}</button>`).join('');
 }
+
+function selectPsSize(sz) {
+  _psSelection.size = (_psSelection.size === sz) ? '' : sz;
+  renderPsSizeChips();
+  updatePsStockInfo();
+}
+
+// Cores: as cadastradas no produto; no produto novo, uma paleta genérica
+function renderPsColorChips() {
+  const box = document.getElementById('ps-color-chips');
+  if (!box) return;
+  const p    = _psIsCatalogMode() ? _psCatalogProduct(_psSelection.productId) : null;
+  const cols = (p?.colors || []).map(c => (typeof c === 'string' ? c : c.name));
+  const list = cols.length ? cols : (_psIsCatalogMode() && !p ? [] : PS_GENERIC_COLORS);
+
+  if (!list.length) {
+    box.innerHTML = '<span class="ps-chips__hint">Escolha um produto para ver as cores.</span>';
+    return;
+  }
+  box.innerHTML = list.map(c => `
+    <button type="button" class="ps-chip${_psSelection.color === c ? ' is-active' : ''}"
+            onclick="selectPsColor('${esc(c).replace(/'/g, '&#39;')}')">${esc(c)}</button>`).join('');
+}
+
+function selectPsColor(c) {
+  const name = c.replace(/&#39;/g, "'");
+  _psSelection.color = (_psSelection.color === name) ? '' : name;
+  renderPsColorChips();
+}
+
+// Estoque real do produto (por tamanho quando há um selecionado)
+function updatePsStockInfo() {
+  const el = document.getElementById('ps-stock-info');
+  if (!el) return;
+  el.classList.remove('is-out', 'is-low');
+
+  if (!_psIsCatalogMode() || !_psSelection.productId) {
+    el.textContent = 'Selecione um produto';
+    return;
+  }
+  const adm = _psAdminProduct(_psSelection.productId);
+  if (!adm) { el.textContent = 'Estoque não cadastrado'; return; }
+
+  const stock = adm.stock || {};
+  const size  = _psSelection.size;
+  const hasSize = size && size !== 'Único' && stock[size] !== undefined;
+  const qty = hasSize
+    ? Number(stock[size]) || 0
+    : Object.values(stock).reduce((a, b) => a + (Number(b) || 0), 0);
+
+  el.textContent = hasSize
+    ? `${qty} un. no tamanho ${size}`
+    : `${qty} un. no total`;
+  if (qty === 0)      el.classList.add('is-out');
+  else if (qty <= 3)  el.classList.add('is-low');
+}
+
+// Fecha o seletor ao clicar fora dele
+document.addEventListener('click', e => {
+  const box = document.getElementById('ps-picker');
+  if (!box || box.hidden) return;
+  if (!box.contains(e.target) && !e.target.closest('#ps-picker-btn')) closePsPicker();
+});
 
 function renderPhysicalSales() {
   const physical = _cache.physical;
@@ -1661,11 +2056,10 @@ function renderPhysicalSales() {
         ${s.discount>0?`<div style="font-size:10px;color:var(--warm-gray)">desc. ${fmtBRL(s.discount)}</div>`:''}
       </td>
       <td>${PAYMNT_ICONS[s.payment]||''} ${PAYMENT_LABELS[s.payment]||s.payment}</td>
-      <td style="font-size:12px">${s.seller||'—'}</td>
       <td style="font-size:11px;white-space:nowrap">${fmtDateTime(s.createdAt)}</td>
       <td><button class="btn-icon btn-icon--danger" onclick="deletePhysical('${s._id}')" title="Remover"><i class="bi bi-trash"></i></button></td>
     </tr>
-  `).join('') : `<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--warm-gray)">Nenhuma venda no período selecionado.</td></tr>`;
+  `).join('') : `<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--warm-gray)">Nenhuma venda no período selecionado.</td></tr>`;
 }
 
 async function deletePhysical(supabaseId) {
@@ -1848,13 +2242,12 @@ function renderMetrics() {
     catMap[cat]=(catMap[cat]||0)+(i.price*(i.qty||1));
   }));
   physical.forEach(p=>{ catMap[p.category]=(catMap[p.category]||0)+p.total; });
-  const CAT_LABELS2 = {vestidos:'Vestidos',blusas:'Blusas',conjuntos:'Conjuntos',calcas:'Calças',blazers:'Blazers',acessorios:'Acessórios',outros:'Outros'};
   const catEntries = Object.entries(catMap).sort((a,b)=>b[1]-a[1]);
   destroyChart('category');
   charts.category = new Chart(document.getElementById('chart-category'), {
     type:'doughnut',
     data: {
-      labels: catEntries.map(([k])=>CAT_LABELS2[k]||k),
+      labels: catEntries.map(([k])=>CAT_LABELS[k]|| (k === 'outros' ? 'Outros' : k)),
       datasets:[{ data:catEntries.map(([,v])=>v), backgroundColor:[palette.rose,palette.deep,palette.gold,palette.green,palette.blue,palette.purple,palette.rose], borderWidth:0, hoverOffset:8 }]
     },
     options: { ...chartDefaults, cutout:'55%' },
@@ -1919,7 +2312,6 @@ function renderInventory() {
   if (prods.length === 0) { initData(); prods = DB.get('products') || []; }
   const products = prods;
   const filter   = document.getElementById('inv-filter')?.value || 'all';
-  const CAT_LABELS = {vestidos:'Vestidos',blusas:'Blusas',conjuntos:'Conjuntos',calcas:'Calças',blazers:'Blazers',acessorios:'Acessórios'};
 
   let list = products.filter(p => {
     const total = Object.values(p.stock || {}).reduce((a,b)=>a+Number(b),0);

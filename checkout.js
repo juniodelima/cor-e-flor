@@ -324,7 +324,7 @@ function renderUpsell() {
 
   const inCart = new Set(_cart.map(it => it.id));
   const picks = products
-    .filter(p => !inCart.has(p.id))
+    .filter(p => !inCart.has(p.id) && !p.outOfStock)   // não oferece peça esgotada
     .sort((a, b) => {
       const pa = a.originalPrice > a.price ? 1 - a.price / a.originalPrice : 0;
       const pb = b.originalPrice > b.price ? 1 - b.price / b.originalPrice : 0;
@@ -662,9 +662,39 @@ async function finalizeOrder(paymentId, paymentStatus, serverOrderId) {
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 
-document.addEventListener('DOMContentLoaded', () => {
+/* Tira do carrinho o que não pode mais ser vendido: produto esgotado ou
+   desativado no painel. Sem isso o cliente preencheria tudo e só descobriria
+   o problema na hora do pagamento. */
+function limparCarrinhoIndisponiveis() {
+  const removidos = [];
+  _cart = _cart.filter(it => {
+    const p = products.find(x => x.id === it.id);
+    if (!p || p.outOfStock) { removidos.push(p ? p.name : 'Um item'); return false; }
+    return true;
+  });
+  if (!removidos.length) return;
+
+  localStorage.setItem('cf_cart', JSON.stringify(_cart));
+  toast(removidos.length === 1
+    ? `${removidos[0]} está esgotado e saiu do carrinho.`
+    : `${removidos.length} peças esgotadas saíram do carrinho.`);
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
   try { _cart = JSON.parse(localStorage.getItem('cf_cart') || '[]'); } catch { _cart = []; }
   if (!_cart.length) { window.location.href = 'index.html'; return; }
+
+  /* Preço promocional e disponibilidade valem antes de somar qualquer coisa —
+     é o mesmo cálculo que o servidor refaz em /api/payment. */
+  if (typeof applyProductOverrides === 'function') {
+    try { await applyProductOverrides(products); } catch (e) { /* rede fora: segue com o catálogo */ }
+    limparCarrinhoIndisponiveis();
+    if (!_cart.length) {
+      toast('Seu carrinho ficou vazio — as peças escolhidas esgotaram.');
+      setTimeout(() => { window.location.href = 'index.html'; }, 3000);
+      return;
+    }
+  }
 
   // Pedido só com o produto de teste já entra sem frete
   if (_isTestOnlyCart()) {

@@ -30,13 +30,19 @@ export const LOJA = {
   horarioTexto: 'Segunda a sexta das 9h às 18h, sábado das 9h às 16h. Domingo fechado.',
 };
 
+/* Mesmas categorias da loja (script.js / categoria.html) — o `re` é o que
+   decide quais peças entram em cada categoria no sitemap e nos llms.txt */
 const CATEGORIAS = [
-  { slug: 'vestidos',  nome: 'Vestidos & Saias' },
-  { slug: 'blusas',    nome: 'Blusas & Tops' },
-  { slug: 'conjuntos', nome: 'Conjuntos & Macacões' },
-  { slug: 'calcas',    nome: 'Calças & Shorts' },
-  { slug: 'blazers',   nome: 'Blazers & Coletes' },
+  { slug: 'vestidos',    nome: 'Vestidos & Saias',   re: 'vestidos|vestido|saia' },
+  { slug: 'blusas',      nome: 'Blusas & Tops',      re: 'blusas|blusa|regata|body' },
+  { slug: 'conjuntos',   nome: 'Conjuntos',          re: 'conjuntos|conjunto' },
+  { slug: 'calcas',      nome: 'Calças',             re: 'calcas|calça' },
+  { slug: 'shorts',      nome: 'Shorts',             re: 'shorts|short' },
+  { slug: 'macacoes',    nome: 'Macacões',           re: 'macacoes|macacão|macacao' },
+  { slug: 'macaquinhos', nome: 'Macaquinhos',        re: 'macaquinhos|macaquinho' },
+  { slug: 'blazers',     nome: 'Blazers & Coletes',  re: 'blazers|blazer' },
 ];
+const pecasDaCategoria = (produtos, c) => produtos.filter(p => new RegExp(c.re, 'i').test(p.category));
 
 /* ---------- Lê o catálogo ---------- */
 function lerProdutos() {
@@ -58,7 +64,9 @@ function gerarSitemap() {
     { loc: `${SITE}/`, pri: '1.0', freq: 'daily' },
     { loc: `${SITE}/visite.html`, pri: '0.9', freq: 'monthly' },
     { loc: `${SITE}/vale-presente.html`, pri: '0.6', freq: 'monthly' },
-    ...CATEGORIAS.map(c => ({ loc: `${SITE}/categoria.html?cat=${c.slug}`, pri: '0.8', freq: 'weekly' })),
+    // categoria vazia não entra no sitemap: página sem peça é conteúdo raso
+    ...CATEGORIAS.filter(c => pecasDaCategoria(produtos, c).length)
+      .map(c => ({ loc: `${SITE}/categoria.html?cat=${c.slug}`, pri: '0.8', freq: 'weekly' })),
     ...produtos.map(p => ({ loc: `${SITE}/produto.html?id=${p.id}`, pri: '0.7', freq: 'weekly' })),
   ];
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -90,7 +98,8 @@ function gerarLlms() {
 
 ## Categorias
 
-${CATEGORIAS.map(c => `- [${c.nome}](${SITE}/categoria.html?cat=${c.slug}): ${produtos.filter(p => new RegExp(c.slug.replace('calcas', 'calcas|calça').replace('vestidos', 'vestidos|vestido|saia').replace('blusas', 'blusas|blusa|regata|body').replace('conjuntos', 'conjuntos|conjunto').replace('blazers', 'blazers|blazer'), 'i').test(p.category)).length} peças`).join('\n')}
+${CATEGORIAS.filter(c => pecasDaCategoria(produtos, c).length)
+  .map(c => `- [${c.nome}](${SITE}/categoria.html?cat=${c.slug}): ${pecasDaCategoria(produtos, c).length} peças`).join('\n')}
 
 ## Atendimento
 
@@ -142,11 +151,7 @@ function gerarLlmsFull() {
   linhas.push('');
 
   for (const c of CATEGORIAS) {
-    const re = new RegExp({
-      vestidos: 'vestidos|vestido|saia', blusas: 'blusas|blusa|regata|body',
-      conjuntos: 'conjuntos|conjunto', calcas: 'calcas|calça', blazers: 'blazers|blazer',
-    }[c.slug], 'i');
-    const items = produtos.filter(p => re.test(p.category));
+    const items = pecasDaCategoria(produtos, c);
     if (!items.length) continue;
     linhas.push(`### ${c.nome}`);
     linhas.push('');

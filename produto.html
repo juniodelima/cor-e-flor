@@ -22,7 +22,7 @@
 <!-- Preload do logo -->
 <link rel="preload" as="image" href="assets/logo-nova.webp">
 
-<link rel="stylesheet" href="styles.css?v=4" />
+<link rel="stylesheet" href="styles.css?v=6" />
 <style>
   /* ── Calculadora de frete na página do produto ── */
   .prod-freight { margin: 18px 0 4px; border: 1px solid rgba(212,103,154,.2); border-radius: 12px; padding: 16px 18px; background: #fdfaf8; }
@@ -440,7 +440,7 @@
 
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="supabase-client.js?v=4"></script>
+<script src="supabase-client.js?v=5"></script>
 <script>
 'use strict';
 
@@ -750,20 +750,77 @@ function applyStockUI() {
     if (!b) return;
     b.disabled = true;
     b.classList.add('is-disabled');
-    b.innerHTML = 'Sem estoque';
+    b.innerHTML = 'Produto esgotado';
   });
   const sizesWrap = document.getElementById('prod-sizes');
   if (sizesWrap) sizesWrap.querySelectorAll('.prod-size').forEach(function(b) { b.classList.add('unavailable'); });
+
+  /* Aviso grande logo acima dos botões: a cliente entende na hora por que
+     não consegue comprar, em vez de achar que o site travou. */
+  if (!document.getElementById('prod-soldout-note')) {
+    const nota = document.createElement('div');
+    nota.id = 'prod-soldout-note';
+    nota.className = 'prod-soldout-note';
+    nota.innerHTML =
+      '<strong>Produto esgotado</strong>' +
+      '<span>Esta peça acabou no nosso estoque e não pode ser comprada agora. ' +
+      'Chame a gente no WhatsApp para saber quando ela volta.</span>';
+    const ctas = document.querySelector('.prod-detail__ctas');
+    if (ctas && ctas.parentNode) ctas.parentNode.insertBefore(nota, ctas);
+  }
+  document.querySelector('.prod-detail')?.classList.add('is-soldout');
 }
+
+/* "Você também vai amar": tira da vitrine o que foi desativado, marca o que
+   está esgotado e corrige o preço de quem entrou em promoção. */
+function aplicarOverridesNosRelacionados(overrides, promoPrices) {
+  document.querySelectorAll('#related-grid .card').forEach(function (el) {
+    const id = el.dataset.id;
+    const o  = overrides[String(id)];
+    if (o && o.active === false) { el.remove(); return; }
+
+    const alvo = related.find(function (p) { return String(p.id) === String(id); });
+    if (alvo && typeof applyPromoPrice === 'function') {
+      applyPromoPrice(alvo, promoPrices[String(id)]);
+      const agora = el.querySelector('.card__price-now');
+      if (agora) agora.textContent = BRL(alvo.price);
+    }
+
+    const esgotado = !!(o && o.stock !== undefined && Number(o.stock) <= 0);
+    if (!esgotado) return;
+    if (alvo) alvo.outOfStock = true;
+    el.classList.add('is-soldout');
+    const btn = el.querySelector('.card__add');
+    if (btn) { btn.disabled = true; btn.classList.add('is-disabled'); btn.textContent = 'Sem estoque'; }
+    const media = el.querySelector('.card__media');
+    if (media && !media.querySelector('.card__badge--soldout')) {
+      media.insertAdjacentHTML('afterbegin', '<span class="card__badge card__badge--soldout">Sem estoque</span>');
+    }
+  });
+}
+
 (async function () {
   try {
-    const overrides = (typeof ProductStatus !== 'undefined') ? await ProductStatus.getAll() : {};
+    if (typeof ProductStatus === 'undefined') return;
+    const [overrides, promoPrices, piecesMap] = await Promise.all([
+      ProductStatus.getAll(),
+      typeof PromoPrices   !== 'undefined' ? PromoPrices.getAll()   : {},
+      typeof ProductPieces !== 'undefined' ? ProductPieces.getAll() : {},
+    ]);
     const o = overrides[String(product.id)];
     const active = o && o.active !== undefined ? o.active : (product.active !== false);
     if (!active) { window.location.href = 'index.html'; return; }
     productOutOfStock = !!(o && o.stock !== undefined && Number(o.stock) <= 0);
+
+    /* Promoção e peças definidas no painel valem sobre o catálogo */
+    if (typeof applyPromoPrice === 'function') applyPromoPrice(product, promoPrices[String(product.id)]);
+    const pecas = piecesMap[String(product.id)];
+    if (Array.isArray(pecas) && pecas.length) product.pieceOptions = pecas;
+
+    renderPieceOptions();   /* redesenha peças, tamanhos e preço */
     applyStockUI();
-    /* O schema Product já foi montado com o estoque otimista; corrige agora */
+    aplicarOverridesNosRelacionados(overrides, promoPrices);
+    /* O schema Product já foi montado com preço e estoque otimistas; corrige agora */
     window._atualizarDisponibilidadeSchema?.();
   } catch (e) { /* falha de rede não deve travar a página */ }
 })();
@@ -860,6 +917,7 @@ document.title = product.name + ' | COR & FLOR';
       const dados = JSON.parse(ld.textContent);
       dados.offers.availability = productOutOfStock
         ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock';
+      dados.offers.price = Number(product.price).toFixed(2); /* pode ter entrado promoção */
       ld.textContent = JSON.stringify(dados);
     } catch (e) { /* schema é opcional, nunca pode quebrar a página */ }
   };
@@ -879,15 +937,29 @@ if (product.badge) {
 document.getElementById('prod-cat').textContent = product.category;
 document.getElementById('prod-name').textContent = product.name;
 
-/* ========= PRICE ========= */
-document.getElementById('prod-price-now').textContent = BRL(product.price);
+/* ========= PRICE =========
+   O preço mostrado é o da peça escolhida (quando o conjunto é vendido
+   separado) ou o do produto — que pode ter promoção vinda do painel. */
 const wasEl = document.getElementById('prod-price-was');
-if (product.originalPrice) {
-  wasEl.textContent = BRL(product.originalPrice);
-} else {
-  wasEl.style.display = 'none';
+
+function precoAtual() {
+  return (selectedPiece && selectedPiece.price) ? Number(selectedPiece.price) : Number(product.price);
 }
-document.getElementById('prod-installments').innerHTML = 'ou <strong>10× de ' + BRL(product.price / 10) + '</strong> sem juros';
+
+function atualizarPrecoExibido() {
+  const preco = precoAtual();
+  document.getElementById('prod-price-now').textContent = BRL(preco);
+  document.getElementById('prod-installments').innerHTML =
+    'ou <strong>10× de ' + BRL(preco / 10) + '</strong> sem juros';
+
+  /* Preço cheio riscado: só faz sentido no produto inteiro, não numa peça avulsa */
+  const cheio = selectedPiece ? null : product.originalPrice;
+  if (cheio) { wasEl.textContent = BRL(cheio); wasEl.style.display = ''; }
+  else       { wasEl.style.display = 'none'; }
+
+  const pieceLabel = document.getElementById('piece-label');
+  if (pieceLabel && selectedPiece) pieceLabel.textContent = selectedPiece.name;
+}
 
 /* ========= IMAGE + VÍDEO GALLERY ========= */
 const mainImg   = document.getElementById('prod-main-img');
@@ -950,44 +1022,50 @@ mediaList.forEach(function(media, i) {
   thumbsEl.appendChild(div);
 });
 
-/* ========= OPÇÕES DE PEÇAS (conjuntos vendidos separadamente) ========= */
+/* ========= OPÇÕES DE PEÇAS (conjuntos vendidos separadamente) =========
+   As peças podem vir do catálogo ou do painel (site_settings.product_pieces),
+   e cada uma tem preço e tamanhos próprios. Por isso a montagem fica numa
+   função: quando a resposta do painel chega, é só redesenhar. */
 let selectedPiece = null;
 const pieceOptWrap = document.getElementById('piece-opt-wrap');
 
-if (product.pieceOptions && product.pieceOptions.length > 0) {
-  selectedPiece = product.pieceOptions[0];
+function tamanhosDaEscolha() {
+  if (selectedPiece && selectedPiece.sizes && selectedPiece.sizes.length) return selectedPiece.sizes;
+  return product.sizes || [];
+}
 
-  const optDiv = document.createElement('div');
-  optDiv.className = 'prod-detail__opt';
-  optDiv.innerHTML =
-    '<div class="prod-detail__opt-label">O que deseja adicionar: <strong id="piece-label">' + selectedPiece.name + '</strong></div>' +
-    '<div class="prod-detail__pieces" id="prod-pieces"></div>';
-  pieceOptWrap.appendChild(optDiv);
+function renderPieceOptions() {
+  pieceOptWrap.innerHTML = '';
+  const opts = (product.pieceOptions || []).filter(function(o) { return o && o.name && o.price > 0; });
+  selectedPiece = opts.length ? opts[0] : null;
 
-  const piecesEl = document.getElementById('prod-pieces');
+  if (opts.length) {
+    const optDiv = document.createElement('div');
+    optDiv.className = 'prod-detail__opt';
+    optDiv.innerHTML =
+      '<div class="prod-detail__opt-label">O que deseja adicionar: <strong id="piece-label">' + selectedPiece.name + '</strong></div>' +
+      '<div class="prod-detail__pieces" id="prod-pieces"></div>';
+    pieceOptWrap.appendChild(optDiv);
 
-  function updatePiecePrice(opt) {
-    document.getElementById('prod-price-now').textContent = BRL(opt.price);
-    document.getElementById('prod-installments').innerHTML = 'ou <strong>10× de ' + BRL(opt.price / 10) + '</strong> sem juros';
-    document.getElementById('prod-price-was').style.display = 'none';
-    document.getElementById('piece-label').textContent = opt.name;
+    const piecesEl = document.getElementById('prod-pieces');
+    opts.forEach(function(opt, i) {
+      const btn = document.createElement('button');
+      btn.className = 'prod-piece' + (i === 0 ? ' active' : '');
+      btn.innerHTML = '<span class="prod-piece__name">' + opt.name + '</span>' +
+                      '<span class="prod-piece__price">' + BRL(opt.price) + '</span>';
+      btn.addEventListener('click', function() {
+        piecesEl.querySelectorAll('.prod-piece').forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        selectedPiece = opt;
+        atualizarPrecoExibido();
+        renderSizes(tamanhosDaEscolha()); /* cada peça tem os tamanhos dela */
+      });
+      piecesEl.appendChild(btn);
+    });
   }
 
-  product.pieceOptions.forEach(function(opt, i) {
-    const btn = document.createElement('button');
-    btn.className = 'prod-piece' + (i === 0 ? ' active' : '');
-    btn.innerHTML = '<span class="prod-piece__name">' + opt.name + '</span><span class="prod-piece__price">' + BRL(opt.price) + '</span>';
-    btn.addEventListener('click', function() {
-      piecesEl.querySelectorAll('.prod-piece').forEach(function(b) { b.classList.remove('active'); });
-      btn.classList.add('active');
-      selectedPiece = opt;
-      updatePiecePrice(opt);
-    });
-    piecesEl.appendChild(btn);
-  });
-
-  /* Inicia com preço da primeira opção */
-  updatePiecePrice(selectedPiece);
+  renderSizes(tamanhosDaEscolha());
+  atualizarPrecoExibido();
 }
 
 /* ========= COLORS ========= */
@@ -1019,18 +1097,29 @@ const sizesEl = document.getElementById('prod-sizes');
 const sizeLabel = document.getElementById('size-label');
 let selectedSize = null;
 
-(product.sizes || []).forEach(function(sz) {
-  const btn = document.createElement('button');
-  btn.className = 'prod-size';
-  btn.textContent = sz;
-  btn.addEventListener('click', function() {
-    sizesEl.querySelectorAll('.prod-size').forEach(function(b) { b.classList.remove('active'); });
-    btn.classList.add('active');
-    sizeLabel.textContent = sz;
-    selectedSize = sz;
+function renderSizes(sizes) {
+  sizesEl.innerHTML = '';
+  selectedSize = null;
+  sizeLabel.textContent = '';
+
+  (sizes || []).forEach(function(sz) {
+    const btn = document.createElement('button');
+    btn.className = 'prod-size';
+    btn.textContent = sz;
+    if (productOutOfStock) btn.classList.add('unavailable');
+    btn.addEventListener('click', function() {
+      sizesEl.querySelectorAll('.prod-size').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      sizeLabel.textContent = sz;
+      selectedSize = sz;
+    });
+    sizesEl.appendChild(btn);
   });
-  sizesEl.appendChild(btn);
-});
+}
+
+/* Monta peças e tamanhos com o que já se sabe do catálogo. Se o painel
+   tiver peças ou promoção cadastradas, isso é redesenhado quando chegar. */
+renderPieceOptions();
 
 /* ========= ACCORDION CONTENT ========= */
 document.getElementById('acc-material').textContent = product.material || 'Informação não disponível.';
@@ -1061,8 +1150,8 @@ document.getElementById('btn-fav').addEventListener('click', function() {
 
 /* ========= ADD TO CART ========= */
 document.getElementById('btn-add-cart').addEventListener('click', function() {
-  if (productOutOfStock) { toast('Sem estoque no momento'); return; }
-  if (!selectedSize && product.sizes && product.sizes.length > 0) {
+  if (productOutOfStock) { toast('Produto esgotado — não dá para comprar agora'); return; }
+  if (!selectedSize && tamanhosDaEscolha().length > 0) {
     sizeLabel.style.color = '#dc2626';
     setTimeout(function() { sizeLabel.style.color = ''; }, 1500);
     toast('⚠️ Selecione um tamanho');
@@ -1073,8 +1162,8 @@ document.getElementById('btn-add-cart').addEventListener('click', function() {
 
 /* ========= BUY NOW ========= */
 document.getElementById('btn-buy-now').addEventListener('click', function() {
-  if (productOutOfStock) { toast('Sem estoque no momento'); return; }
-  if (!selectedSize && product.sizes && product.sizes.length > 0) {
+  if (productOutOfStock) { toast('Produto esgotado — não dá para comprar agora'); return; }
+  if (!selectedSize && tamanhosDaEscolha().length > 0) {
     toast('⚠️ Selecione um tamanho');
     return;
   }
@@ -1112,6 +1201,7 @@ related.forEach(function(p) {
   const swatches = (p.colors || []).map(function(c) { return '<span class="card__sw" style="background:' + (c.hex || c) + '"></span>'; }).join('');
   const el = document.createElement('article');
   el.className = 'card reveal';
+  el.dataset.id = p.id;   /* usado para marcar esgotado/promoção quando o painel responde */
   el.innerHTML = '<div class="card__media">' +
     badge +
     '<button class="card__fav" aria-label="Favoritar ' + p.name + '"><svg width="18" height="18"><use href="#i-heart"/></svg></button>' +
@@ -1127,6 +1217,7 @@ related.forEach(function(p) {
 
   el.querySelector('[data-add]').addEventListener('click', function(e) {
     e.stopPropagation();
+    if (p.outOfStock) { toast('Produto esgotado — não dá para comprar agora'); return; }
     addToCart(p, p.sizes[0] || 'Único', '', 1);
   });
   el.querySelector('.card__media').addEventListener('click', function(ev) {
@@ -1194,7 +1285,7 @@ function renderCart() {
     count += it.qty;
 
     const li = document.createElement('li');
-    li.className = 'cart__item';
+    li.className = 'cart__item' + (p.outOfStock ? ' is-soldout' : '');
     li.innerHTML =
       '<div class="cart__item-img">' +
         '<button class="cart__item-img-x" data-remove="' + idx + '" aria-label="Remover">×</button>' +
@@ -1203,6 +1294,7 @@ function renderCart() {
       '<div class="cart__item-body">' +
         '<h4 class="cart__item-name">' + itemName + '</h4>' +
         '<span class="cart__item-size">Tamanho ' + it.size + '</span>' +
+        (p.outOfStock ? '<span class="cart__item-soldout">Esgotado — remova para finalizar</span>' : '') +
         '<div class="cart__qty">' +
           '<button data-q="-1" data-i="' + idx + '" aria-label="Diminuir"><svg width="14" height="14"><use href="#i-minus"/></svg></button>' +
           '<span>' + it.qty + '</span>' +
@@ -1255,6 +1347,16 @@ cartVeil.addEventListener('click', closeCart);
 /* ========= FINALIZAR COMPRA → CHECKOUT ========= */
 document.querySelector('.cart__cta').addEventListener('click', function() {
   if (!cartState.length) { toast('Seu carrinho está vazio ✿'); return; }
+  /* Peça esgotada não passa para o checkout */
+  const esgotada = cartState.find(function(it) {
+    const p = findProduct(it.id);
+    return p && p.outOfStock;
+  });
+  if (esgotada) {
+    const p = findProduct(esgotada.id);
+    toast((p ? p.name : 'Uma peça') + ' está esgotada — remova do carrinho para continuar');
+    return;
+  }
   window.location.href = 'checkout.html';
 });
 
@@ -1345,7 +1447,7 @@ async function calcProdFreight() {
 
     if (d.error) { result.innerHTML = '<p class="freight-err">CEP não encontrado.</p>'; return; }
 
-    var prodPrice = product.price;
+    var prodPrice = precoAtual();   /* peça escolhida ou preço com promoção */
     var threshold = d.free_above || 299;
     var isFree    = prodPrice >= threshold;
 

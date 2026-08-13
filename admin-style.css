@@ -445,6 +445,10 @@ textarea.form-input { min-height: 80px; }
 .admin-table tbody tr:last-child td { border-bottom: none; }
 .admin-table tbody tr:hover td { background: rgba(253,248,245,.7); }
 
+/* Linha inteira abre o detalhe (o olhinho continua funcionando) */
+.admin-table tbody tr.row-clickable { cursor: pointer; }
+.admin-table tbody tr.row-clickable:hover td { background: rgba(212,103,154,.06); }
+
 .td-actions { display: flex; gap: 4px; align-items: center; }
 
 
@@ -643,6 +647,121 @@ textarea.form-input { min-height: 80px; }
   background: var(--nude); border: 1.5px solid rgba(212,103,154,.15);
   font-size: 12px; color: var(--warm-gray); line-height: 1.4;
   min-height: 44px; display: flex; align-items: center;
+}
+.stock-info-badge.is-low { color: #b45309; border-color: rgba(217,119,6,.35); background: rgba(251,191,36,.12); }
+.stock-info-badge.is-out { color: #b91c1c; border-color: rgba(220,38,38,.35); background: rgba(220,38,38,.08); }
+
+
+/* ============================================================
+   PRODUTO — peças vendidas separadamente
+============================================================ */
+.pf-pieces-switch {
+  display: flex; align-items: center; gap: 8px; cursor: pointer;
+  font-size: 13px; color: var(--ink); margin-bottom: 6px;
+}
+.pf-pieces-switch input { accent-color: var(--rose); width: 16px; height: 16px; }
+.pf-pieces-note {
+  font-size: 11.5px; color: rgba(74,64,64,.55); line-height: 1.5; margin: 6px 0 0;
+}
+.pf-piece-row {
+  border: 1.5px solid rgba(212,103,154,.2); border-radius: 11px;
+  padding: 10px; margin-bottom: 8px; background: var(--cream);
+}
+.pf-piece-row__top { display: flex; gap: 8px; align-items: center; }
+.pf-piece-row__top .form-input { margin: 0; }
+.pf-piece-row__price { max-width: 110px; }
+.pf-piece-row__sizes {
+  display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 9px;
+}
+.pf-piece-row__hint { font-size: 11px; color: rgba(74,64,64,.5); }
+
+
+/* ============================================================
+   PROMOS DO DIA — card de escolha com preço promocional
+============================================================ */
+.promo-pick-card {
+  border: 1.5px solid rgba(212,103,154,.25); border-radius: 12px;
+  padding: 8px; background: #fff; display: flex; flex-direction: column; gap: 6px;
+  transition: all .2s var(--ease);
+}
+.promo-pick-card.is-selected { border-color: var(--rose); background: rgba(212,103,154,.07); }
+.promo-price-field {
+  display: flex; align-items: center; gap: 5px;
+  border: 1.5px solid rgba(212,103,154,.22); border-radius: 8px;
+  padding: 4px 8px; background: var(--cream);
+}
+.promo-price-field span { font-size: 11px; color: var(--warm-gray); }
+.promo-price-field input {
+  width: 100%; border: none; background: none; outline: none;
+  font-family: inherit; font-size: 13px; font-weight: 600; color: var(--rose-deep);
+}
+.promo-price-field input:disabled { color: rgba(74,64,64,.35); cursor: not-allowed; }
+.promo-price-hint { font-size: 10px; min-height: 12px; text-align: center; }
+.promo-price-hint.is-ok    { color: #15803d; font-weight: 600; }
+.promo-price-hint.is-error { color: #b91c1c; }
+
+
+/* ============================================================
+   PHYSICAL SALE — seletor de produto com foto
+============================================================ */
+.ps-picker-btn {
+  width: 100%; display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; border-radius: 10px; cursor: pointer; text-align: left;
+  border: 1.5px solid rgba(212,103,154,.2); background: var(--cream);
+  font-family: inherit; font-size: 13px; color: var(--ink);
+  transition: border-color .2s var(--ease); min-height: 48px;
+}
+.ps-picker-btn:hover { border-color: rgba(212,103,154,.5); }
+.ps-picker-btn i { margin-left: auto; color: var(--rose); font-size: 12px; }
+.ps-picker-btn__img {
+  width: 34px; height: 42px; object-fit: cover; border-radius: 6px;
+  background: var(--nude); flex: 0 0 34px;
+}
+.ps-picker-btn__name { font-weight: 500; }
+.ps-picker-btn__price { color: var(--rose-deep); font-weight: 600; font-size: 12px; }
+.ps-picker-btn__placeholder { color: var(--warm-gray); }
+
+.ps-picker {
+  margin-top: 8px; padding: 10px; border-radius: 12px;
+  border: 1.5px solid rgba(212,103,154,.22); background: #fff;
+  box-shadow: 0 10px 28px rgba(74,64,64,.1);
+}
+.ps-picker__list {
+  margin-top: 8px; max-height: 300px; overflow-y: auto;
+  display: grid; gap: 6px;
+}
+.ps-picker__empty { font-size: 12px; color: var(--warm-gray); padding: 12px 4px; text-align: center; }
+.ps-picker-item {
+  display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
+  padding: 6px 8px; border-radius: 9px; cursor: pointer;
+  border: 1.5px solid transparent; background: var(--cream); font-family: inherit;
+  transition: all .18s var(--ease);
+}
+.ps-picker-item:hover { border-color: rgba(212,103,154,.35); background: rgba(212,103,154,.06); }
+.ps-picker-item.is-selected { border-color: var(--rose); background: rgba(212,103,154,.1); }
+.ps-picker-item img {
+  width: 42px; height: 54px; flex: 0 0 42px; object-fit: cover;
+  border-radius: 7px; background: var(--nude);
+}
+.ps-picker-item__info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ps-picker-item__name { font-size: 13px; font-weight: 500; color: var(--ink); }
+.ps-picker-item__meta { font-size: 11px; color: var(--warm-gray); }
+
+
+/* ============================================================
+   PHYSICAL SALE — tamanho e cor em botões
+============================================================ */
+.ps-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.ps-chips__hint { font-size: 12px; color: rgba(74,64,64,.5); }
+.ps-chip {
+  padding: 7px 13px; border-radius: 8px; cursor: pointer;
+  border: 1.5px solid rgba(212,103,154,.22); background: var(--cream);
+  font-family: inherit; font-size: 12px; font-weight: 500; color: var(--warm-gray);
+  transition: all .18s var(--ease);
+}
+.ps-chip:hover { border-color: var(--rose); color: var(--ink); }
+.ps-chip.is-active {
+  background: var(--rose); border-color: var(--rose); color: #fff;
 }
 
 
@@ -936,9 +1055,22 @@ textarea.form-input { min-height: 80px; }
 .order-detail__field p { font-size: 13px; font-weight: 500; color: var(--ink); }
 .order-detail__items { display: flex; flex-direction: column; gap: 8px; }
 .order-detail__item {
-  display: flex; justify-content: space-between;
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
   padding: 10px 14px; background: var(--nude); border-radius: 8px;
 }
+/* Miniatura da peça comprada — ajuda a separar os pedidos na hora de embalar */
+.order-detail__item-info { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.order-detail__item-img {
+  width: 52px; height: 66px; flex: 0 0 52px; object-fit: cover;
+  border-radius: 7px; background: #fff;
+  border: 1px solid rgba(212,103,154,.18);
+}
+.order-detail__item-img--empty,
+.order-detail__item-img.is-broken {
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(212,103,154,.35); font-size: 18px;
+}
+.order-detail__item-img.is-broken { object-fit: none; }
 
 .status-select {
   padding: 7px 12px; border-radius: 8px;
